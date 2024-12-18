@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:project_concert_closeiin/Page/Login.dart';
+import 'package:project_concert_closeiin/Page/RegisterUser.dart';
+import 'package:project_concert_closeiin/Page/User/HomeUser.dart';
 
 class homeLogoPage extends StatefulWidget {
   const homeLogoPage({super.key});
@@ -13,7 +16,7 @@ class _homeLogoPageState extends State<homeLogoPage> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        // backgroundColor: const Color.fromARGB(255, 146, 189, 150),
+         backgroundColor: const Color.fromARGB(255, 190, 150, 198),
          body: Column(
           children: [
             Expanded(
@@ -27,7 +30,7 @@ class _homeLogoPageState extends State<homeLogoPage> {
                         const SizedBox(height: 100),
                         const Text(
                           "Concert Close Inn",
-                           style: TextStyle(fontSize: 40),
+                           style: TextStyle(fontSize: 40,color:  Color.fromARGB(255, 225, 90, 187)),
                         ),
                         const SizedBox(height: 30),
                         // Image.asset(
@@ -41,20 +44,25 @@ class _homeLogoPageState extends State<homeLogoPage> {
                           height: 50,
                           child: TextButton(
                             onPressed: () {
-                             
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const LoginPage(),
+                                ),
+                              );
                             },
-                            // style: TextButton.styleFrom(
-                            //   backgroundColor:
-                            //       const Color.fromARGB(255, 50, 142, 53),
-                            //   foregroundColor: Colors.black,
-                            //   padding: EdgeInsets.zero,
-                            //   shape: RoundedRectangleBorder(
-                            //     borderRadius: BorderRadius.circular(30.0),
-                            //   ),
-                            // ),
+                            style: TextButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 190, 150, 198),
+                              foregroundColor: Colors.black,
+                              padding: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                              ),
+                            ),
                             child: const Text(
                               'Login',
-                              style: TextStyle(fontSize: 20.0),
+                              style: TextStyle(fontSize: 30,color: Colors.white),
                             ),
                           ),
                         ),
@@ -64,26 +72,37 @@ class _homeLogoPageState extends State<homeLogoPage> {
                           height: 50,
                           child: OutlinedButton(
                             onPressed: () {
-                              
+                               Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const RegisterPageUser(),
+                                ),
+                              );
                             },
-                            // style: OutlinedButton.styleFrom(
-                            //   foregroundColor: Colors.black,
-                            //   backgroundColor: Colors.transparent,
-                            //   side: const BorderSide(
-                            //     color: Color.fromARGB(255, 50, 142, 53),
-                            //     width: 2.0,
-                            //   ),
-                            //   padding: EdgeInsets.zero,
-                            //   shape: RoundedRectangleBorder(
-                            //     borderRadius: BorderRadius.circular(30.0),
-                            //   ),
-                            // ),
                             child: const Text(
-                              'Register',
-                              style: TextStyle(fontSize: 20.0),
+                              'Sign Up',
+                              style: TextStyle(fontSize: 30,color: Color.fromARGB(255, 225, 90, 187)),
                             ),
                           ),
                         ),
+                         const SizedBox(height: 20),
+                        GestureDetector(
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => HomeUser()), // Replace 'NextPage' with your target page
+    );
+  },
+  child: Text(
+    'Skip',
+    style: TextStyle(
+      fontSize: 24,
+      color: Color.fromARGB(255, 225, 90, 187),
+      decoration: TextDecoration.underline,
+      decorationColor: Color.fromARGB(255, 225, 90, 187),
+    ),
+  ),
+),
                       ],
                     ),
                   ],
