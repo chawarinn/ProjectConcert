@@ -3,6 +3,7 @@ import 'package:project_concert_closeiin/Page/Home.dart';
 
 import 'package:project_concert_closeiin/Page/Login.dart';
 import 'package:project_concert_closeiin/Page/Member/EditProfileMember.dart';
+import 'package:project_concert_closeiin/Page/Member/hotel_search.dart';
 import 'package:project_concert_closeiin/Page/RegisterUser.dart';
 
 void main() {
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: EditProfileMember(),
+      home: HotelSearch(),
     );
   }
 }
