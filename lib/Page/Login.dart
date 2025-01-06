@@ -2,6 +2,13 @@ import 'dart:core';
 
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as path;
+import 'package:project_concert_closeiin/Page/User/HomeUser.dart';
+import 'package:project_concert_closeiin/config/config.dart';
+import 'package:project_concert_closeiin/config/internet_config.dart';
+import 'package:project_concert_closeiin/model/request/userPostLoginRequest.dart';
+import 'package:project_concert_closeiin/model/response/userPostLoginResponse.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,7 +20,21 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   var emailCtl = TextEditingController();
   var passwordCtl = TextEditingController();
+  String text = '';
+  String url = '';
 
+    @override
+  void initState() {
+    super.initState();
+    Configuration.getConfig().then(
+      (config) {
+        url = config['apiEndpoint'];
+        // log(config ['apiEndpoint']);
+      },
+    ).catchError((err) {
+      log(err.toString());
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,7 +150,7 @@ class _LoginPageState extends State<LoginPage> {
                                       color: Color.fromARGB(255, 255, 0, 0),
                                       fontWeight: FontWeight.bold)),
                               content: const Text(
-                                  'กรุณากรอกเบอร์โทรและรหัสผ่านให้ครบถ้วน'),
+                                  'กรุณากรอก Email และ Password ให้ครบถ้วน'),
                               actions: [
                                 TextButton(
                                   onPressed: () {
@@ -144,7 +165,9 @@ class _LoginPageState extends State<LoginPage> {
                           },
                         );
                         return;
-                      } else {}
+                      } else {
+                         loginU();
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 190, 150, 198),
@@ -166,5 +189,60 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+   void loginU() async {
+    log(emailCtl.text);
+    log(passwordCtl.text);
+    try {
+      var data = UsersLoginPostRequest(
+          email: emailCtl.text, password: passwordCtl.text);
+
+      var value = await http.post(Uri.parse('$API_ENDPOINT/login'),
+          headers: {"Content-Type": "application/json; charset=utf-8"},
+          body: usersLoginPostRequestToJson(data));
+
+      UsersLoginPostResponse users = usersLoginPostResponseFromJson(value.body);
+      log(value.body);
+      log(users.user.userId.toString());
+      setState(() {
+        text = '';
+      });
+
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>  HomeUser(),
+          ));
+    } catch (error) {
+      log(error.toString() + 'eiei');
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('ข้อมูลไม่ถูกต้อง',
+                style: TextStyle(
+                    color: Color.fromARGB(255, 255, 0, 0),
+                    fontWeight: FontWeight.bold)),
+            content: const Text('อีเมลหรือรหัสผ่านไม่ถูกต้อง'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text(
+                  'ตกลง',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+
+      setState(() {
+        text = 'email no or password incorrect';
+      });
+    }
   }
 }
