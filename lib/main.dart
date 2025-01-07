@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
 
 import 'package:project_concert_closeiin/Page/Login.dart';
+import 'package:project_concert_closeiin/Page/Member/DetailMember.dart';
 import 'package:project_concert_closeiin/Page/Member/EditProfileMember.dart';
+import 'package:project_concert_closeiin/Page/Member/Event.dart';
+import 'package:project_concert_closeiin/Page/Member/EventDetailMember.dart';
+import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
 import 'package:project_concert_closeiin/Page/Member/hotel_search.dart';
 import 'package:project_concert_closeiin/Page/RegisterUser.dart';
 
@@ -23,7 +27,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: HotelSearch(),
+      home: Eventdetailmember(),
     );
   }
 }
