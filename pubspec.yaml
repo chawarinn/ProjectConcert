@@ -33,6 +33,7 @@ dependencies:
   boxicons: ^2.0.0 # ใช้เวอร์ชันล่าสุดจาก pub.dev
   font_awesome_flutter: ^10.5.0 # ใช้เวอร์ชันล่าสุด
   image_picker: ^0.8.7+3
+  google_maps_flutter: ^2.1.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

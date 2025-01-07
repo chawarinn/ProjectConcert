@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
+import 'package:project_concert_closeiin/Page/Member/hotel_search.dart';
 import 'package:project_concert_closeiin/Page/User/HomeUser.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
@@ -211,7 +212,8 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>  HomeUser(),
+            // builder: (context) =>  HomeUser(),
+            builder: (context) =>  HotelSearch(),
           ));
     } catch (error) {
       log(error.toString() + 'eiei');
