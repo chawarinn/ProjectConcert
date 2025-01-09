@@ -6,27 +6,39 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:image_picker/image_picker.dart';
+import 'package:project_concert_closeiin/Page/Hotel/AddRoom.dart';
+import 'package:project_concert_closeiin/Page/Hotel/Location.dart';
 import 'package:project_concert_closeiin/Page/Login.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
+import 'package:project_concert_closeiin/model/response/AddPostHotelResponse.dart';
 
-class RegisterPageUser extends StatefulWidget {
-  const RegisterPageUser({super.key});
+class AddHotel extends StatefulWidget {
+  int userId;
+  AddHotel({super.key,  required this.userId});
+  
 
   @override
-  State<RegisterPageUser> createState() => _RegisterPageUserState();
+  State<AddHotel> createState() => _AddHotelState();
 }
 
-class _RegisterPageUserState extends State<RegisterPageUser> {
-  var fullnameCtl = TextEditingController();
+class _AddHotelState extends State<AddHotel> {
+  @override
+   var fullnameCtl = TextEditingController();
+   var fullname2Ctl = TextEditingController();
+   var priceCtl = TextEditingController();
   var phoneCtl = TextEditingController();
-  var emailCtl = TextEditingController();
-  var passwordCtl = TextEditingController();
-  var confirmpassCtl = TextEditingController();
+  var contactCtl = TextEditingController();
+  var locationCtl = TextEditingController();
+   var detailCtl = TextEditingController();
   File? _image;
   String url = '';
-  String? selectedUserType;
-  final List<String> userTypes = ['User', 'Hotel', 'Restaurant', 'Organizer'];
+late AddHotelPostResponse hotelData;
+
+  String? selectedLocation;
+  double? selectedLatitude;
+  double? selectedLongitude;
+
 
     @override
   void initState() {
@@ -51,34 +63,48 @@ class _RegisterPageUserState extends State<RegisterPageUser> {
     }
   }
 
-   Future<void> _registerUser(BuildContext context) async {
-  if (fullnameCtl.text.isEmpty ||
-      phoneCtl.text.isEmpty ||
-      emailCtl.text.isEmpty ||
-      passwordCtl.text.isEmpty ||
-      confirmpassCtl.text.isEmpty ||
-      selectedUserType == null || selectedUserType!.isEmpty) {
-    _showAlertDialog(context, "กรอกข้อมูลไม่ครบ");
-    return;
+   void _selectLocation() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LocationPage(),
+      ),
+    );
+
+    if (result != null && result is Map<String, dynamic>) {
+      setState(() {
+        selectedLatitude = result['latitude'];
+        selectedLongitude = result['longitude'];
+        selectedLocation = "$selectedLatitude, $selectedLongitude"; 
+        locationCtl.text = result['Address'] ?? ''; 
+      });
+      log('Selected Location: $selectedLocation');
+    }
   }
 
-  if (passwordCtl.text != confirmpassCtl.text) {
-    _showAlertDialog(context, "รหัสผ่านไม่ตรงกัน");
-    return;
-  }
 
-  if (_image == null) {
-    _showAlertDialog(context, "กรุณาเพิ่มรูปโปรไฟล์");
-    return;
-  }
+  Future<void> addhotel(BuildContext context) async {
+    if (fullnameCtl.text.isEmpty ||
+        fullname2Ctl.text.isEmpty ||
+        priceCtl.text.isEmpty ||
+        phoneCtl.text.isEmpty ||
+        contactCtl.text.isEmpty ||
+        locationCtl.text.isEmpty||
+        selectedLatitude.toString().isEmpty) {
+      _showAlertDialog(context, "กรอกข้อมูลไม่ครบ");
+      return;
+    }
 
-  try {
-    var uri = Uri.parse("$API_ENDPOINT/registerU");
+    if (_image == null) {
+      _showAlertDialog(context, "กรุณาเพิ่มรูป");
+      return;
+    }
+
+    var uri = Uri.parse("$API_ENDPOINT/addhotel");
     var request = http.MultipartRequest('POST', uri);
 
     var imageStream = http.ByteStream(_image!.openRead());
     var imageLength = await _image!.length();
-
     var multipartFile = http.MultipartFile(
       'file',
       imageStream,
@@ -87,35 +113,39 @@ class _RegisterPageUserState extends State<RegisterPageUser> {
     );
 
     request.files.add(multipartFile);
-    request.fields['name'] = fullnameCtl.text;
+
+    request.fields['hotelName'] = fullnameCtl.text;
+    request.fields['hotelName2'] = fullname2Ctl.text;
+    request.fields['startingPrice'] = priceCtl.text;
     request.fields['phone'] = phoneCtl.text;
-    request.fields['email'] = emailCtl.text;
-    request.fields['password'] = passwordCtl.text;
-    request.fields['confirmPassword'] = confirmpassCtl.text;
-    request.fields['userType'] = selectedUserType ?? '';
+    request.fields['contact'] = contactCtl.text;
+    request.fields['detail'] = detailCtl.text;
+    request.fields['location'] = locationCtl.text;
+    request.fields['lat'] = selectedLatitude?.toString() ?? '';
+    request.fields['long'] = selectedLongitude?.toString() ?? '';
 
-    var response = await request.send();
+    try {
+      var response = await request.send();
 
-    if (response.statusCode == 201) {
-      var data = await response.stream.bytesToString();
-      log(data);
+      if (response.statusCode == 201) {
+        var data = await response.stream.bytesToString();
+        log(data);
+       hotelData = addHotelPostResponseFromJson(data); // Now hotelData is initialized
 
-      _showAlertDialog(context, "สมัครสมาชิกสำเร็จ", onOkPressed: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginPage()),
-        );
-      });
-    } else {
-      var errorData = await response.stream.bytesToString();
-      log(errorData);
-      _showAlertDialog(context, "ไม่สามารถสมัครสมาชิกได้ เบอร์นี้ถูกใช้ไปแล้ว");
+       Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AddRoom(hotelID: hotelData.hotelId), // Pass hotelId from hotelData
+        ),
+      );
+
+      } else {
+
+      }
+    } catch (e) {
+      _showAlertDialog(context, "Error during registration: $e");
     }
-  } catch (e) {
-    _showAlertDialog(context, "Error during registration: $e");
   }
-}
-
 
   void _showAlertDialog(BuildContext context, String message, {VoidCallback? onOkPressed}) {
     showDialog(
@@ -170,7 +200,7 @@ class _RegisterPageUserState extends State<RegisterPageUser> {
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 190, 150, 198),
         title: const Text(
-          'Sign Up',
+          'Add Hotel',
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         leading: IconButton(
@@ -185,33 +215,77 @@ class _RegisterPageUserState extends State<RegisterPageUser> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 30),
-            Center(
-              child: Text(
-                "Concert Close Inn",
-                style: TextStyle(fontSize: 35),
-              ),
-            ),
             const SizedBox(height: 20),
             Center(
               child: Stack(
-                alignment: Alignment.center,
+  children: [
+    Container(
+      width: 200,
+      height: 150, 
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10), 
+        image: DecorationImage(
+          image: _image != null
+              ? FileImage(_image!)
+              : const AssetImage('assets/images/Profile.png') as ImageProvider,
+          fit: BoxFit.cover, 
+        ),
+      ),
+    ),
+    Positioned(
+      bottom: 10,
+      right: 10,
+      child: Container(
+        width: 40, 
+        height: 40, 
+        decoration: BoxDecoration(
+          color: const Color.fromRGBO(232, 234, 237, 1),
+          shape: BoxShape.circle,
+        ),
+        child: IconButton(
+          icon: const Icon(Icons.add, color: Colors.black),
+          onPressed: _pickImage,
+        ),
+      ),
+    ),
+  ],
+)
+
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(
-                    radius: 100,
-                    backgroundImage: _image != null
-                        ? FileImage(_image!)
-                        : const AssetImage('assets/images/Profile.png') as ImageProvider,
+                  Text(
+                    'Hotel Name',
+                    style: TextStyle(fontSize: 18, color: Colors.black),
                   ),
-                  Positioned(
-                    bottom: 0,
-                    right: 10,
-                    child: CircleAvatar(
-                      radius: 20,
-                      backgroundColor: const Color.fromRGBO(232, 234, 237, 1),
-                      child: IconButton(
-                        icon: const Icon(Icons.camera_alt, color: Colors.black),
-                        onPressed: _pickImage,
+                  TextField(
+                    controller: fullnameCtl,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(width: 1),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+             Padding(
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Hotel Name (Eng)',
+                    style: TextStyle(fontSize: 18, color: Colors.black),
+                  ),
+                  TextField(
+                    controller: fullname2Ctl,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(width: 1),
                       ),
                     ),
                   ),
@@ -224,11 +298,11 @@ class _RegisterPageUserState extends State<RegisterPageUser> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Name',
+                    'Starting Price',
                     style: TextStyle(fontSize: 18, color: Colors.black),
                   ),
                   TextField(
-                    controller: fullnameCtl,
+                    controller: priceCtl,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(
                         borderSide: BorderSide(width: 1),
@@ -266,11 +340,11 @@ class _RegisterPageUserState extends State<RegisterPageUser> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'E-mail',
+                    'Contact (Facebook)',
                     style: TextStyle(fontSize: 18, color: Colors.black),
                   ),
                   TextField(
-                    controller: emailCtl,
+                    controller: contactCtl,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(
                         borderSide: BorderSide(width: 1),
@@ -286,12 +360,11 @@ class _RegisterPageUserState extends State<RegisterPageUser> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Password',
+                    'Detail',
                     style: TextStyle(fontSize: 18, color: Colors.black),
                   ),
                   TextField(
-                    controller: passwordCtl,
-                    obscureText: true,
+                    controller: detailCtl,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(
                         borderSide: BorderSide(width: 1),
@@ -307,12 +380,11 @@ class _RegisterPageUserState extends State<RegisterPageUser> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Confirm Password',
+                    'Address',
                     style: TextStyle(fontSize: 18, color: Colors.black),
                   ),
                   TextField(
-                    controller: confirmpassCtl,
-                    obscureText: true,
+                    controller: locationCtl,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(
                         borderSide: BorderSide(width: 1),
@@ -324,32 +396,33 @@ class _RegisterPageUserState extends State<RegisterPageUser> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  const Text(
-                    'User type',
-                    style: TextStyle(fontSize: 18, color: Colors.black),
-                  ),
-                  DropdownButtonFormField<String>(
-                    value: selectedUserType,
-                    items: userTypes.map((type) {
-                      return DropdownMenuItem(
-                        value: type,
-                        child: Text(type),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedUserType = value;
-                      });
-                    },
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(width: 1),
+                  const Spacer(),
+                  if (selectedLocation != null) ...[
+                    Text(
+                      selectedLocation!,
+                      style: const TextStyle(fontSize: 12, color: Colors.red),
+                    ),
+                    const SizedBox(width: 10),
+                    GestureDetector(
+                      onTap: _selectLocation,
+                      child: const Icon(
+                        Icons.add_location_alt_rounded,
+                        color: Colors.red,
+                        size: 30,
                       ),
                     ),
-                  ),
+                  ] else ...[
+                    GestureDetector(
+                      onTap: _selectLocation,
+                      child: const Icon(
+                        Icons.add_location_alt_rounded,
+                        color: Colors.red,
+                        size: 30,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -367,9 +440,9 @@ class _RegisterPageUserState extends State<RegisterPageUser> {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 15), 
                     ),
-                    onPressed: () => _registerUser(context),
+                    onPressed: () => addhotel(context),
                     child:  Text(
-                      "Sign Up",
+                      "Next",
                       style: TextStyle(color: Colors.white),
                     ),
                   ),

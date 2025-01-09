@@ -16,6 +16,8 @@ import 'package:project_concert_closeiin/model/response/userGetSearchHResponse.d
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class HotelSearch extends StatefulWidget {
+  int userId;
+  HotelSearch({super.key,  required this.userId});
   @override
   _hotelSearch createState() => _hotelSearch();
 }

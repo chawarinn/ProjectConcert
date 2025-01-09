@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class Homemember extends StatefulWidget {
+  int userId;
+  Homemember({super.key,  required this.userId});
   @override
   _HomeMember createState() => _HomeMember();
 }

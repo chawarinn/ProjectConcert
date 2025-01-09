@@ -1,8 +1,21 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.project_concert_closeiin">
+
+    <!-- Permissions -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:label="project_concert_closeiin"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+         <!-- Google Maps API Key -->
+       <meta-data
+      android:name="com.google.android.geo.API_KEY"
+      android:value="AIzaSyCx_nY9kH2gt-RDEA3Ehy8M3XBQ1ZXHtMg"  />
+      
         <activity
             android:name=".MainActivity"
             android:exported="true"

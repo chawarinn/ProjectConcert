@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ProfileMember extends StatefulWidget {
+  int userId;
+  ProfileMember({super.key,  required this.userId});
   @override
   _ProfileMemberState createState() => _ProfileMemberState();
 }

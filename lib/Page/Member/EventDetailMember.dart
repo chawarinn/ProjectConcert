@@ -4,6 +4,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class Eventdetailmember extends StatefulWidget {
+  int userId;
+  Eventdetailmember({super.key,  required this.userId});
   @override
   _EventDetailMemberState createState() => _EventDetailMemberState();
 }

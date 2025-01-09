@@ -4,7 +4,12 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
+import 'package:project_concert_closeiin/Page/Admin/HomeAdmin.dart';
+import 'package:project_concert_closeiin/Page/Event/AddEvent.dart';
+import 'package:project_concert_closeiin/Page/Hotel/AddHotel.dart';
+import 'package:project_concert_closeiin/Page/Hotel/HomeHotel.dart';
 import 'package:project_concert_closeiin/Page/Member/hotel_search.dart';
+import 'package:project_concert_closeiin/Page/Restaurant/AddRestaurant.dart';
 import 'package:project_concert_closeiin/Page/User/HomeUser.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
@@ -209,12 +214,48 @@ class _LoginPageState extends State<LoginPage> {
         text = '';
       });
 
-      Navigator.push(
+       switch (users.user.typeId) {
+      case 1:
+        Navigator.push(
           context,
           MaterialPageRoute(
-            // builder: (context) =>  HomeUser(),
-            builder: (context) =>  HotelSearch(),
-          ));
+            builder: (context) => HotelSearch(userId:users.user.userId),
+          ),
+        );
+        break;
+      case 2:
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeHotel(userId:users.user.userId),
+          ),
+        );
+        break;
+      case 3:
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AddRestaurant(userId:users.user.userId),
+          ),
+        );
+        break;
+      case 4:
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AddEvent(userId:users.user.userId),
+          ),
+        );
+        break;
+      case 5:
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeAdmin(userId:users.user.userId),
+          ),
+        );
+        break;
+       }
     } catch (error) {
       log(error.toString() + 'eiei');
 

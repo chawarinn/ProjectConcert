@@ -12,7 +12,7 @@ class UserSearchHGetResponse {
   String hotelName;     
   String hotelName2;    
   String hotelPhoto;    
-  String detal;         
+  String detail;         
   int startingPrice;   
   String phone;          
   String contact;        
@@ -26,7 +26,7 @@ class UserSearchHGetResponse {
     required this.hotelName,
     required this.hotelName2,
     required this.hotelPhoto,
-    required this.detal,
+    required this.detail,
     required this.startingPrice,
     required this.phone,
     required this.contact,
@@ -42,8 +42,8 @@ class UserSearchHGetResponse {
         hotelName: json["hotelName"],                        
         hotelName2: json["hotelName2"],                      
         hotelPhoto: json["hotelPhoto"],                     
-        detal: json["detal"],                                
-        startingPrice: json["starting price"],              
+        detail: json["detail"],                                
+        startingPrice: json["startingPrice"],              
         phone: json["phone"],                               
         contact: json["contact"],                            
         location: json["location"],                         
@@ -57,8 +57,8 @@ class UserSearchHGetResponse {
         "hotelName": hotelName,                             
         "hotelName2": hotelName2,                            
         "hotelPhoto": hotelPhoto,                            
-        "detal": detal,                                      
-        "starting price": startingPrice,                     
+        "detail": detail,                                      
+        "startingPrice": startingPrice,                     
         "phone": phone,                                      
         "contact": contact,                                  
         "location": location,                               

@@ -4,6 +4,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class EditProfileMember extends StatefulWidget {
+  int userId;
+  EditProfileMember({super.key,  required this.userId});
   @override
   _EditProfileMemberState createState() => _EditProfileMemberState();
 }
