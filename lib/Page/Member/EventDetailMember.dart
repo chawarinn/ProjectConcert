@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,72 +11,13 @@ class Eventdetailmember extends StatefulWidget {
 }
 
 class _EventDetailMemberState extends State<Eventdetailmember> {
-
   int _currentIndex = 0;
-
-  
-  void _showEditResultDialog({required bool isSuccess}) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Container(
-          padding: EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.purple.shade100,
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                isSuccess ? 'Edit Success' : 'Edit Failed',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: isSuccess ? Colors.green : Colors.red,
-                ),
-              ),
-              SizedBox(height: 16),
-              Text(
-                isSuccess
-                    ? 'Your profile has been updated successfully!'
-                    : 'Failed to update your profile. Please try again.',
-                style: TextStyle(fontSize: 16),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.purple.shade400,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text(
-                  'Close',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
-  );
-}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile', style: TextStyle(fontSize: 20)),
+        title: Text('Detail', style: TextStyle(fontSize: 20)),
         backgroundColor: Colors.purple.shade200,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
@@ -86,12 +29,95 @@ class _EventDetailMemberState extends State<Eventdetailmember> {
           IconButton(
             icon: Icon(Icons.more_vert),
             onPressed: () {
-              // เพิ่ม action เมนูที่ต้องการ
+              // Add more action
             },
           ),
         ],
       ),
-      
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: double.infinity, 
+                  height: 300, 
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.zero, // มุมฉาก
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/worldwide.png'),
+                      fit: BoxFit.cover, // ปรับขนาดรูปให้เต็มพื้นที่
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'NuNew 1st Concert "DREAM CATCHER"',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              Chip(
+                label: Text('Concert'),
+                backgroundColor: Colors.purple.shade100,
+              ),
+              SizedBox(height: 8),
+              Text(
+                'NuNew Chawarin\n10 - 11 August 2024\n17:00 - 20:00\nIMPACT Arena Muang Thong Thani',
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple.shade400,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onPressed: () {
+                      // Navigate to Ticket page
+                    },
+                    child: Text('Ticket'),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple.shade400,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onPressed: () {
+                      // Navigate to Hotel page
+                    },
+                    child: Text('Hotel'),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16),
+              Text(
+                'แผนที่',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              Container(
+                height: 200,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.grey.shade300,
+                ),
+                child: Center(
+                  child: Text('Map Placeholder'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         selectedItemColor: Colors.purple.shade200,
@@ -123,45 +149,6 @@ class _EventDetailMemberState extends State<Eventdetailmember> {
           BottomNavigationBarItem(icon: Icon(Icons.face), label: 'Profile'),
         ],
       ),
-    );
-  }
-
-  Widget _buildTextField({
-    required String label,
-    required String hintText,
-    bool isRequired = false,
-    bool isPassword = false,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              label,
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-            ),
-            if (isRequired)
-              Text(
-                '*',
-                style: TextStyle(color: Colors.red, fontSize: 14),
-              ),
-          ],
-        ),
-        SizedBox(height: 8),
-        TextField(
-          obscureText: isPassword,
-          decoration: InputDecoration(
-            hintText: hintText,
-            filled: true,
-            fillColor: Colors.purple.shade50,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
