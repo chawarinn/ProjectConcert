@@ -1,4 +1,3 @@
-
 import 'dart:core';
 
 import 'dart:math';
@@ -9,15 +8,22 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:project_concert_closeiin/Page/Artist/artist.dart';
+import 'package:project_concert_closeiin/Page/Home.dart';
+import 'package:project_concert_closeiin/Page/Member/DetailHotel.dart';
+import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
+import 'package:project_concert_closeiin/Page/Member/Notification.dart';
+import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 import 'package:project_concert_closeiin/model/response/userGetHotelResponse.dart';
 import 'package:project_concert_closeiin/model/response/userGetSearchHResponse.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+
 class HotelSearch extends StatefulWidget {
   int userId;
-  HotelSearch({super.key,  required this.userId});
+  HotelSearch({super.key, required this.userId});
   @override
   _hotelSearch createState() => _hotelSearch();
 }
@@ -37,6 +43,8 @@ class _hotelSearch extends State<HotelSearch> {
   String selectedLocation = '';
   bool showClearIcon = false;
   String selectedButton = '';
+  int? selectedPrice;
+  bool _isLoading = false;
 
   double _calculateDistance(
       double lat1, double lon1, double lat2, double lon2) {
@@ -60,7 +68,7 @@ class _hotelSearch extends State<HotelSearch> {
   Map<String, LatLng> locations = {
     'Impact Arena': LatLng(13.988, 100.522),
     'Thunder Dome': LatLng(13.945, 100.595),
-    'Rajamangala National Stadium': LatLng(13.746, 100.560),
+    'Rajamangala National Stadium': LatLng(13.7556, 100.6212),
   };
 
   @override
@@ -75,20 +83,25 @@ class _hotelSearch extends State<HotelSearch> {
   }
 
   void _fetchAllHotels() async {
+    setState(() {
+      _isLoading = true;
+    });
     try {
-      var response = await http.get(Uri.parse('$API_ENDPOINT/hotel'));
+      var response = await http.get(Uri.parse('$API_ENDPOINT/hotelpiont'));
       if (response.statusCode == 200) {
         List<dynamic> jsonData = json.decode(response.body);
         setState(() {
           hotels =
               jsonData.map((e) => UserHotelGetResponse.fromJson(e)).toList();
           filteredhotels = hotels;
+          _isLoading = false;
         });
       } else {
         dev_log.log('Failed to fetch hotels: ${response.statusCode}');
         setState(() {
           hotels = [];
           filteredhotels = [];
+          _isLoading = false;
         });
       }
     } catch (e) {
@@ -96,14 +109,21 @@ class _hotelSearch extends State<HotelSearch> {
       setState(() {
         hotels = [];
         filteredhotels = [];
+        _isLoading = false;
       });
     }
   }
 
   void _filterHotelList(String query) async {
+    _searchHotel = query;
+    setState(() {
+      _isLoading = true;
+    });
+
     if (query.isEmpty) {
       setState(() {
-        filteredhotels = hotels;
+        filteredhotel = [];
+        _isLoading = false;
       });
     } else {
       try {
@@ -115,206 +135,454 @@ class _hotelSearch extends State<HotelSearch> {
             filteredhotel = jsonData
                 .map((e) => UserSearchHGetResponse.fromJson(e))
                 .toList();
+            _isLoading = false;
           });
         } else {
           dev_log.log('Failed to fetch hotels: ${response.statusCode}');
           setState(() {
             filteredhotel = [];
+            _isLoading = false;
           });
         }
       } catch (e) {
         dev_log.log(e.toString());
         setState(() {
           filteredhotel = [];
+          _isLoading = false;
         });
       }
     }
   }
 
-  void _filterHotelsByPrice() {
+  void _filterHotelsByPrice() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    await Future.delayed(Duration(milliseconds: 300));
+
     if (minPrice != null && maxPrice != null) {
-      setState(() {
-        filteredhotels = hotels.where((hotel) {
-          double price = double.tryParse(hotel.startingPrice.toString()) ?? 0.0;
-          return price >= minPrice! && price <= maxPrice!;
-        }).toList();
-        filteredhotel = hotel.where((hotel) {
-          double price = double.tryParse(hotel.startingPrice.toString()) ?? 0.0;
-          return price >= minPrice! && price <= maxPrice!;
-        }).toList();
+      List<UserHotelGetResponse> targetList;
+
+      if (selectedButton.isNotEmpty) {
+        // ถ้ามีการเลือกสถานที่ไว้ -> กรองจาก filteredhotels เดิมที่มีระยะทางแล้ว
+        targetList = filteredhotels;
+      } else {
+        // ถ้ายังไม่ได้เลือกสถานที่ -> ใช้ทั้งหมด
+        targetList = hotels;
+      }
+
+      filteredhotels = targetList.where((hotel) {
+        double price = double.tryParse(hotel.startingPrice.toString()) ?? 0.0;
+        return price >= minPrice! && price <= maxPrice!;
+      }).toList();
+
+      filteredhotel = hotel.where((hotel) {
+        double price = double.tryParse(hotel.startingPrice.toString()) ?? 0.0;
+        return price >= minPrice! && price <= maxPrice!;
+      }).toList();
+
+      filteredhotels.sort((a, b) {
+        double priceA = double.tryParse(a.startingPrice.toString()) ?? 0.0;
+        double priceB = double.tryParse(b.startingPrice.toString()) ?? 0.0;
+        return priceA.compareTo(priceB);
+      });
+
+      filteredhotel.sort((a, b) {
+        double priceA = double.tryParse(a.startingPrice.toString()) ?? 0.0;
+        double priceB = double.tryParse(b.startingPrice.toString()) ?? 0.0;
+        return priceA.compareTo(priceB);
       });
     } else {
-      filteredhotels = List.from(hotels);
-      filteredhotel = List.from(hotel);
+      if (selectedButton.isNotEmpty) {
+        // ถ้าเคยเลือก location ไว้ และล้างราคากรองออก → แสดงรายการโรงแรมตามระยะทางเดิม
+        _filterHotelsByLocation(selectedButton);
+        return;
+      } else {
+        filteredhotels = List.from(hotels);
+        filteredhotel = List.from(hotel);
+      }
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
-  void _filterHotelsByLocation(String location) {
+  void _filterHotelsByLocation(String location) async {
+    setState(() {
+      _isLoading = true; // เริ่มแสดง loading
+    });
+
     LatLng selectedLocation = locations[location]!;
 
-    setState(() {
-      var hotelsWithDistance = hotels.map((hotel) {
-        selectedButton = location;
-        showClearIcon = true;
-        double hotelLat = hotel.lat;
-        double hotelLon = hotel.long;
+    // เพิ่ม delay เล็กน้อย (ถ้าไม่ต้องการลบได้)
+    await Future.delayed(Duration(milliseconds: 300));
 
-        double distance = _calculateDistance(
-          selectedLocation.latitude,
-          selectedLocation.longitude,
-          hotelLat,
-          hotelLon,
-        );
+    var hotelsWithDistance = hotels.map((hotel) {
+      selectedButton = location;
+      showClearIcon = true;
 
-        hotel.distance = distance;
-        return {
-          'hotel': hotel, // 
-          'distance': distance, // เก็บระยะทาง
-        };
-      }).toList();
+      double hotelLat = hotel.lat;
+      double hotelLon = hotel.long;
 
+      double distance = _calculateDistance(
+        selectedLocation.latitude,
+        selectedLocation.longitude,
+        hotelLat,
+        hotelLon,
+      );
+
+      hotel.distance = distance;
+
+      return {
+        'hotel': hotel,
+        'distance': distance,
+      };
+    }).toList();
+
+    // กรองราคาถ้ามีการตั้ง minPrice
+    if (minPrice != null) {
       hotelsWithDistance = hotelsWithDistance.where((item) {
-        double distance = item['distance'] as double? ?? double.infinity;
-        return distance <= 20.0; // ไม่เกิน 20 กิโลเมตร
+        final hotel = item['hotel'] as UserHotelGetResponse;
+        final price = double.tryParse(hotel.startingPrice.toString()) ?? 0.0;
+        return price >= minPrice!;
       }).toList();
+    }
 
-      // เรียงลำดับตามระยะทางจากน้อยไปมาก
-      hotelsWithDistance.sort((a, b) {
-        double distanceA = a['distance'] as double? ?? double.infinity;
-        double distanceB = b['distance'] as double? ?? double.infinity;
-        return distanceA.compareTo(distanceB);
-      });
+    // hotelsWithDistance = hotelsWithDistance.where((item) {
+    //   double distance = item['distance'] as double? ?? double.infinity;
+    //   return distance <= 20.0; // ไม่เกิน 20 กิโลเมตร
+    // }).toList();
 
-      filteredhotels = hotelsWithDistance
-          .map((item) => item['hotel'] as UserHotelGetResponse)
-          .toList();
+    // เรียงลำดับตามระยะทางจากน้อยไปมาก
+    hotelsWithDistance.sort((a, b) {
+      double distanceA = a['distance'] as double? ?? double.infinity;
+      double distanceB = b['distance'] as double? ?? double.infinity;
+      return distanceA.compareTo(distanceB);
     });
-  }
 
-  void _clearSelection() {
     setState(() {
-      selectedButton = ''; // รีเซ็ตปุ่มที่เลือก
-      distance = null; 
-      showClearIcon = false; // ซ่อนกากบาท
-      var hotelsWithDistance = hotels.map((hotel) {
-        hotel.distance = null;
-        return {
-          'hotel': hotel, 
-          'distance': distance, 
-        };
-      }).toList();
       filteredhotels = hotelsWithDistance
           .map((item) => item['hotel'] as UserHotelGetResponse)
           .toList();
+
+      _isLoading = false; // โหลดเสร็จซ่อน loading
     });
   }
+
+  void _clearSelection() async {
+    setState(() {
+      _isLoading = true; // เริ่มโหลด
+    });
+
+    await Future.delayed(Duration(milliseconds: 300)); // ให้มี delay เล็กน้อย
+
+    var hotelsWithDistance = hotels.map((hotel) {
+      hotel.distance = null;
+      return {
+        'hotel': hotel,
+        'distance': null,
+      };
+    }).toList();
+
+    if (minPrice != null) {
+      hotelsWithDistance = hotelsWithDistance.where((item) {
+        final hotel = item['hotel'] as UserHotelGetResponse;
+        final price = double.tryParse(hotel.startingPrice.toString()) ?? 0.0;
+        return price >= minPrice!;
+      }).toList();
+    }
+
+    hotelsWithDistance.sort((a, b) {
+      final hotelA = a['hotel'] as UserHotelGetResponse;
+      final hotelB = b['hotel'] as UserHotelGetResponse;
+      double priceA = double.tryParse(hotelA.startingPrice.toString()) ?? 0.0;
+      double priceB = double.tryParse(hotelB.startingPrice.toString()) ?? 0.0;
+      return priceA.compareTo(priceB);
+    });
+
+    setState(() {
+      selectedButton = '';
+      distance = null;
+      showClearIcon = false;
+
+      filteredhotels = hotelsWithDistance
+          .map((item) => item['hotel'] as UserHotelGetResponse)
+          .toList();
+
+      _isLoading = false; // โหลดเสร็จ
+    });
+  }
+
+ Widget buildHotelCard(var hotel) {
+  return InkWell(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DetailHotel(
+            userId: widget.userId,
+            hotelID: hotel.hotelId,
+          ),
+        ),
+      );
+    },
+    child: Card(
+      color: Colors.grey[200],
+      margin: EdgeInsets.symmetric(vertical: 6),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    hotel.hotelName ?? '',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${hotel.totalPiont ?? 0}/',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.w500),
+                      ),
+                      SizedBox(width: 4),
+                      Icon(Icons.star, color: Colors.amber, size: 18),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            if (hotel.hotelName2.isNotEmpty)
+              Text(hotel.hotelName2, style: TextStyle(fontSize: 14)),
+            SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    hotel.hotelPhoto,
+                    width: 120,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('ราคา : เริ่มต้น ${hotel.startingPrice} บาท'),
+                      SizedBox(height: 6),
+                      Text(hotel.location),
+                      SizedBox(height: 6),
+                      Text('โทรศัพท์ : ${hotel.phone}'),
+                      if (hotel.contact.isNotEmpty) ...[
+                        SizedBox(height: 6),
+                        Text(
+                          'Facebook : ${hotel.contact}',
+                          style: TextStyle(
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ],
+                      if (hotel.distance != null && hotel.distance! > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Text(
+                            'ระยะห่าง : ${hotel.distance!.toStringAsFixed(2)} กม.',
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon:
+              const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.of(context).pop();
           },
         ),
         title: Text(
           'Hotel',
           style: TextStyle(color: const Color.fromARGB(255, 255, 255, 255)),
         ),
-        backgroundColor: Color.fromARGB(255, 190, 150, 198),
+        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         actions: [
           IconButton(
-            icon: Icon(Icons.more_vert),
-            onPressed: () {},
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Confirm Logout'),
+                    content: const Text('Are you sure you want to log out?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('No'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                  builder: (context) => const homeLogoPage()));
+                        },
+                        child: const Text('Yes'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        selectedItemColor: Colors.purple.shade200,
-        unselectedItemColor: Colors.grey,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          if (index == 0) {
-          } else if (index == 1) {
-          } else if (index == 2) {
-          } else if (index == 3) {}
-        },
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-              icon: Icon(FontAwesomeIcons.heartPulse),
-              label: 'Favorite Artist'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.notifications), label: 'Notifications'),
-          BottomNavigationBarItem(icon: Icon(Icons.face), label: 'Profile'),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
+      body: Column(
+        children: [
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
                   Container(
                     width: 200,
+                    height: 40,
                     child: TextField(
                       onChanged: (value) {
                         _searchHotel = value;
                         _filterHotelList(value);
                       },
                       decoration: InputDecoration(
+                        contentPadding:
+                            EdgeInsets.symmetric(vertical: 0, horizontal: 12),
                         hintText: 'Search',
-                        hintStyle: TextStyle(
-                          color: const Color.fromARGB(255, 255, 255, 255),
-                          fontSize: 18,
-                        ),
+                        prefixIcon: Icon(Icons.search, size: 20),
                         filled: true,
-                        fillColor: const Color.fromARGB(255, 216, 213, 213),
+                        fillColor: Colors.grey[200],
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide:
-                              const BorderSide(width: 1, color: Colors.white),
+                          borderSide: BorderSide.none,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 9),
                   IconButton(
-                    icon: Icon(Icons.filter_list),
+                    icon: Icon(Icons.tune),
                     onPressed: () {
                       showMenu(
                         context: context,
                         position: RelativeRect.fromLTRB(100.0, 100.0, 0.0, 0.0),
                         items: [
                           PopupMenuItem(
-                            child: Text('ราคาเริ่มต้น 500 บาท'),
                             value: 'filter1',
+                            child: Row(
+                              children: [
+                                Icon(Icons.attach_money,
+                                    size: 18, color: Colors.purple.shade300),
+                                SizedBox(width: 8),
+                                Text(
+                                  'ราคาเริ่มต้น 500 บาท',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black87),
+                                ),
+                              ],
+                            ),
                           ),
                           PopupMenuItem(
-                            child: Text('1,000 - 2,000 บาท'),
                             value: 'filter2',
+                            child: Row(
+                              children: [
+                                Icon(Icons.attach_money,
+                                    size: 18, color: Colors.purple.shade300),
+                                SizedBox(width: 8),
+                                Text(
+                                  '1,000 - 2,000 บาท',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black87),
+                                ),
+                              ],
+                            ),
                           ),
                           PopupMenuItem(
-                            child: Text('2,000 - 3,000 บาท'),
                             value: 'filter3',
+                            child: Row(
+                              children: [
+                                Icon(Icons.attach_money,
+                                    size: 18, color: Colors.purple.shade300),
+                                SizedBox(width: 8),
+                                Text(
+                                  '2,000 - 3,000 บาท',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black87),
+                                ),
+                              ],
+                            ),
                           ),
                           PopupMenuItem(
-                            child: Text('มากกว่า 3,000 บาท'),
                             value: 'filter4',
+                            child: Row(
+                              children: [
+                                Icon(Icons.attach_money,
+                                    size: 18, color: Colors.purple.shade300),
+                                SizedBox(width: 8),
+                                Text(
+                                  'มากกว่า 3,000 บาท',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black87),
+                                ),
+                              ],
+                            ),
                           ),
                           PopupMenuItem(
-                            child: Text('ทั้งหมด'),
                             value: 'filter5',
+                            child: Row(
+                              children: [
+                                Icon(Icons.clear,
+                                    size: 18, color: Colors.grey.shade400),
+                                SizedBox(width: 8),
+                                Text(
+                                  'ทั้งหมด',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black54),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
-                        elevation: 8.0,
+                        elevation: 4,
                       ).then((selectedValue) {
                         // จัดการค่าที่เลือกจากเมนู
                         if (selectedValue != null) {
@@ -357,333 +625,148 @@ class _hotelSearch extends State<HotelSearch> {
                     },
                   ),
                   const SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () {
-                      _filterHotelsByLocation('Impact Arena');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: selectedButton == 'Impact Arena'
-                          ? Color.fromARGB(255, 190, 150, 198)
-                          : Colors.grey.shade300,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 3, vertical: 0.1),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Impact Arena',
+                  Wrap(
+                    spacing: 8,
+                    children: locations.entries.map((entry) {
+                      final bool isSelected = selectedButton == entry.key;
+                      return FilterChip(
+                        label: Text(
+                          entry.key,
                           style: TextStyle(
-                            color: selectedButton == 'Impact Arena'
-                                ? Colors.white
-                                : Colors.black,
-                            fontWeight: FontWeight.bold,
+                            color: isSelected ? Colors.white : Colors.black,
                           ),
                         ),
-                        if (selectedButton == 'Impact Arena')
-                          IconButton(
-                            icon: Icon(Icons.clear, color: Colors.red),
-                            onPressed: _clearSelection,
-                          ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () {
-                      _filterHotelsByLocation('Thunder Dome');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: selectedButton == 'Thunder Dome'
-                          ? Color.fromARGB(255, 190, 150, 198)
-                          : Colors.grey.shade300,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 3, vertical: 0.1),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Thunder Dome',
-                          style: TextStyle(
-                            color: selectedButton == 'Thunder Dome'
-                                ? Colors.white
-                                : Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        if (selectedButton == 'Thunder Dome')
-                          IconButton(
-                            icon: Icon(Icons.clear, color: Colors.red),
-                            onPressed: _clearSelection,
-                          ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () {
-                      _filterHotelsByLocation('Rajamangala National Stadium');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          selectedButton == 'Rajamangala National Stadium'
-                              ? Color.fromARGB(255, 190, 150, 198)
-                              : Colors.grey.shade300,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 3, vertical: 0.1),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Rajamangala National Stadium',
-                          style: TextStyle(
-                            color:
-                                selectedButton == 'Rajamangala National Stadium'
-                                    ? Colors.white
-                                    : Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        if (selectedButton ==
-                            'Rajamangala National Stadium') 
-                          IconButton(
-                            icon: Icon(Icons.clear, color: Colors.red),
-                            onPressed: _clearSelection,
-                          ),
-                      ],
-                    ),
+                        selected: isSelected,
+                        selectedColor: const Color.fromRGBO(201, 151, 187, 1),
+                        backgroundColor: Colors.grey[200],
+                        checkmarkColor: Colors.white,
+                        side: BorderSide.none,
+                        onSelected: (selected) {
+                          setState(() {
+                            if (selected) {
+                              _filterHotelsByLocation(entry.key);
+                            } else {
+                              _clearSelection();
+                            }
+                          });
+                        },
+                      );
+                    }).toList(),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: filteredhotels.isEmpty
-                  ? Center(
-                      child: Text(
-                        'ไม่มีโรงแรมที่ต้องการ',
-                        style: TextStyle(fontSize: 18, color: Colors.grey),
-                      ),
-                    )
-                  : Column(
-                      children: [
-                        if (filteredhotel.isEmpty || _searchHotel.isEmpty)
-                          Expanded(
+          ),
+          Expanded(
+            child: _isLoading
+                ? Center(child: CircularProgressIndicator())
+                : Builder(
+                    builder: (context) {
+                      if (_searchHotel.isNotEmpty) {
+                        if (filteredhotel.isEmpty) {
+                          return Center(
+                            child: Text(
+                              'No hotels found',
+                            ),
+                          );
+                        } else {
+                          return ListView.builder(
+                            itemCount: filteredhotel.length,
+                            itemBuilder: (context, index) {
+                              var hotel = filteredhotel[index];
+                              return buildHotelCard(hotel);
+                            },
+                          );
+                        }
+                      } else {
+                        if (filteredhotels.isEmpty) {
+                          return Center(
+                            child: Text(
+                              'No hotels found',
+                            ),
+                          );
+                        } else {
+                          return Padding(
+                            padding: const EdgeInsets.only(left: 16, right: 16),
                             child: ListView.builder(
                               itemCount: filteredhotels.length,
                               itemBuilder: (context, index) {
-                                var hotels = filteredhotels[index];
-                                return Card(
-                                  margin: EdgeInsets.symmetric(vertical: 10),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  elevation: 5,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          child: Container(
-                                            width: 100,
-                                            height: 100,
-                                            child: Image.network(
-                                              hotels.hotelPhoto,
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 16),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                hotels.hotelName,
-                                                style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              Text(
-                                                hotels.hotelName2,
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.grey.shade600,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 10),
-                                              Text(
-                                                'ราคา : เริ่มต้น ${hotels.startingPrice} บาท',
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                              Text(
-                                                hotels.location,
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.grey.shade700,
-                                                ),
-                                              ),
-                                              Text(
-                                                'โทรศัพท์ : ${hotels.phone}',
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.grey.shade700,
-                                                ),
-                                              ),
-                                              Text(
-                                                'Facebook : ${hotels.contact}',
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.blue,
-                                                  decoration:
-                                                      TextDecoration.underline,
-                                                ),
-                                              ),
-                                              if (hotels.distance != null &&
-                                                  hotels.distance! > 0)
-                                                Text(
-                                                  'ระยะห่าง : ${hotels.distance!.toStringAsFixed(2)} กม.',
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.grey.shade700,
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
+                                var hotel = filteredhotels[index];
+                                return buildHotelCard(hotel);
                               },
                             ),
-                          ),
-                        if (filteredhotel.isNotEmpty && _searchHotel.isNotEmpty)
-                          Expanded(
-                            child: ListView.builder(
-                              itemCount: filteredhotel.length,
-                              itemBuilder: (context, index) {
-                                var hotel = filteredhotel[index];
-                                return Card(
-                                  margin: EdgeInsets.symmetric(vertical: 10),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  elevation: 5,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          child: Container(
-                                            width: 100,
-                                            height: 100,
-                                            child: Image.network(
-                                              hotel.hotelPhoto,
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 16),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                hotel.hotelName,
-                                                style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              if (hotel.hotelName2 != null &&
-                                                  hotel.hotelName2.isNotEmpty)
-                                                Text(
-                                                  hotel.hotelName2,
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.grey.shade600,
-                                                  ),
-                                                ),
-                                              const SizedBox(height: 10),
-                                              Text(
-                                                'ราคา : เริ่มต้น ${hotel.startingPrice} บาท',
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                              Text(
-                                                hotel.location,
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.grey.shade700,
-                                                ),
-                                              ),
-                                              Text(
-                                                'โทรศัพท์ : ${hotel.phone}',
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.grey.shade700,
-                                                ),
-                                              ),
-                                              if (hotel.contact != null &&
-                                                  hotel.contact.isNotEmpty)
-                                                Text(
-                                                  'Facebook : ${hotel.contact}',
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.blue,
-                                                    decoration: TextDecoration
-                                                        .underline,
-                                                  ),
-                                                ),
-                                              if (hotel.distance != null &&
-                                                  hotel.distance! > 0)
-                                                Text(
-                                                  'ระยะห่าง : ${hotel.distance} กม.',
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.grey.shade700,
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                      ],
-                    ),
-            ),
-          ],
-        ),
+                          );
+                        }
+                      }
+                    },
+                  ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+          switch (index) {
+            case 0:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Homemember(userId: widget.userId)),
+              );
+              break;
+            case 1:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ArtistPage(userId: widget.userId)),
+              );
+              break;
+            case 2:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        NotificationPage(userId: widget.userId)),
+              );
+              break;
+            case 3:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ProfileMember(
+                          userId: widget.userId,
+                        )),
+              );
+              break;
+          }
+        },
+        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white70,
+        // showSelectedLabels: false,
+        showUnselectedLabels: false,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(FontAwesomeIcons.heartPulse),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.face),
+            label: '',
+          ),
+        ],
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:project_concert_closeiin/Page/Home.dart';
 
 class EditProfileMember extends StatefulWidget {
   int userId;
@@ -93,11 +94,35 @@ class _EditProfileMemberState extends State<EditProfileMember> {
             Navigator.pop(context);
           },
         ),
-        actions: [
+              actions: [
           IconButton(
-            icon: Icon(Icons.more_vert),
+            icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () {
-              // เพิ่ม action เมนูที่ต้องการ
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Confirm Logout'),
+                    content: const Text('Are you sure you want to log out?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('No'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                  builder: (context) => const homeLogoPage()));
+                        },
+                        child: const Text('Yes'),
+                      ),
+                    ],
+                  );
+                },
+              );
             },
           ),
         ],

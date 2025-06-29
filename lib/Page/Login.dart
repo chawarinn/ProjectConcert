@@ -1,16 +1,13 @@
 import 'dart:core';
-
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:path/path.dart' as path;
+import 'package:google_fonts/google_fonts.dart';
 import 'package:project_concert_closeiin/Page/Admin/HomeAdmin.dart';
 import 'package:project_concert_closeiin/Page/Event/AddEvent.dart';
-import 'package:project_concert_closeiin/Page/Hotel/AddHotel.dart';
 import 'package:project_concert_closeiin/Page/Hotel/HomeHotel.dart';
 import 'package:project_concert_closeiin/Page/Member/hotel_search.dart';
 import 'package:project_concert_closeiin/Page/Restaurant/AddRestaurant.dart';
-import 'package:project_concert_closeiin/Page/User/HomeUser.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 import 'package:project_concert_closeiin/model/request/userPostLoginRequest.dart';
@@ -29,26 +26,29 @@ class _LoginPageState extends State<LoginPage> {
   String text = '';
   String url = '';
 
-    @override
+  @override
   void initState() {
     super.initState();
     Configuration.getConfig().then(
       (config) {
         url = config['apiEndpoint'];
-        // log(config ['apiEndpoint']);
       },
     ).catchError((err) {
       log(err.toString());
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 190, 150, 198),
-        title: const Text(
+        backgroundColor: const Color.fromRGBO(201, 151, 187, 1),
+        title: Text(
           'Login',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         leading: IconButton(
           icon:
@@ -69,11 +69,11 @@ class _LoginPageState extends State<LoginPage> {
                   backgroundImage: AssetImage('assets/images/Profile.png'),
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
                 child: Text(
                   "Login",
-                  style: TextStyle(
+                  style: GoogleFonts.poppins(
                     fontSize: 45,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
@@ -85,15 +85,23 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Email',
-                      style: TextStyle(fontSize: 18, color: Colors.black),
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        color: Colors.black,
+                      ),
                     ),
                     TextField(
                       controller: emailCtl,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: const Color.fromRGBO(217, 217, 217, 1),
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 15),
                         border: OutlineInputBorder(
-                          borderSide: BorderSide(width: 1),
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide.none,
                         ),
                       ),
                     ),
@@ -105,17 +113,24 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Password',
-                      style: TextStyle(fontSize: 18, color: Colors.black),
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        color: Colors.black,
+                      ),
                     ),
                     TextField(
                       controller: passwordCtl,
                       obscureText: true,
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.lock),
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: const Color.fromRGBO(217, 217, 217, 1),
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 15),
                         border: OutlineInputBorder(
-                          borderSide: BorderSide(width: 1),
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide.none,
                         ),
                       ),
                     ),
@@ -125,16 +140,15 @@ class _LoginPageState extends State<LoginPage> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                 child: Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.end, 
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
                       'Forgot Password?',
-                      style: TextStyle(
+                      style: GoogleFonts.poppins(
                         fontSize: 16,
-                        color: Color.fromARGB(255, 0, 91, 228),
+                        color: const Color.fromARGB(255, 0, 91, 228),
                         decoration: TextDecoration.underline,
-                        decorationColor: Color.fromARGB(255, 0, 91, 228),
+                        decorationColor: const Color.fromARGB(255, 0, 91, 228),
                       ),
                     ),
                   ],
@@ -151,20 +165,55 @@ class _LoginPageState extends State<LoginPage> {
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: const Text('ข้อมูลไม่ถูกต้อง',
-                                  style: TextStyle(
-                                      color: Color.fromARGB(255, 255, 0, 0),
-                                      fontWeight: FontWeight.bold)),
-                              content: const Text(
-                                  'กรุณากรอก Email และ Password ให้ครบถ้วน'),
+                              title: Text(
+                                'Notification',
+                              ),
+                              content: Text(
+                                'กรุณากรอก Email และ Password ให้ครบถ้วน',
+                                style: GoogleFonts.poppins(),
+                              ),
                               actions: [
                                 TextButton(
                                   onPressed: () {
                                     Navigator.of(context).pop();
                                   },
-                                  child: const Text('ตกลง',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
+                                  child: Text(
+                                    'ตกลง',
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                        return;
+                      }
+                      if (emailCtl.text.contains(' ') ||
+                          emailCtl.text.trim() != emailCtl.text) {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text(
+                                'Notification',
+                              ),
+                              content: Text(
+                                'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
+                                style: GoogleFonts.poppins(),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text(
+                                    'ตกลง',
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
                               ],
                             );
@@ -172,16 +221,16 @@ class _LoginPageState extends State<LoginPage> {
                         );
                         return;
                       } else {
-                         loginU();
+                        loginU();
                       }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 190, 150, 198),
                       padding: const EdgeInsets.symmetric(vertical: 15),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Login',
-                      style: TextStyle(
+                      style: GoogleFonts.poppins(
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
                         color: Colors.white,
@@ -196,12 +245,13 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-   void loginU() async {
+
+  void loginU() async {
     log(emailCtl.text);
     log(passwordCtl.text);
     try {
       var data = UsersLoginPostRequest(
-          email: emailCtl.text, password: passwordCtl.text);
+          email: emailCtl.text.trim(), password: passwordCtl.text);
 
       var value = await http.post(Uri.parse('$API_ENDPOINT/login'),
           headers: {"Content-Type": "application/json; charset=utf-8"},
@@ -214,68 +264,71 @@ class _LoginPageState extends State<LoginPage> {
         text = '';
       });
 
-       switch (users.user.typeId) {
-      case 1:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HotelSearch(userId:users.user.userId),
-          ),
-        );
-        break;
-      case 2:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomeHotel(userId:users.user.userId),
-          ),
-        );
-        break;
-      case 3:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => AddRestaurant(userId:users.user.userId),
-          ),
-        );
-        break;
-      case 4:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => AddEvent(userId:users.user.userId),
-          ),
-        );
-        break;
-      case 5:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomeAdmin(userId:users.user.userId),
-          ),
-        );
-        break;
-       }
+      switch (users.user.typeId) {
+        case 1:
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HotelSearch(userId: users.user.userId),
+            ),
+          );
+          break;
+        case 2:
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomeHotel(userId: users.user.userId),
+            ),
+          );
+          break;
+        case 3:
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddRestaurant(userId: users.user.userId),
+            ),
+          );
+          break;
+        case 4:
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddEvent(userId: users.user.userId),
+            ),
+          );
+          break;
+        case 5:
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomeAdmin(userId: users.user.userId),
+            ),
+          );
+          break;
+      }
     } catch (error) {
       log(error.toString() + 'eiei');
-
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('ข้อมูลไม่ถูกต้อง',
-                style: TextStyle(
-                    color: Color.fromARGB(255, 255, 0, 0),
-                    fontWeight: FontWeight.bold)),
-            content: const Text('อีเมลหรือรหัสผ่านไม่ถูกต้อง'),
+            title: Text(
+                                'Notification',
+                              ),
+            content: Text(
+              'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
+              style: GoogleFonts.poppins(),
+            ),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: const Text(
+                child: Text(
                   'ตกลง',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],

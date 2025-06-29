@@ -1,278 +1,466 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:developer';
+import 'package:http/http.dart' as http;
+import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:project_concert_closeiin/Page/Artist/artist.dart';
+import 'package:project_concert_closeiin/Page/Home.dart';
+import 'package:project_concert_closeiin/Page/Member/Event.dart';
+import 'package:project_concert_closeiin/Page/Member/EventDetailMember.dart';
+import 'package:project_concert_closeiin/Page/Member/Notification.dart';
+import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
+import 'package:project_concert_closeiin/Page/Member/Restaurant_search.dart';
+import 'package:project_concert_closeiin/Page/Member/RoomShare.dart';
+import 'package:project_concert_closeiin/Page/Member/hotel_search.dart';
+import 'package:project_concert_closeiin/config/config.dart';
+import 'package:project_concert_closeiin/config/internet_config.dart';
 
 class Homemember extends StatefulWidget {
   int userId;
-  Homemember({super.key,  required this.userId});
+  Homemember({super.key, required this.userId});
   @override
   _HomeMember createState() => _HomeMember();
 }
 
 class _HomeMember extends State<Homemember> {
   int _currentIndex = 0;
+  String url = '';
+  List<dynamic> eventList = [];
+  bool isLoading = true;
+  List<dynamic> topHotels = [];
+
+  void initState() {
+    super.initState();
+    Configuration.getConfig().then((config) {
+      url = config['apiEndpoint'];
+    }).catchError((err) {
+      log(err.toString());
+    });
+    fetchEvent();
+    fetchTopHotels();
+  }
+
+  Future<void> fetchEvent() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      final response = await http.get(Uri.parse('$API_ENDPOINT/Event'));
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+        setState(() {
+          eventList = decoded;
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load events');
+      }
+    } catch (e) {
+      print('Error: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> fetchTopHotels() async {
+    try {
+      final response = await http.get(Uri.parse('$API_ENDPOINT/hotelpiont'));
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+        setState(() {
+          topHotels = decoded.take(5).toList();
+        });
+      } else {
+        throw Exception('Failed to load top hotels');
+      }
+    } catch (e) {
+      print('Error fetching hotels: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(
           'Concert Close Inn',
-          style: TextStyle(color: Colors.white),
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
-        backgroundColor: Color.fromARGB(255, 190, 150, 198),
+        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         actions: [
           IconButton(
-            icon: Icon(Icons.more_vert),
-            onPressed: () {},
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Confirm Logout'),
+                    content: const Text('Are you sure you want to log out?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('No'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                  builder: (context) => const homeLogoPage()));
+                        },
+                        child: const Text('Yes'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Search Bar and Icons
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                elevation: 3,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      // Search Bar
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              decoration: InputDecoration(
-                                hintText: 'Search',
-                                hintStyle: TextStyle(
-                                  color: Colors.grey.shade400,
-                                  fontSize: 18,
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Card(
+                      color: Colors.grey[200],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 3,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            SizedBox(height: 14),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildIconWithLabel(
+                                    FontAwesomeIcons.ticket,
+                                    "Event",
+                                    () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              Event(userId: widget.userId),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide.none,
+                                Expanded(
+                                  child: _buildIconWithLabel(
+                                    FontAwesomeIcons.hotel,
+                                    "Hotel",
+                                    () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => HotelSearch(
+                                              userId: widget.userId),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
+                                Expanded(
+                                  child: _buildIconWithLabel(
+                                    FontAwesomeIcons.bed,
+                                    "Room Share",
+                                    () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              Roomshare(userId: widget.userId),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                Expanded(
+                                  child: _buildIconWithLabel(
+                                    FontAwesomeIcons.utensils,
+                                    "Restaurant",
+                                    () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              RestaurantSearch(
+                                                  userId: widget.userId),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Event Section
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20),
+                    child: Text(
+                      'Event',
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: 200,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: eventList.length,
+                      itemBuilder: (context, index) {
+                        final event = eventList[index];
+
+                        final leftMargin = index == 0 ? 16.0 : 0.0;
+
+                        return Container(
+                          margin: EdgeInsets.only(left: leftMargin, right: 8),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Eventdetailmember(
+                                    userId: widget.userId,
+                                    eventID: event['eventID'],
+                                  ),
+                                ),
+                              );
+                            },
+                            child: _buildEventCardWidget(
+                              Image.network(
+                                event['eventPhoto'] ?? '',
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(Icons.broken_image),
                               ),
                             ),
                           ),
-                          SizedBox(width: 10),
-                          Icon(Icons.search, color: Colors.grey),
-                        ],
-                      ),
-                      SizedBox(height: 20),
-                      // Icons Row
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildIconWithLabel(
-                            FontAwesomeIcons.ticketAlt,
-                            "Event",
-                          ),
-                          _buildIconWithLabel(
-                            FontAwesomeIcons.hotel,
-                            "Hotel",
-                          ),
-                          _buildIconWithLabel(
-                            FontAwesomeIcons.bed,
-                            "Room Share",
-                          ),
-                          _buildIconWithLabel(
-                            FontAwesomeIcons.utensils,
-                            "Restaurant",
-                          ),
-                        ],
-                      ),
-                    ],
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ),
-              SizedBox(height: 20),
-              // Event Section
-              Text(
-                'Event',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 10),
-              Container(
-                height: 200, // กำหนดความสูงของ Event Section
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal, // เลื่อนซ้าย-ขวา
-                  itemCount: 5, // จำนวนอีเว้นท์ (ปรับจำนวนตามข้อมูล)
-                  itemBuilder: (context, index) {
-                    return _buildEventCard(
-                        'assets/event${index + 1}.jpg'); // ใช้ภาพอีเว้นท์
-                  },
-                ),
-              ),
 
-              SizedBox(height: 20),
-              // Top 5 Hotel Section
-              Text(
-                'Top 5 Hotel',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                  SizedBox(height: 25),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20),
+                    child: Text(
+                      'Top 5 Hotel',
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16, right: 16),
+                    child: ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: topHotels.length,
+                      itemBuilder: (context, index) {
+                        final hotel = topHotels[index];
+                        return _buildHotelCard(hotel);
+                      },
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(height: 10),
-              ListView.builder(
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: 5,
-                itemBuilder: (context, index) {
-                  return _buildHotelCard();
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
+            ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        selectedItemColor: Colors.purple.shade200,
-        unselectedItemColor: Colors.grey,
         onTap: (index) {
           setState(() {
             _currentIndex = index;
           });
-          if (index == 0) {
-            // Navigate to Home
-          } else if (index == 1) {
-            // Navigate to Favorite Artist
-          } else if (index == 2) {
-            // Navigate to Notifications
-          } else if (index == 3) {
-            // Navigate to Profile
+          switch (index) {
+            case 0:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Homemember(userId: widget.userId)),
+              );
+              break;
+            case 1:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ArtistPage(userId: widget.userId)),
+              );
+              break;
+            case 2:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        NotificationPage(userId: widget.userId)),
+              );
+              break;
+            case 3:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ProfileMember(
+                          userId: widget.userId,
+                        )),
+              );
+              break;
           }
         },
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white70,
+        showUnselectedLabels: false,
+        items: const [
           BottomNavigationBarItem(
-              icon: Icon(FontAwesomeIcons.heartPulse),
-              label: 'Favorite Artist'),
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.notifications), label: 'Notifications'),
-          BottomNavigationBarItem(icon: Icon(Icons.face), label: 'Profile'),
+            icon: Icon(FontAwesomeIcons.heartPulse),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.face),
+            label: '',
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildIconWithLabel(IconData iconData, String label) {
-    return Column(
-      children: [
-        Icon(iconData, size: 40, color: Colors.black),
-        SizedBox(height: 8),
-        Text(
-          label,
-          style: TextStyle(fontSize: 12, color: Colors.black),
-        ),
-      ],
+  Widget _buildIconWithLabel(IconData icon, String label, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 30, color: const Color.fromARGB(199, 0, 0, 0)),
+          const SizedBox(height: 6),
+          Text(label, style: const TextStyle(fontSize: 14)),
+        ],
+      ),
     );
   }
 
-  Widget _buildEventCard(String imagePath) {
+  Widget _buildEventCardWidget(Widget imageWidget) {
     return Padding(
       padding: const EdgeInsets.only(right: 10),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: Container(
-          width: 100,
+          width: 150,
           color: Colors.grey.shade300,
-          child: Image.asset(
-            imagePath,
-            fit: BoxFit.cover,
-          ),
+          child: imageWidget,
         ),
       ),
     );
   }
 
-  Widget _buildHotelCard() {
+  Widget _buildHotelCard(dynamic hotel) {
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 10),
+      color: Colors.grey[200],
+      margin: EdgeInsets.symmetric(vertical: 6),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-      elevation: 5,
+      elevation: 4,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Row(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                width: 100,
-                height: 100,
-                color: Colors.grey.shade300,
-                child: Icon(Icons.image, size: 50),
-              ),
+            Stack(
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    hotel['hotelName'] ?? '',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(width: 4),
+                      Text(
+                        '${hotel['totalPiont'] ?? 0}/',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.w500),
+                      ),
+                      Icon(Icons.star, color: Colors.amber, size: 18),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'โรงแรม ไอบิส แบงค็อก อิมแพ็ค',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+            Text(hotel['hotelName2'], style: TextStyle(fontSize: 14)),
+            SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    hotel['hotelPhoto'],
+                    width: 120,
+                    height: 100,
+                    fit: BoxFit.cover,
                   ),
-                  Text(
-                    'ibis Bangkok Impact',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                    ),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('ราคา : เริ่มต้น ${hotel['startingPrice']} บาท'),
+                      SizedBox(height: 6),
+                      Text(hotel['location']),
+                      SizedBox(height: 6),
+                      Text('โทรศัพท์ : ${hotel['phone']}'),
+                      if (hotel['contact'].isNotEmpty) ...[
+                        SizedBox(height: 6),
+                        Text(
+                          'Facebook : ${hotel['contact']}',
+                          style: TextStyle(
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'ราคา : เริ่มต้น 1,275 บาท',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Text(
-                    'ที่ตั้ง : 93 Popular Road, Banmai Subdistrict, NONTHABURI, 11120',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade700,
-                    ),
-                  ),
-                  Text(
-                    'โทรศัพท์ : 020117777',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade700,
-                    ),
-                  ),
-                  Text(
-                    'Facebook : ibis Bangkok Impact',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.blue,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),

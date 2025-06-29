@@ -1,153 +1,280 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:http/http.dart' as http;
+
+import 'package:project_concert_closeiin/Page/Artist/artist.dart';
+import 'package:project_concert_closeiin/Page/Home.dart';
+import 'package:project_concert_closeiin/Page/Member/EditProfileMember.dart';
+import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
+import 'package:project_concert_closeiin/Page/Member/Notification.dart';
+import 'package:project_concert_closeiin/config/internet_config.dart';
 
 class ProfileMember extends StatefulWidget {
   int userId;
-  ProfileMember({super.key,  required this.userId});
+  ProfileMember({super.key, required this.userId});
+
   @override
   _ProfileMemberState createState() => _ProfileMemberState();
 }
 
 class _ProfileMemberState extends State<ProfileMember> {
-  int _currentIndex = 0; // เก็บสถานะ index ที่ถูกเลือก
+  int _currentIndex = 3;
+  bool isLoading = true;
+  Map<String, dynamic>? userData;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+
+  Future<void> fetchUserData() async {
+    final url = Uri.parse(
+        '$API_ENDPOINT/user?userID=${widget.userId}'); 
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          userData = data;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+        print('User not found or error occurred: ${response.statusCode}');
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print('Error fetching user: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile' ,
-        style:
-              TextStyle(color: const Color.fromARGB(255, 255, 255, 255)),
-              ),
-        backgroundColor: Color.fromARGB(255, 190, 150, 198),
-        actions: [
+        automaticallyImplyLeading: false,
+        title: Text(
+          'Profile',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+             actions: [
           IconButton(
-            icon: Icon(Icons.more_vert),
+            icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () {
-              // Add action here
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Confirm Logout'),
+                    content: const Text('Are you sure you want to log out?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('No'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                  builder: (context) => const homeLogoPage()));
+                        },
+                        child: const Text('Yes'),
+                      ),
+                    ],
+                  );
+                },
+              );
             },
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: 50,
-              backgroundColor: Colors.black,
-              child: Icon(
-                Icons.person,
-                size: 80,
-                color: Colors.white,
-              ),
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Mild Pijittra',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              'pijittra12@gmail.com',
-              style: TextStyle(color: Colors.grey),
-            ),
-            SizedBox(height: 24),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Name: ',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.only(top: 50),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                 CircleAvatar(
+  radius: 100,
+  backgroundColor: Colors.black,
+  backgroundImage: userData?['photo'] != null
+      ? NetworkImage(userData!['photo'])
+      : null,
+  child: userData?['photo'] == null
+      ? Icon(
+          Icons.person,
+          size: 80,
+          color: Colors.white,
+        )
+      : null,
+),
+
+                  SizedBox(height: 16),
+                  Text(
+                    userData?['name'] ?? 'No Name',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    userData?['email'] ?? 'No Email',
+                    style: TextStyle(fontSize: 16,color: Colors.grey),
+                  ),
+                  SizedBox(height: 24),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 125),
+                            child: Text('Name ',
+                                style: TextStyle(fontSize: 16)),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 50),
+                            child: Text(userData?['name'] ?? '-',
+                                style: TextStyle(color: Colors.grey,fontSize: 16)),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 125),
+                            child: Text('Phone',
+                                style: TextStyle(fontSize: 16)),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 50),
+                            child: Text(userData?['phone'] ?? '-',
+                                style: TextStyle(color: Colors.grey,fontSize: 16)),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                SizedBox(height: 150),
+                SizedBox(
+                  width: 200,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {
+                       Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => EditProfileMember(userId: widget.userId)),
+              );
+                      },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:  Color.fromRGBO(201, 151, 187, 1),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
                     ),
-                    Text(
-                      'Mild Pijittra',
-                      style: TextStyle(color: Colors.grey),
+                    child: Text(
+                      'Edit',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: Colors.white,
+                      ),
                     ),
-                  ],
+                  ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Phone: ',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                  SizedBox(height: 16),
+                  SizedBox(
+                  width: 220,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      
+                      },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:  Color.fromRGBO(201, 151, 187, 1),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
                     ),
-                    Text(
-                      '0987654321',
-                      style: TextStyle(color: Colors.grey),
+                    child: Text(
+                      'Delete User Account',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
                     ),
-                  ],
-                ),
-              ],
-            ),
-            Spacer(),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.purple.shade200,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              onPressed: () {
-                // Add edit action
-              },
-              child: Text(
-                'Edit',
-                style:
-                    TextStyle(color: const Color.fromARGB(255, 255, 255, 255)),
+                  ),
+                ),   ],
               ),
             ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.purple.shade100,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              onPressed: () {
-                // Add delete account action
-              },
-              child: Text(
-                'Delete User Account',
-                style:
-                    TextStyle(color: const Color.fromARGB(255, 255, 255, 255)),
-              ),
-            ),
-          ],
-        ),
-      ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex, // ระบุไอคอนที่เลือก
-        selectedItemColor: Colors.purple.shade200,
-        unselectedItemColor: Colors.grey,
+        currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
-            _currentIndex = index; // อัปเดตสถานะเมื่อคลิก
+            _currentIndex = index;
           });
-          if (index == 0) {
-            // Navigate to Home
-          } else if (index == 1) {
-            // Navigate to ECG Heart Page
-          } else if (index == 2) {
-            // Navigate to Notifications
-          } else if (index == 3) {
-            // Navigate to Profile
+          switch (index) {
+            case 0:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Homemember(userId: widget.userId)),
+              );
+              break;
+            case 1:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ArtistPage(userId: widget.userId)),
+              );
+              break;
+            case 2:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        NotificationPage(userId: widget.userId)),
+              );
+              break;
+            case 3:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        ProfileMember(userId: widget.userId)),
+              );
+              break;
           }
         },
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white70,
+        showUnselectedLabels: false,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
           BottomNavigationBarItem(
-              icon: Icon(FontAwesomeIcons.heartPulse),
-              label: 'Favorite Atrist'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.notifications), label: 'Notifications'),
+              icon: Icon(FontAwesomeIcons.heartPulse), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: ''),
           BottomNavigationBarItem(icon: Icon(Icons.face), label: 'Profile'),
         ],
       ),

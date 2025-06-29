@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Hotel/AddHotel.dart';
 
 class HomeHotel extends StatefulWidget {
@@ -13,7 +14,36 @@ class _HomeHotelState extends State<HomeHotel> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(actions: [
+          IconButton(
+      icon: const Icon(Icons.logout, color: Colors.white),
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Confirm Logout'),
+              content: const Text('Are you sure you want to log out?'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('No'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const homeLogoPage()));
+                  },
+                  child: const Text('Yes'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    ),
+        ],),
       body: Center(
         child: SizedBox(
                             width: 200,

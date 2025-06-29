@@ -19,7 +19,8 @@ class UserSearchHGetResponse {
   String location;      
   double lat;            
   double long;           
-  double? distance;      
+  double? distance; 
+  int totalPiont;     
 
   UserSearchHGetResponse({
     required this.hotelId,
@@ -34,6 +35,7 @@ class UserSearchHGetResponse {
     required this.lat,
     required this.long,
     this.distance, 
+    required this.totalPiont,
   });
 
   factory UserSearchHGetResponse.fromJson(Map<String, dynamic> json) =>
@@ -49,7 +51,8 @@ class UserSearchHGetResponse {
         location: json["location"],                         
         lat: json["lat"]?.toDouble() ?? 0.0,                 
         long: json["long"]?.toDouble() ?? 0.0,               
-        distance: json["distance"]?.toDouble(),             
+        distance: json["distance"]?.toDouble(),  
+        totalPiont: json["totalPiont"] ?? 0,           
       );
 
   Map<String, dynamic> toJson() => {
@@ -64,6 +67,7 @@ class UserSearchHGetResponse {
         "location": location,                               
         "lat": lat,                                         
         "long": long,                                        
-        "distance": distance,                               
+        "distance": distance, 
+        "totalPiont": totalPiont,                              
       };
 }
