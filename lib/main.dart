@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:project_concert_closeiin/Page/Admin/AaminHotel.dart';
 import 'package:project_concert_closeiin/Page/Admin/HomeAdmin.dart';
 import 'package:project_concert_closeiin/Page/Artist/artist.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
@@ -46,10 +47,13 @@ class MyApp extends StatelessWidget {
       ),
       // home: RestaurantSearch(userId: 3)
       // home: Event(userId: 3)
-      home: Homemember(userId: 3)
+      // home: Homemember(userId: 3)
       // home: Eventdetailmember(userId: 3,eventID: 1,),
       // home: ArtistUserPage()
       // home: HomeAdmin(userId: 7,)
+      home: AdminHotelPage(userId: 7,)
+      // home: HotelSearch(userId: 3,)
+  
     );
   }
 }
