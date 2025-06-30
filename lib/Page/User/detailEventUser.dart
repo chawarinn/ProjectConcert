@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:project_concert_closeiin/Page/Member/RoomShareEvent.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -18,17 +17,16 @@ import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
-class Eventdetailmember extends StatefulWidget {
-  final int userId;
+class EventdetailUser extends StatefulWidget {
   final int eventID;
 
-  Eventdetailmember({super.key, required this.userId, required this.eventID});
+  EventdetailUser({super.key,required this.eventID});
 
   @override
-  _EventDetailMemberState createState() => _EventDetailMemberState();
+  _EventDetailUserState createState() => _EventDetailUserState();
 }
 
-class _EventDetailMemberState extends State<Eventdetailmember> {
+class _EventDetailUserState extends State<EventdetailUser> {
   int _currentIndex = 0;
   Map<String, dynamic>? event;
   bool isLoading = true;
@@ -201,7 +199,7 @@ class _EventDetailMemberState extends State<Eventdetailmember> {
                           backgroundColor: Colors.grey[200],
                           padding:
                               EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          minimumSize: Size(100, 0),
+                              minimumSize: Size(100, 0),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
@@ -268,11 +266,12 @@ class _EventDetailMemberState extends State<Eventdetailmember> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           ElevatedButton(
+                        
                             style: TextButton.styleFrom(
                               backgroundColor: Color.fromRGBO(201, 151, 187, 1),
                               padding: EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 4),
-                              minimumSize: Size(100, 0),
+                                   minimumSize: Size(100, 0),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                               ),
@@ -287,8 +286,7 @@ class _EventDetailMemberState extends State<Eventdetailmember> {
                             },
                             child: Text(
                               'Ticket',
-                              style: TextStyle(
-                                  color: const Color.fromARGB(206, 0, 0, 0)),
+                              style: TextStyle(color: const Color.fromARGB(206, 0, 0, 0)),
                             ),
                           ),
                           ElevatedButton(
@@ -296,83 +294,32 @@ class _EventDetailMemberState extends State<Eventdetailmember> {
                               backgroundColor: Color.fromRGBO(201, 151, 187, 1),
                               padding: EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 4),
-                              minimumSize: Size(100, 0),
+                                    minimumSize: Size(100, 0),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                               ),
                             ),
                             onPressed: () async {
-                              final result = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => Hotelevent(
-                                    userId: widget.userId,
-                                    eventID: widget.eventID,
-                                    eventLat: event!['lat'],
-                                    eventLng: event!['long'],
-                                  ),
-                                ),
-                              );
-                              if (result == true) {
-                                setState(() {
-                                  isLoading = true;
-                                });
-                                fetchEvent();
-                              }
+                              //         final result = await Navigator.push(
+                              //           context,
+                              //           MaterialPageRoute(
+                              //     builder: (_) => Hotelevent(
+                              //       userId: widget.userId,
+                              //       eventID: widget.eventID,
+                              //       eventLat: event!['lat'],
+                              //       eventLng: event!['long'],
+                              //     ),
+                              //   ),
+                              // );
+                              //   if (result == true) {
+                              //           setState(() {
+                              //             isLoading = true;
+                              //           });
+                              //           fetchEvent();
+                              //         }
                             },
                             child: Text('Hotel',
-                                style: TextStyle(
-                                    color: const Color.fromARGB(206, 0, 0, 0))),
-                          ),
-                          // GestureDetector(
-                          //   onTap: () {
-                          //     // ทำสิ่งที่ต้องการเมื่อกดปุ่ม Room Share
-                          //     print('Room share tapped');
-                          //     // หรือไปหน้าใหม่ก็ได้
-                          //   },
-                          //   child: Container(
-                          //     width: 44,
-                          //     height: 44,
-                          //     decoration: BoxDecoration(
-                          //       color: Color.fromRGBO(201, 151, 187, 1),
-                          //       shape: BoxShape.circle,
-                          //     ),
-                          //     child: Icon(
-                          //       Icons.bed,
-                          //       color: Colors.black87,
-                          //     ),
-                          //   ),
-                          // ),
-                          ElevatedButton(
-                            style: TextButton.styleFrom(
-                              backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
-                              minimumSize: Size(100, 0),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                            ),
-                            onPressed: () async {
-                              final result = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => RoomshareEvent(
-                                    userId: widget.userId,
-                                    eventID: widget.eventID,
-                                  ),
-                                ),
-                              );
-                              if (result == true) {
-                                setState(() {
-                                  isLoading = true;
-                                });
-                                fetchEvent();
-                              }
-                            },
-                            child: Text('RoomShare',
-                                style: TextStyle(
-                                    color: const Color.fromARGB(206, 0, 0, 0))),
+                                style: TextStyle(color: const Color.fromARGB(206, 0, 0, 0))),
                           ),
                         ],
                       ),
@@ -432,36 +379,36 @@ class _EventDetailMemberState extends State<Eventdetailmember> {
           setState(() {
             _currentIndex = index;
           });
-          switch (index) {
-            case 0:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => Homemember(userId: widget.userId)),
-              );
-              break;
-            case 1:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => ArtistPage(userId: widget.userId)),
-              );
-              break;
-            case 2:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => NotificationPage(userId: widget.userId)),
-              );
-              break;
-            case 3:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => ProfileMember(userId: widget.userId)),
-              );
-              break;
-          }
+          // switch (index) {
+          //   case 0:
+          //     Navigator.pushReplacement(
+          //       context,
+          //       MaterialPageRoute(
+          //           builder: (_) => Homemember(userId: widget.userId)),
+          //     );
+          //     break;
+          //   case 1:
+          //     Navigator.pushReplacement(
+          //       context,
+          //       MaterialPageRoute(
+          //           builder: (_) => ArtistPage(userId: widget.userId)),
+          //     );
+          //     break;
+          //   case 2:
+          //     Navigator.pushReplacement(
+          //       context,
+          //       MaterialPageRoute(
+          //           builder: (_) => NotificationPage(userId: widget.userId)),
+          //     );
+          //     break;
+          //   case 3:
+          //     Navigator.pushReplacement(
+          //       context,
+          //       MaterialPageRoute(
+          //           builder: (_) => ProfileMember(userId: widget.userId)),
+          //     );
+          //     break;
+          // }
         },
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         type: BottomNavigationBarType.fixed,

@@ -750,7 +750,6 @@ class _DetailHotelState extends State<DetailHotel> {
                                   ),
                                 ),
                               )),
-                          // ปุ่มดูร้านอาหารทั้งหมด แยกออกมา
                           Container(
                             margin: EdgeInsets.only(right: 12),
                             alignment: Alignment.center,
@@ -783,7 +782,7 @@ class _DetailHotelState extends State<DetailHotel> {
                                   fetchTotalPointFromFirebase();
                                 }
                               },
-                              child: Text("เพิ่มเติม",
+                              child: Text("More",
                                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold,color: Colors.black)),
                             ),
                           ),

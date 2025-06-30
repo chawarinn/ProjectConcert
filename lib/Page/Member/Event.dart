@@ -238,7 +238,6 @@ class _Event extends State<Event> {
       ),
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:project_concert_closeiin/Page/Admin/HomeAdmin.dart';
 import 'package:project_concert_closeiin/Page/Event/AddEvent.dart';
 import 'package:project_concert_closeiin/Page/Hotel/HomeHotel.dart';
+import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
 import 'package:project_concert_closeiin/Page/Member/hotel_search.dart';
 import 'package:project_concert_closeiin/Page/Restaurant/AddRestaurant.dart';
 import 'package:project_concert_closeiin/config/config.dart';
@@ -269,7 +270,7 @@ class _LoginPageState extends State<LoginPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => HotelSearch(userId: users.user.userId),
+              builder: (context) => Homemember(userId: users.user.userId),
             ),
           );
           break;
