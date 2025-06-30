@@ -104,7 +104,7 @@ String? selectedAddress;
           icon:
               const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.pop(context, true);
           },
         ),
         actions: [

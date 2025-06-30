@@ -7,6 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:project_concert_closeiin/Page/Artist/artist.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
+import 'package:project_concert_closeiin/Page/Member/DetailHotel.dart';
 import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
 import 'package:project_concert_closeiin/Page/Member/Notification.dart';
 import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
@@ -69,7 +70,6 @@ class _HoteleventState extends State<Hotelevent> {
         List<UserHotelGetResponse> loadedHotels =
             jsonData.map((e) => UserHotelGetResponse.fromJson(e)).toList();
 
-        // คำนวณระยะทาง
         for (var hotel in loadedHotels) {
           if (hotel.lat != null && hotel.long != null) {
             hotel.distance = calculateDistance(
@@ -79,21 +79,19 @@ class _HoteleventState extends State<Hotelevent> {
               hotel.long!,
             );
           } else {
-            hotel.distance = double.infinity; // กรณีไม่มีพิกัด ให้ระยะทางไกลมาก
+            hotel.distance = double.infinity; 
           }
         }
 
-        // เรียงลำดับตามระยะทาง, ถ้าระยะทางเท่ากัน เรียงตาม totalPiont มากไปน้อย
         loadedHotels.sort((a, b) {
-          int distanceCompare = (a.distance ?? double.infinity)
-              .compareTo(b.distance ?? double.infinity);
-          if (distanceCompare != 0) {
-            return distanceCompare;
-          } else {
-            // ถ้าระยะทางเท่ากัน เรียงคะแนนจากมากไปน้อย
-            return (b.totalPiont ?? 0).compareTo(a.totalPiont ?? 0);
-          }
-        });
+  int distanceCompare = (a.distance ?? double.infinity)
+      .compareTo(b.distance ?? double.infinity);
+  if (distanceCompare != 0) {
+    return distanceCompare; // พิจารณาระยะทางก่อน
+  } else {
+    return (b.totalPiont ?? 0).compareTo(a.totalPiont ?? 0); // ถ้าระยะทางเท่ากัน ค่อยพิจารณาคะแนน
+  }
+});
 
         setState(() {
           hotels = loadedHotels;
@@ -173,17 +171,17 @@ class _HoteleventState extends State<Hotelevent> {
           return price >= minPrice! && price <= maxPrice!;
         }).toList();
 
-        filteredHotels.sort((a, b) {
-          final priceA = double.tryParse(a.startingPrice.toString()) ?? 0.0;
-          final priceB = double.tryParse(b.startingPrice.toString()) ?? 0.0;
-          if (priceA != priceB) {
-            return priceA.compareTo(priceB);
-          } else {
-            final distA = a.distance ?? double.infinity;
-            final distB = b.distance ?? double.infinity;
-            return distA.compareTo(distB);
-          }
-        });
+     filteredHotels.sort((a, b) {
+  final distA = a.distance ?? double.infinity;
+  final distB = b.distance ?? double.infinity;
+  final int distanceCompare = distA.compareTo(distB);
+  if (distanceCompare != 0) {
+    return distanceCompare; // เรียงตามระยะทางก่อน
+  } else {
+    return (b.totalPiont ?? 0).compareTo(a.totalPiont ?? 0); // ถ้าระยะทางเท่ากัน ค่อยดูคะแนน
+  }
+});
+
       } else {
         filteredHotels = List.from(hotels);
       }
@@ -204,85 +202,114 @@ class _HoteleventState extends State<Hotelevent> {
           widget.eventLat, widget.eventLng, hotelLat, hotelLng);
     }
 
-    return Card(
-      color: Colors.grey[200],
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  hotel.hotelName ?? '',
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                Row(
-                  children: [
-                    Text('${hotel.totalPiont ?? 0}/',
-                        style: const TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.w500)),
-                    const Icon(Icons.star, color: Colors.amber, size: 18),
-                  ],
-                ),
-              ],
+    return InkWell(
+      onTap: () async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailHotel(
+              userId: widget.userId,
+              hotelID: hotel.hotelId,
             ),
-            if ((hotel.hotelName2 ?? '').isNotEmpty)
-              Text(hotel.hotelName2, style: const TextStyle(fontSize: 14)),
-            const SizedBox(height: 12),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    hotel.hotelPhoto ?? '',
-                    width: 120,
-                    height: 100,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      width: 120,
-                      height: 100,
-                      color: Colors.grey,
-                      child: const Icon(Icons.broken_image),
-                    ),
+          ),
+        );
+        if (result == true) {
+          setState(() {
+            _isLoading = false;
+          });
+         _fetchAllHotels();
+        }
+      },
+      child: Card(
+        color: Colors.grey[200],
+        margin: const EdgeInsets.symmetric(vertical: 6),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    hotel.hotelName ?? '',
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Row(
                     children: [
-                      Text('ราคา : เริ่มต้น ${hotel.startingPrice} บาท'),
-                      const SizedBox(height: 6),
-                      Text(hotel.location ?? ''),
-                      const SizedBox(height: 6),
-                      Text('โทรศัพท์ : ${hotel.phone ?? ''}'),
-                      if ((hotel.contact ?? '').isNotEmpty) ...[
-                        const SizedBox(height: 6),
-                        Text(
-                          'Facebook : ${hotel.contact}',
+                      Text('${hotel.totalPiont ?? 0}/',
                           style: const TextStyle(
-                              decoration: TextDecoration.underline),
-                        ),
-                      ],
-                      if (distance != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 6),
-                          child: Text(
-                              'ระยะห่างจากอีเวนต์ : ${distance.toStringAsFixed(2)} กม.'),
-                        ),
+                              fontSize: 12, fontWeight: FontWeight.w500)),
+                      const Icon(Icons.star, color: Colors.amber, size: 18),
                     ],
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+              if ((hotel.hotelName2 ?? '').isNotEmpty)
+                Text(hotel.hotelName2, style: const TextStyle(fontSize: 14)),
+              const SizedBox(height: 12),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      hotel.hotelPhoto ?? '',
+                      width: 120,
+                      height: 100,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        width: 120,
+                        height: 100,
+                        color: Colors.grey,
+                        child: const Icon(Icons.broken_image),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('ราคา : เริ่มต้น ${hotel.startingPrice} บาท'),
+                        const SizedBox(height: 6),
+                        Text(hotel.location ?? ''),
+                        const SizedBox(height: 6),
+                        Text('โทรศัพท์ : ${hotel.phone ?? ''}'),
+                        if ((hotel.contact ?? '').isNotEmpty) ...[
+                          const SizedBox(height: 6),
+                         Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "Facebook : ",
+                                ),
+                                TextSpan(
+                                  text: hotel.contact,
+                                  style: TextStyle(
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                        if (distance != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 6),
+                            child: Text(
+                                'ระยะทาง : ${distance.toStringAsFixed(2)} กม.'),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -300,7 +327,7 @@ class _HoteleventState extends State<Hotelevent> {
         leading: IconButton(
           icon:
               const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.pop(context, true),
         ),
         actions: [
           IconButton(

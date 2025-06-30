@@ -196,14 +196,20 @@ class _Event extends State<Event> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
+                        onPressed: () async {
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
                                 builder: (context) => Eventdetailmember(
                                     userId: widget.userId,
                                     eventID: event['eventID'])),
                           );
+                          if (result == true) {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+                                        fetchEvent();
+                                      }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
@@ -240,9 +246,9 @@ class _Event extends State<Event> {
         leading: IconButton(
           icon:
               const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+         onPressed: () {
+    Navigator.pop(context, true); 
+  },
         ),
         title: Text(
           'Event',

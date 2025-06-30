@@ -63,6 +63,7 @@ class _ProfileMemberState extends State<ProfileMember> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        
         automaticallyImplyLeading: false,
         title: Text(
           'Profile',
@@ -177,12 +178,18 @@ class _ProfileMemberState extends State<ProfileMember> {
                   width: 200,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: () {
-                       Navigator.push(
-                context,
-                MaterialPageRoute(
+                    onPressed: () async {
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
                     builder: (context) => EditProfileMember(userId: widget.userId)),
               );
+                if (result == true) {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+                                        fetchUserData();
+                                      }
                       },
                     style: ElevatedButton.styleFrom(
                       backgroundColor:  Color.fromRGBO(201, 151, 187, 1),
