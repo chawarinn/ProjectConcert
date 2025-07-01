@@ -179,10 +179,8 @@ class _LoginPageState extends State<LoginPage> {
                                     Navigator.of(context).pop();
                                   },
                                   child: Text(
-                                    'ตกลง',
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    'OK',
+                                     style: TextStyle(color: Colors.black)
                                   ),
                                 ),
                               ],
@@ -210,10 +208,8 @@ class _LoginPageState extends State<LoginPage> {
                                     Navigator.of(context).pop();
                                   },
                                   child: Text(
-                                    'ตกลง',
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    'OK',
+                                     style: TextStyle(color: Colors.black)
                                   ),
                                 ),
                               ],
@@ -246,8 +242,22 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+//   void showLoadingDialog() {
+//   showDialog(
+//     context: context,
+//     barrierDismissible: false,
+//     builder: (context) => Center(
+//       child: CircularProgressIndicator(),
+//     ),
+//   );
+// }
+
+// void hideLoadingDialog() {
+//   Navigator.of(context, rootNavigator: true).pop();
+// }
 
   void loginU() async {
+    // showLoadingDialog();
     log(emailCtl.text);
     log(passwordCtl.text);
     try {
@@ -308,7 +318,8 @@ class _LoginPageState extends State<LoginPage> {
           break;
       }
     } catch (error) {
-      log(error.toString() + 'eiei');
+      // hideLoadingDialog();
+      log(error.toString() );
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -326,10 +337,8 @@ class _LoginPageState extends State<LoginPage> {
                   Navigator.of(context).pop();
                 },
                 child: Text(
-                  'ตกลง',
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  'OK',
+                   style: TextStyle(color: Colors.black)
                 ),
               ),
             ],

@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:project_concert_closeiin/Page/Home.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:project_concert_closeiin/Page/Member/artist.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:project_concert_closeiin/Page/Artist/artist.dart';
 import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
 import 'package:project_concert_closeiin/Page/Member/Notification.dart';
 import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
@@ -301,13 +299,13 @@ data.sort((a, b) => a['distance'].compareTo(b['distance']));
                 builder: (BuildContext context) {
                   return AlertDialog(
                     title: const Text('Confirm Logout'),
-                    content: const Text('Are you sure you want to log out?'),
+                    content: const Text('คุณต้องการออกจากระบบ?'),
                     actions: [
                       TextButton(
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
-                        child: const Text('No'),
+                        child: const Text('No',style: TextStyle(color: Colors.black)),
                       ),
                       TextButton(
                         onPressed: () {
@@ -315,7 +313,7 @@ data.sort((a, b) => a['distance'].compareTo(b['distance']));
                               MaterialPageRoute(
                                   builder: (context) => const homeLogoPage()));
                         },
-                        child: const Text('Yes'),
+                        child: const Text('Yes',style: TextStyle(color: Colors.black)),
                       ),
                     ],
                   );

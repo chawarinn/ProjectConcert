@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
 import 'firebase_options.dart';
 
@@ -29,10 +30,10 @@ class MyApp extends StatelessWidget {
       ),
       // home: RestaurantSearch(userId: 3)
       // home: Event(userId: 3)
-      home: Homemember(userId: 3)
+      home: Homemember(userId: 13)
       // home: Homemember(userId: 8)
       // home: Eventdetailmember(userId: 3,eventID: 1,),
-      // home: ArtistUserPage()
+      // home: homeLogoPage()
       // home: HomeAdmin(userId: 7,)
     );
   }

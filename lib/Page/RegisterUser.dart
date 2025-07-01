@@ -142,6 +142,7 @@ if (!nameRegex.hasMatch(fullnameCtl.text)) {
     }
 
     try {
+      showLoadingDialog(); 
       var uri = Uri.parse("$API_ENDPOINT/registerU");
       var request = http.MultipartRequest('POST', uri);
 
@@ -166,6 +167,8 @@ if (!nameRegex.hasMatch(fullnameCtl.text)) {
 
       var response = await request.send();
 
+       hideLoadingDialog();
+
       if (response.statusCode == 201) {
         var data = await response.stream.bytesToString();
         log(data);
@@ -183,6 +186,7 @@ if (!nameRegex.hasMatch(fullnameCtl.text)) {
             context, "ไม่สามารถสมัครสมาชิกได้ เบอร์โทรหรืออีเมลนี้ถูกใช้ไปแล้ว");
       }
     } catch (e) {
+      hideLoadingDialog();
       _showAlertDialog(context, "Error during registration: $e");
     }
   }
@@ -203,13 +207,27 @@ if (!nameRegex.hasMatch(fullnameCtl.text)) {
                   onOkPressed();
                 }
               },
-              child: const Text("OK"),
+              child: const Text("OK", style: TextStyle(color: Colors.black)),
             ),
           ],
         );
       },
     );
   }
+  void showLoadingDialog() {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => Center(
+      child: CircularProgressIndicator(),
+    ),
+  );
+}
+
+void hideLoadingDialog() {
+  Navigator.of(context, rootNavigator: true).pop();
+}
+
 
   Widget _buildTextField(String label, TextEditingController controller,
       {bool obscureText = false,

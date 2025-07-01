@@ -1,27 +1,24 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:project_concert_closeiin/Page/Home.dart';
-import 'package:project_concert_closeiin/Page/Member/EventDetailMember.dart';
-import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
-import 'package:project_concert_closeiin/Page/Member/Notification.dart';
-import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
-import 'package:project_concert_closeiin/Page/Member/artist.dart';
+import 'package:project_concert_closeiin/Page/Login.dart';
+import 'package:project_concert_closeiin/Page/RegisterUser.dart';
+import 'package:project_concert_closeiin/Page/User/HomeUser.dart';
+import 'package:project_concert_closeiin/Page/User/artistUser.dart';
+import 'package:project_concert_closeiin/Page/User/detailEventUser.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
-class Event extends StatefulWidget {
-  int userId;
-  Event({super.key, required this.userId});
-
+class Eventuser extends StatefulWidget {
   @override
-  _Event createState() => _Event();
+  _EventuserState createState() => _EventuserState();
 }
 
-class _Event extends State<Event> {
+class _EventuserState extends State<Eventuser> {
   int _currentIndex = 0;
   TextEditingController searchController = TextEditingController();
   String searchQuery = '';
@@ -200,8 +197,7 @@ class _Event extends State<Event> {
                                       final result = await Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                builder: (context) => Eventdetailmember(
-                                    userId: widget.userId,
+                                builder: (context) => EventdetailUser(
                                     eventID: event['eventID'])),
                           );
                           if (result == true) {
@@ -257,39 +253,42 @@ class _Event extends State<Event> {
           ),
         ),
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-              actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('Confirm Logout'),
-                    content: const Text('คุณต้องการออกจากระบบ?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('No',style: TextStyle(color: Colors.black)),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => const homeLogoPage()));
-                        },
-                        child: const Text('Yes',style: TextStyle(color: Colors.black)),
-                      ),
-                    ],
+               actions: [
+            PopupMenuButton<String>(
+              icon: const Icon(
+                Icons.more_vert,
+                color: Colors.white,
+              ),
+              onSelected: (value) {
+                if (value == 'Login') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const LoginPage()), 
                   );
-                },
-              );
-            },
-          ),
-        ],
-      ),
+                } else if (value == 'Sign Up') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const RegisterPageUser()), 
+                  );
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem<String>(
+                  value: 'Login',
+                  child: Text('Log in',  style: TextStyle(color: Colors.black)),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'Sign Up',
+                  child: Text('Sign Up',  style: TextStyle(color: Colors.black)),
+                ),
+              ],
+            ),
+          ],
+        ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -349,45 +348,78 @@ class _Event extends State<Event> {
             ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
+           bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          switch (index) {
-            case 0:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        Homemember(userId: widget.userId)), // 👈 ใส่หน้า Home
-              );
-              break;
-            case 1:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ArtistPage(userId: widget.userId)),
-              );
-              break;
-            case 2:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        NotificationPage(userId: widget.userId)),
-              );
-              break;
-            case 3:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ProfileMember(
-                          userId: widget.userId,
-                        )),
-              );
-              break;
+          if (index == 2 || index == 3) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  titlePadding: EdgeInsets.only(
+                      top: 16, left: 16, right: 8), // เพิ่ม padding สวยงาม
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Notification',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close),
+                        splashRadius: 20,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  ),
+                  content: Text('กรุณาเข้าสู่ระบบก่อน'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                        );
+                      },
+                      child: Text('Log in', style: TextStyle(color: Colors.black)),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => RegisterPageUser()),
+                        );
+                      },
+                      child: Text('Sign up', style: TextStyle(color: Colors.black)),
+                    ),
+                  ],
+                );
+              },
+            );
+          } else {
+            setState(() {
+              _currentIndex = index;
+            });
+
+            switch (index) {
+              case 0:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeUser()),
+                );
+                break;
+              case 1:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => ArtistUserPage()),
+                );
+                break;
+            }
           }
         },
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),

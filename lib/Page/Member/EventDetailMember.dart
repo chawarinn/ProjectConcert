@@ -5,11 +5,11 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:project_concert_closeiin/Page/Member/RoomShareEvent.dart';
+import 'package:project_concert_closeiin/Page/Member/artist.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:project_concert_closeiin/Page/Artist/artist.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
 import 'package:project_concert_closeiin/Page/Member/HotelEvent.dart';
@@ -144,15 +144,15 @@ class _EventDetailMemberState extends State<Eventdetailmember> {
                 context: context,
                 builder: (_) => AlertDialog(
                   title: Text('Confirm Logout'),
-                  content: Text('Are you sure you want to log out?'),
+                  content: Text('คุณต้องการออกจากระบบ?'),
                   actions: [
                     TextButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        child: Text('No')),
+                        child: Text('No',style: TextStyle(color: Colors.black))),
                     TextButton(
                       onPressed: () => Navigator.of(context).pushReplacement(
                           MaterialPageRoute(builder: (_) => homeLogoPage())),
-                      child: Text('Yes'),
+                      child: Text('Yes',style: TextStyle(color: Colors.black)),
                     ),
                   ],
                 ),

@@ -5,10 +5,10 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:project_concert_closeiin/Page/Artist/artist.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
 import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
+import 'package:project_concert_closeiin/Page/Member/artist.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 
 class NotificationPage extends StatefulWidget {
@@ -122,11 +122,11 @@ class _NotificationPageState extends State<NotificationPage> {
                 builder: (BuildContext context) {
                   return AlertDialog(
                     title: const Text('Confirm Logout'),
-                    content: const Text('Are you sure you want to log out?'),
+                    content: const Text('คุณต้องการออกจากระบบ?'),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('No'),
+                        child: const Text('No',style: TextStyle(color: Colors.black)),
                       ),
                       TextButton(
                         onPressed: () {
@@ -134,7 +134,7 @@ class _NotificationPageState extends State<NotificationPage> {
                             MaterialPageRoute(builder: (context) => const homeLogoPage()),
                           );
                         },
-                        child: const Text('Yes'),
+                        child: const Text('Yes',style: TextStyle(color: Colors.black)),
                       ),
                     ],
                   );
@@ -218,7 +218,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                                                 padding: const EdgeInsets.symmetric(horizontal: 24),
                                               ),
-                                              child: Text('No'),
+                                              child: Text('No',style: TextStyle(color: Colors.black)),
                                             ),
                                             const SizedBox(width: 12),
                                             ElevatedButton(
@@ -228,7 +228,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                                                 padding: const EdgeInsets.symmetric(horizontal: 24),
                                               ),
-                                              child: Text('Yes'),
+                                              child: Text('Yes',style: TextStyle(color: Colors.black)),
                                             ),
                                           ],
                                         ),

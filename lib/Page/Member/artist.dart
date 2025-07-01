@@ -184,11 +184,11 @@ class _ArtistPageState extends State<ArtistPage> {
                 context: context,
                 builder: (BuildContext context) => AlertDialog(
                   title: const Text('Confirm Logout'),
-                  content: const Text('Are you sure you want to log out?'),
+                  content: const Text('คุณต้องการออกจากระบบ?'),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('No'),
+                      child: const Text('No',style: TextStyle(color: Colors.black)),
                     ),
                     TextButton(
                       onPressed: () {
@@ -197,7 +197,7 @@ class _ArtistPageState extends State<ArtistPage> {
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
                         );
                       },
-                      child: const Text('Yes'),
+                      child: const Text('Yes',style: TextStyle(color: Colors.black)),
                     ),
                   ],
                 ),

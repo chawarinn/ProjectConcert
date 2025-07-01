@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:project_concert_closeiin/Page/Artist/artist.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
 import 'package:project_concert_closeiin/Page/Member/Notification.dart';
 import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
 import 'package:project_concert_closeiin/Page/Member/RoomshareDetail.dart';
+import 'package:project_concert_closeiin/Page/Member/artist.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
 class RoomshareEvent extends StatefulWidget {
@@ -193,11 +193,11 @@ class _RoomshareEventState extends State<RoomshareEvent> {
                 context: context,
                 builder: (BuildContext context) => AlertDialog(
                   title: const Text('Confirm Logout'),
-                  content: const Text('Are you sure you want to log out?'),
+                  content: const Text('คุณต้องการออกจากระบบ?'),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('No'),
+                      child: const Text('No',style: TextStyle(color: Colors.black)),
                     ),
                     TextButton(
                       onPressed: () {
@@ -206,7 +206,7 @@ class _RoomshareEventState extends State<RoomshareEvent> {
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
                         );
                       },
-                      child: const Text('Yes'),
+                      child: const Text('Yes',style: TextStyle(color: Colors.black)),
                     ),
                   ],
                 ),
@@ -226,7 +226,7 @@ class _RoomshareEventState extends State<RoomshareEvent> {
                 } else if (snapshot.hasError) {
                   return Center(child: Text('เกิดข้อผิดพลาดในการโหลดข้อมูล'));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(child: Text('ไม่มีโพสต์ RoomShare'));
+                  return Center(child: Text('No RoomShare'));
                 }
       
                 return Padding(

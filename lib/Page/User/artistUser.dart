@@ -4,12 +4,9 @@ import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
-import 'package:project_concert_closeiin/Page/Member/Notification.dart';
-import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
+import 'package:project_concert_closeiin/Page/Login.dart';
+import 'package:project_concert_closeiin/Page/RegisterUser.dart';
 import 'package:project_concert_closeiin/Page/User/HomeUser.dart';
-import 'package:project_concert_closeiin/Page/User/NotificationUser.dart';
-import 'package:project_concert_closeiin/Page/User/ProfileUser.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
@@ -116,7 +113,8 @@ class _ArtistUserPageState extends State<ArtistUserPage> {
 
     return Scaffold(
       appBar: AppBar(
-         automaticallyImplyLeading: false,
+         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+          automaticallyImplyLeading: false,
         title: Text(
           "Artist",
           style: GoogleFonts.poppins(
@@ -124,9 +122,42 @@ class _ArtistUserPageState extends State<ArtistUserPage> {
             color: Colors.white,
           ),
         ),
-        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-        actions: const [Icon(Icons.more_vert)],
-      ),
+          actions: [
+            PopupMenuButton<String>(
+              icon: const Icon(
+                Icons.more_vert,
+                color: Colors.white,
+              ),
+              onSelected: (value) {
+                if (value == 'Login') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const LoginPage()), 
+                  );
+                } else if (value == 'Sign Up') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const RegisterPageUser()), 
+                  );
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem<String>(
+                  value: 'Login',
+                  child: Text('Log in', style: TextStyle(color: Colors.black)),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'Sign Up',
+                  child: Text('Sign Up', style: TextStyle(color: Colors.black)),
+                ),
+              ],
+            ),
+          ],
+        ),
 body: Column(
   children: [
     Padding(
@@ -190,43 +221,78 @@ body: Column(
       ),
   ],
 ),
-      bottomNavigationBar: BottomNavigationBar(
+     bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          switch (index) {
-            case 0:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        HomeUser()),
-              );
-              break;
-            case 1:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ArtistUserPage()),
-              );
-              break;
-            case 2:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        NotificationUserPage()),
-              );
-              break;
-            case 3:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => Profileuser()),
-              );
-              break;
+          if (index == 2 || index == 3) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  titlePadding: EdgeInsets.only(
+                      top: 16, left: 16, right: 8), // เพิ่ม padding สวยงาม
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Notification',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close),
+                        splashRadius: 20,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  ),
+                  content: Text('กรุณาเข้าสู่ระบบก่อน'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                        );
+                      },
+                      child: Text('Log in', style: TextStyle(color: Colors.black)),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => RegisterPageUser()),
+                        );
+                      },
+                      child: Text('Sign up', style: TextStyle(color: Colors.black)),
+                    ),
+                  ],
+                );
+              },
+            );
+          } else {
+            setState(() {
+              _currentIndex = index;
+            });
+
+            switch (index) {
+              case 0:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeUser()),
+                );
+                break;
+              case 1:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => ArtistUserPage()),
+                );
+                break;
+            }
           }
         },
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
@@ -296,12 +362,46 @@ body: Column(
               context: context,
               builder: (context) {
                 return AlertDialog(
-                  title: Text('Notification'),
-                  content: Text('Please log in first to continue'),
+                  titlePadding: EdgeInsets.only(
+                      top: 16, left: 16, right: 8), // เพิ่ม padding สวยงาม
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Notification',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close),
+                        splashRadius: 20,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  ),
+                  content: Text('กรุณาเข้าสู่ระบบก่อน'),
                   actions: [
                     TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text('OK'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                        );
+                      },
+                      child: Text('Log in', style: TextStyle(color: Colors.black)),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => RegisterPageUser()),
+                        );
+                      },
+                      child: Text('Sign up', style: TextStyle(color: Colors.black)),
                     ),
                   ],
                 );

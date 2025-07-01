@@ -6,7 +6,6 @@ import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:project_concert_closeiin/Page/Artist/artist.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Member/DetailHotel.dart';
 import 'package:project_concert_closeiin/Page/Member/Event.dart';
@@ -15,6 +14,7 @@ import 'package:project_concert_closeiin/Page/Member/Notification.dart';
 import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
 import 'package:project_concert_closeiin/Page/Member/Restaurant_search.dart';
 import 'package:project_concert_closeiin/Page/Member/RoomShare.dart';
+import 'package:project_concert_closeiin/Page/Member/artist.dart';
 import 'package:project_concert_closeiin/Page/Member/hotel_search.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
@@ -105,13 +105,13 @@ class _HomeMember extends State<Homemember> {
                 builder: (BuildContext context) {
                   return AlertDialog(
                     title: const Text('Confirm Logout'),
-                    content: const Text('Are you sure you want to log out?'),
+                    content: const Text('คุณต้องการออกจากระบบ?'),
                     actions: [
                       TextButton(
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
-                        child: const Text('No'),
+                        child: const Text('No',style: TextStyle(color: Colors.black)),
                       ),
                       TextButton(
                         onPressed: () {
@@ -119,7 +119,7 @@ class _HomeMember extends State<Homemember> {
                               MaterialPageRoute(
                                   builder: (context) => const homeLogoPage()));
                         },
-                        child: const Text('Yes'),
+                        child: const Text('Yes',style: TextStyle(color: Colors.black)),
                       ),
                     ],
                   );

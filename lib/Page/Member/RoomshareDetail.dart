@@ -6,12 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:project_concert_closeiin/Page/Artist/artist.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Member/DetailHotel.dart';
 import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
 import 'package:project_concert_closeiin/Page/Member/Notification.dart';
 import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
+import 'package:project_concert_closeiin/Page/Member/artist.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
 class Roomsharedetail extends StatefulWidget {
@@ -194,11 +194,11 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
                 context: context,
                 builder: (BuildContext context) => AlertDialog(
                   title: const Text('Confirm Logout'),
-                  content: const Text('Are you sure you want to log out?'),
+                  content: const Text('คุณต้องการออกจากระบบ?'),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('No'),
+                      child: const Text('No',style: TextStyle(color: Colors.black)),
                     ),
                     TextButton(
                       onPressed: () {
@@ -207,7 +207,7 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
                         );
                       },
-                      child: const Text('Yes'),
+                      child: const Text('Yes',style: TextStyle(color: Colors.black)),
                     ),
                   ],
                 ),
@@ -242,19 +242,19 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
                                 final confirmCancel = await showDialog<bool>(
                                   context: context,
                                   builder: (context) => AlertDialog(
-                                    title: Text('ยืนยันยกเลิกคำขอแชร์ห้อง'),
+                                    title: Text('Notification'),
                                     content:
                                         Text('คุณต้องการยกเลิกคำขอนี้หรือไม่?'),
                                     actions: [
                                       TextButton(
                                         onPressed: () =>
                                             Navigator.of(context).pop(false),
-                                        child: Text('ยกเลิก'),
+                                        child: Text('No',style: TextStyle(color: Colors.black)),
                                       ),
                                       TextButton(
                                         onPressed: () =>
                                             Navigator.of(context).pop(true),
-                                        child: Text('ยืนยัน'),
+                                        child: Text('Yes',style: TextStyle(color: Colors.black)),
                                       ),
                                     ],
                                   ),
@@ -266,19 +266,19 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
                                 final confirm = await showDialog<bool>(
                                   context: context,
                                   builder: (context) => AlertDialog(
-                                    title: Text('ยืนยันการแชร์ห้อง'),
+                                    title: Text('Notification'),
                                     content: Text(
                                         'คุณต้องการส่งคำขอแชร์ห้องนี้หรือไม่?'),
                                     actions: [
                                       TextButton(
                                         onPressed: () =>
                                             Navigator.of(context).pop(false),
-                                        child: Text('ยกเลิก'),
+                                        child: Text('No'),
                                       ),
                                       TextButton(
                                         onPressed: () =>
                                             Navigator.of(context).pop(true),
-                                        child: Text('ยืนยัน'),
+                                        child: Text('Yes'),
                                       ),
                                     ],
                                   ),

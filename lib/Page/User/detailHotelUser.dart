@@ -1,37 +1,33 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:project_concert_closeiin/Page/Login.dart';
+import 'package:project_concert_closeiin/Page/RegisterUser.dart';
+import 'package:project_concert_closeiin/Page/User/HomeUser.dart';
+import 'package:project_concert_closeiin/Page/User/artistUser.dart';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:math' as math;
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
-import 'package:project_concert_closeiin/Page/Member/Notification.dart';
-import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
-import 'package:project_concert_closeiin/Page/Member/ResHotel.dart';
-import 'package:project_concert_closeiin/Page/Member/artist.dart';
+import 'package:project_concert_closeiin/Page/User/restaurantHotelUser.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:project_concert_closeiin/Page/Home.dart';
-import 'package:firebase_database/firebase_database.dart';
 
-class DetailHotel extends StatefulWidget {
-  final int userId;
+class detailHoteluser extends StatefulWidget {
   final int hotelID;
 
-  DetailHotel({super.key, required this.userId, required this.hotelID});
-
+  detailHoteluser({super.key,required this.hotelID});
   @override
-  _DetailHotelState createState() => _DetailHotelState();
+  _detailHoteluserState createState() => _detailHoteluserState();
 }
 
-class _DetailHotelState extends State<DetailHotel> {
+class _detailHoteluserState extends State<detailHoteluser> {
   int _currentIndex = 0;
-  int _rating = 0;
   Map<String, dynamic>? hotel;
   bool isLoading = true;
   String url = '';
@@ -40,7 +36,6 @@ class _DetailHotelState extends State<DetailHotel> {
   bool _hasRated = false;
   final DatabaseReference rating =
       FirebaseDatabase.instance.ref().child('point');
-  int? totalPoint;
 
   @override
   void initState() {
@@ -53,8 +48,6 @@ class _DetailHotelState extends State<DetailHotel> {
 
     fetchHotel();
     fetchHotelPhotosFromFirebase();
-    checkIfRated();
-    fetchTotalPointFromFirebase();
   }
 
   Future<void> fetchHotelPhotosFromFirebase() async {
@@ -103,47 +96,6 @@ class _DetailHotelState extends State<DetailHotel> {
     }
   }
 
-  Future<void> checkIfRated() async {
-    try {
-      final response = await http.get(Uri.parse(
-          '$API_ENDPOINT/checkpoint?userID=${widget.userId}&hotelID=${widget.hotelID}'));
-
-      if (response.statusCode == 200) {
-        final result = json.decode(response.body);
-        setState(() {
-          _hasRated = result['hasRated'];
-          _rating = _hasRated ? 1 : 0;
-        });
-      } else {
-        print('Check rating failed');
-      }
-    } catch (e) {
-      print('Error checking rating: $e');
-    }
-  }
-
-  Future<void> fetchTotalPointFromFirebase() async {
-    try {
-      final ref = FirebaseDatabase.instance
-          .ref('/point/ratings/${widget.userId}/${widget.hotelID}/rating');
-
-      final snapshot = await ref.get();
-      if (snapshot.exists) {
-        setState(() {
-          totalPoint = int.tryParse(snapshot.value.toString()) ?? 0;
-        });
-      } else {
-        setState(() {
-          totalPoint = 0;
-        });
-      }
-    } catch (e) {
-      print('Error fetching totalPoint: $e');
-      setState(() {
-        totalPoint = 0;
-      });
-    }
-  }
 
   Future<void> fetchNearbyRestaurants() async {
     try {
@@ -215,30 +167,41 @@ class _DetailHotelState extends State<DetailHotel> {
           ),
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.logout, color: Colors.white),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (_) => AlertDialog(
-                  title: Text('Confirm Logout'),
-                  content: Text('คุณต้องการออกจากระบบ?'),
-                  actions: [
-                    TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: Text('No',style: TextStyle(color: Colors.black))),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (_) => homeLogoPage())),
-                      child: Text('Yes',style: TextStyle(color: Colors.black)),
-                    ),
-                  ],
+            PopupMenuButton<String>(
+              icon: const Icon(
+                Icons.more_vert,
+                color: Colors.white,
+              ),
+              onSelected: (value) {
+                if (value == 'Login') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const LoginPage()), 
+                  );
+                } else if (value == 'Sign Up') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const RegisterPageUser()), 
+                  );
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem<String>(
+                  value: 'Login',
+                  child: Text('Log in', style: TextStyle(color: Colors.black)),
                 ),
-              );
-            },
-          ),
-        ],
-      ),
+                const PopupMenuItem<String>(
+                  value: 'Sign Up',
+                  child: Text('Sign Up', style: TextStyle(color: Colors.black)),
+                ),
+              ],
+            ),
+          ],
+        ),
       body: isLoading || hotel == null
           ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -265,83 +228,57 @@ class _DetailHotelState extends State<DetailHotel> {
                                 _hasRated ? Icons.star : Icons.star_border,
                                 color: _hasRated ? Colors.yellow : Colors.black,
                               ),
-                              onPressed: () async {
-                                if (_hasRated) {
-                                  // ลบคะแนน
-                                  setState(() {
-                                    _hasRated = false;
-                                    _rating = 0;
-                                  });
-
-                                  final response = await http.delete(
-                                    Uri.parse(
-                                        '$API_ENDPOINT/deletepoint?userID=${widget.userId}&hotelID=${widget.hotelID}'),
-                                    headers: {
-                                      'Content-Type': 'application/json'
-                                    },
-                                    body: jsonEncode({
-                                      'userID': widget.userId,
-                                      'hotelID': widget.hotelID,
-                                    }),
-                                  );
-
-                                  if (response.statusCode == 200) {
-                                    print('ลบคะแนนเรียบร้อย');
-
-                                    // ลบจาก Firebase Realtime
-                                    await rating
-                                        .child("ratings")
-                                        .child(widget.userId.toString())
-                                        .child(widget.hotelID.toString())
-                                        .remove();
-                                  } else {
-                                    print('ลบคะแนนไม่สำเร็จ');
-                                    setState(() {
-                                      _hasRated = true;
-                                      _rating = 1;
-                                    });
-                                  }
-                                } else {
-                                  // ให้คะแนน
-                                  setState(() {
-                                    _hasRated = true;
-                                    _rating = 1;
-                                  });
-
-                                  final response = await http.post(
-                                    Uri.parse('$API_ENDPOINT/addpoint'),
-                                    headers: {
-                                      'Content-Type': 'application/json'
-                                    },
-                                    body: jsonEncode({
-                                      'userID': widget.userId,
-                                      'hotelID': widget.hotelID,
-                                    }),
-                                  );
-
-                                  if (response.statusCode == 201) {
-                                    print('บันทึกคะแนนเรียบร้อย');
-
-                                    // เพิ่มลง Firebase Realtime
-                                    await rating
-                                        .child("ratings")
-                                        .child(widget.userId.toString())
-                                        .child(widget.hotelID.toString())
-                                        .set({
-                                      "rated": true,
-                                      "rating": 1,
-                                      "timestamp":
-                                          DateTime.now().toIso8601String(),
-                                    });
-                                  } else {
-                                    print('บันทึกคะแนนไม่สำเร็จ');
-                                    setState(() {
-                                      _hasRated = false;
-                                      _rating = 0;
-                                    });
-                                  }
+                              onPressed: () {
+                                showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  titlePadding: EdgeInsets.only(
+                      top: 16, left: 16, right: 8), // เพิ่ม padding สวยงาม
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Notification',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close),
+                        splashRadius: 20,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  ),
+                  content: Text('กรุณาเข้าสู่ระบบก่อน'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                        );
+                      },
+                      child: Text('Log in', style: TextStyle(color: Colors.black)),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => RegisterPageUser()),
+                        );
+                      },
+                      child: Text('Sign up', style: TextStyle(color: Colors.black)),
+                    ),
+                  ],
+                );
+              },
+            );
                                 }
-                              },
                             )
                           ],
                         ),
@@ -502,7 +439,7 @@ class _DetailHotelState extends State<DetailHotel> {
                                   fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              (totalPoint?.toString() ?? '0'),
+                               hotel!['totalPiont'].toString(),
                               style: TextStyle(fontSize: 16),
                             ),
                             Text(
@@ -764,8 +701,7 @@ class _DetailHotelState extends State<DetailHotel> {
                                 final result = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => RestaurantHotel(
-                                          userId: widget.userId,
+                                      builder: (context) => RestaurantHotelUser(
                                           hotelID: widget.hotelID,
                                           hotelLat: hotel!['lat'],
                                           hotelLng: hotel!['long'])),
@@ -776,8 +712,6 @@ class _DetailHotelState extends State<DetailHotel> {
                                   });
                                   fetchHotel();
                                   fetchHotelPhotosFromFirebase();
-                                  checkIfRated();
-                                  fetchTotalPointFromFirebase();
                                 }
                               },
                               child: Text("More",
@@ -794,38 +728,75 @@ class _DetailHotelState extends State<DetailHotel> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          switch (index) {
-            case 0:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => Homemember(userId: widget.userId)),
-              );
-              break;
-            case 1:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => ArtistPage(userId: widget.userId)),
-              );
-              break;
-            case 2:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => NotificationPage(userId: widget.userId)),
-              );
-              break;
-            case 3:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => ProfileMember(userId: widget.userId)),
-              );
-              break;
+          if (index == 2 || index == 3) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  titlePadding: EdgeInsets.only(
+                      top: 16, left: 16, right: 8), // เพิ่ม padding สวยงาม
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Notification',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close),
+                        splashRadius: 20,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  ),
+                  content: Text('กรุณาเข้าสู่ระบบก่อน'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                        );
+                      },
+                      child: Text('Log in', style: TextStyle(color: Colors.black)),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => RegisterPageUser()),
+                        );
+                      },
+                      child: Text('Sign up', style: TextStyle(color: Colors.black)),
+                    ),
+                  ],
+                );
+              },
+            );
+          } else {
+            setState(() {
+              _currentIndex = index;
+            });
+
+            switch (index) {
+              case 0:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeUser()),
+                );
+                break;
+              case 1:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => ArtistUserPage()),
+                );
+                break;
+            }
           }
         },
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
