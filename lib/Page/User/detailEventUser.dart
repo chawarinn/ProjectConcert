@@ -4,31 +4,28 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:project_concert_closeiin/Page/Member/RoomShareEvent.dart';
-import 'package:project_concert_closeiin/Page/Member/artist.dart';
+import 'package:project_concert_closeiin/Page/Login.dart';
+import 'package:project_concert_closeiin/Page/RegisterUser.dart';
+import 'package:project_concert_closeiin/Page/User/HomeUser.dart';
+import 'package:project_concert_closeiin/Page/User/HotelEventUser.dart';
+import 'package:project_concert_closeiin/Page/User/artistUser.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:project_concert_closeiin/Page/Home.dart';
-import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
-import 'package:project_concert_closeiin/Page/Member/HotelEvent.dart';
-import 'package:project_concert_closeiin/Page/Member/Notification.dart';
-import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
-class Eventdetailmember extends StatefulWidget {
-  final int userId;
+class EventdetailUser extends StatefulWidget {
   final int eventID;
 
-  Eventdetailmember({super.key, required this.userId, required this.eventID});
+  EventdetailUser({super.key,required this.eventID});
 
   @override
-  _EventDetailMemberState createState() => _EventDetailMemberState();
+  _EventDetailUserState createState() => _EventDetailUserState();
 }
 
-class _EventDetailMemberState extends State<Eventdetailmember> {
+class _EventDetailUserState extends State<EventdetailUser> {
   int _currentIndex = 0;
   Map<String, dynamic>? event;
   bool isLoading = true;
@@ -137,38 +134,41 @@ class _EventDetailMemberState extends State<Eventdetailmember> {
           ),
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.logout, color: Colors.white),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('ยืนยันการออกจากระบบ'),
-                    content: const Text('คุณต้องการที่จะออกจากระบบหรือไม่?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('ไม่'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => const homeLogoPage()));
-                        },
-                        child: const Text('ตกลง'),
-                      ),
-                    ],
+            PopupMenuButton<String>(
+              icon: const Icon(
+                Icons.more_vert,
+                color: Colors.white,
+              ),
+              onSelected: (value) {
+                if (value == 'Login') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const LoginPage()), 
                   );
-                },
-              );
-            },
-          ),
-        ],
-      ),
+                } else if (value == 'Sign Up') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const RegisterPageUser()), 
+                  );
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem<String>(
+                  value: 'Login',
+                  child: Text('Log in', style: TextStyle(color: Colors.black)),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'Sign Up',
+                  child: Text('Sign Up', style: TextStyle(color: Colors.black)),
+                ),
+              ],
+            ),
+          ],
+        ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : event == null
@@ -209,7 +209,7 @@ class _EventDetailMemberState extends State<Eventdetailmember> {
                           backgroundColor: Colors.grey[200],
                           padding:
                               EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          minimumSize: Size(100, 0),
+                              minimumSize: Size(100, 0),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
@@ -276,11 +276,12 @@ class _EventDetailMemberState extends State<Eventdetailmember> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           ElevatedButton(
+                        
                             style: TextButton.styleFrom(
                               backgroundColor: Color.fromRGBO(201, 151, 187, 1),
                               padding: EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 4),
-                              minimumSize: Size(100, 0),
+                                   minimumSize: Size(100, 0),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                               ),
@@ -295,8 +296,7 @@ class _EventDetailMemberState extends State<Eventdetailmember> {
                             },
                             child: Text(
                               'Ticket',
-                              style: TextStyle(
-                                  color: const Color.fromARGB(206, 0, 0, 0)),
+                              style: TextStyle(color: const Color.fromARGB(206, 0, 0, 0)),
                             ),
                           ),
                           ElevatedButton(
@@ -304,83 +304,31 @@ class _EventDetailMemberState extends State<Eventdetailmember> {
                               backgroundColor: Color.fromRGBO(201, 151, 187, 1),
                               padding: EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 4),
-                              minimumSize: Size(100, 0),
+                                    minimumSize: Size(100, 0),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                               ),
                             ),
                             onPressed: () async {
-                              final result = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => Hotelevent(
-                                    userId: widget.userId,
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                  builder: (_) => Hoteleventuser(
                                     eventID: widget.eventID,
                                     eventLat: event!['lat'],
                                     eventLng: event!['long'],
                                   ),
                                 ),
                               );
-                              if (result == true) {
-                                setState(() {
-                                  isLoading = true;
-                                });
-                                fetchEvent();
-                              }
+                                if (result == true) {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+                                        fetchEvent();
+                                      }
                             },
                             child: Text('Hotel',
-                                style: TextStyle(
-                                    color: const Color.fromARGB(206, 0, 0, 0))),
-                          ),
-                          // GestureDetector(
-                          //   onTap: () {
-                          //     // ทำสิ่งที่ต้องการเมื่อกดปุ่ม Room Share
-                          //     print('Room share tapped');
-                          //     // หรือไปหน้าใหม่ก็ได้
-                          //   },
-                          //   child: Container(
-                          //     width: 44,
-                          //     height: 44,
-                          //     decoration: BoxDecoration(
-                          //       color: Color.fromRGBO(201, 151, 187, 1),
-                          //       shape: BoxShape.circle,
-                          //     ),
-                          //     child: Icon(
-                          //       Icons.bed,
-                          //       color: Colors.black87,
-                          //     ),
-                          //   ),
-                          // ),
-                          ElevatedButton(
-                            style: TextButton.styleFrom(
-                              backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
-                              minimumSize: Size(100, 0),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                            ),
-                            onPressed: () async {
-                              final result = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => RoomshareEvent(
-                                    userId: widget.userId,
-                                    eventID: widget.eventID,
-                                  ),
-                                ),
-                              );
-                              if (result == true) {
-                                setState(() {
-                                  isLoading = true;
-                                });
-                                fetchEvent();
-                              }
-                            },
-                            child: Text('RoomShare',
-                                style: TextStyle(
-                                    color: const Color.fromARGB(206, 0, 0, 0))),
+                                style: TextStyle(color: const Color.fromARGB(206, 0, 0, 0))),
                           ),
                         ],
                       ),
@@ -434,41 +382,78 @@ class _EventDetailMemberState extends State<Eventdetailmember> {
                     ],
                   ),
                 ),
-      bottomNavigationBar: BottomNavigationBar(
+           bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          switch (index) {
-            case 0:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => Homemember(userId: widget.userId)),
-              );
-              break;
-            case 1:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => ArtistPage(userId: widget.userId)),
-              );
-              break;
-            case 2:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => NotificationPage(userId: widget.userId)),
-              );
-              break;
-            case 3:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => ProfileMember(userId: widget.userId)),
-              );
-              break;
+          if (index == 2 || index == 3) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  titlePadding: EdgeInsets.only(
+                      top: 16, left: 16, right: 8),
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Notification',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close),
+                        splashRadius: 20,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  ),
+                  content: Text('กรุณาเข้าสู่ระบบก่อน'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                        );
+                      },
+                      child: Text('Log in', style: TextStyle(color: Colors.black)),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => RegisterPageUser()),
+                        );
+                      },
+                      child: Text('Sign up', style: TextStyle(color: Colors.black)),
+                    ),
+                  ],
+                );
+              },
+            );
+          } else {
+            setState(() {
+              _currentIndex = index;
+            });
+
+            switch (index) {
+              case 0:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeUser()),
+                );
+                break;
+              case 1:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => ArtistUserPage()),
+                );
+                break;
+            }
           }
         },
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),

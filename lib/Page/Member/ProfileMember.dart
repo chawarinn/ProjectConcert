@@ -5,12 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
-
-import 'package:project_concert_closeiin/Page/Artist/artist.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Member/EditProfileMember.dart';
 import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
 import 'package:project_concert_closeiin/Page/Member/Notification.dart';
+import 'package:project_concert_closeiin/Page/Member/artist.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
 class ProfileMember extends StatefulWidget {
@@ -25,6 +24,7 @@ class _ProfileMemberState extends State<ProfileMember> {
   int _currentIndex = 3;
   bool isLoading = true;
   Map<String, dynamic>? userData;
+  bool _isDeleting = false;
 
   @override
   void initState() {
@@ -33,8 +33,7 @@ class _ProfileMemberState extends State<ProfileMember> {
   }
 
   Future<void> fetchUserData() async {
-    final url = Uri.parse(
-        '$API_ENDPOINT/user?userID=${widget.userId}'); 
+    final url = Uri.parse('$API_ENDPOINT/user?userID=${widget.userId}');
 
     try {
       final response = await http.get(url);
@@ -58,12 +57,78 @@ class _ProfileMemberState extends State<ProfileMember> {
       print('Error fetching user: $e');
     }
   }
+Future<void> deleteUserAccount() async {
+  setState(() {
+    _isDeleting = true;
+  });
+
+  // แสดง Dialog Loading
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    },
+  );
+
+  final url = Uri.parse('$API_ENDPOINT/deleteAccount?userID=${widget.userId}');
+
+  try {
+    final response = await http.delete(url);
+
+    Navigator.pop(context); // ปิด dialog loading
+
+    if (response.statusCode == 200) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("Notification"),
+          content: Text("บัญชีของคุณถูกลบเรียบร้อยแล้ว"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => homeLogoPage()),
+                  (route) => false,
+                );
+              },
+              child: Text("OK",style: TextStyle(color: Colors.black)),
+            )
+          ],
+        ),
+      );
+    } else {
+      final error = json.decode(response.body);
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("Notification"),
+          content: Text(error['message'] ?? 'ไม่สามารถลบบัญชีได้'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("OK",style: TextStyle(color: Colors.black)),
+            )
+          ],
+        ),
+      );
+    }
+  } catch (e) {
+    Navigator.pop(context); // ปิด dialog loading
+  } finally {
+    setState(() {
+      _isDeleting = false;
+    });
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        
         automaticallyImplyLeading: false,
         title: Text(
           'Profile',
@@ -73,7 +138,7 @@ class _ProfileMemberState extends State<ProfileMember> {
           ),
         ),
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-             actions: [
+        actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () {
@@ -113,21 +178,20 @@ class _ProfileMemberState extends State<ProfileMember> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                 CircleAvatar(
-  radius: 100,
-  backgroundColor: Colors.black,
-  backgroundImage: userData?['photo'] != null
-      ? NetworkImage(userData!['photo'])
-      : null,
-  child: userData?['photo'] == null
-      ? Icon(
-          Icons.person,
-          size: 80,
-          color: Colors.white,
-        )
-      : null,
-),
-
+                  CircleAvatar(
+                    radius: 100,
+                    backgroundColor: Colors.black,
+                    backgroundImage: userData?['photo'] != null
+                        ? NetworkImage(userData!['photo'])
+                        : null,
+                    child: userData?['photo'] == null
+                        ? Icon(
+                            Icons.person,
+                            size: 80,
+                            color: Colors.white,
+                          )
+                        : null,
+                  ),
                   SizedBox(height: 16),
                   Text(
                     userData?['name'] ?? 'No Name',
@@ -135,7 +199,7 @@ class _ProfileMemberState extends State<ProfileMember> {
                   ),
                   Text(
                     userData?['email'] ?? 'No Email',
-                    style: TextStyle(fontSize: 16,color: Colors.grey),
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                   SizedBox(height: 24),
                   Column(
@@ -146,13 +210,14 @@ class _ProfileMemberState extends State<ProfileMember> {
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(left: 125),
-                            child: Text('Name ',
-                                style: TextStyle(fontSize: 16)),
+                            child:
+                                Text('Name ', style: TextStyle(fontSize: 16)),
                           ),
                           Padding(
                             padding: const EdgeInsets.only(left: 50),
                             child: Text(userData?['name'] ?? '-',
-                                style: TextStyle(color: Colors.grey,fontSize: 16)),
+                                style: TextStyle(
+                                    color: Colors.grey, fontSize: 16)),
                           ),
                         ],
                       ),
@@ -161,76 +226,103 @@ class _ProfileMemberState extends State<ProfileMember> {
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(left: 125),
-                            child: Text('Phone',
-                                style: TextStyle(fontSize: 16)),
+                            child:
+                                Text('Phone', style: TextStyle(fontSize: 16)),
                           ),
                           Padding(
                             padding: const EdgeInsets.only(left: 50),
                             child: Text(userData?['phone'] ?? '-',
-                                style: TextStyle(color: Colors.grey,fontSize: 16)),
+                                style: TextStyle(
+                                    color: Colors.grey, fontSize: 16)),
                           ),
                         ],
                       ),
                     ],
                   ),
-                SizedBox(height: 150),
-                SizedBox(
-                  width: 200,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                                      final result = await Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                    builder: (context) => EditProfileMember(userId: widget.userId)),
-              );
-                if (result == true) {
-                                        setState(() {
-                                          isLoading = true;
-                                        });
-                                        fetchUserData();
-                                      }
+                  SizedBox(height: 150),
+                  SizedBox(
+                    width: 200,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  EditProfileMember(userId: widget.userId)),
+                        );
+                        if (result == true) {
+                          setState(() {
+                            isLoading = true;
+                          });
+                          fetchUserData();
+                        }
                       },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:  Color.fromRGBO(201, 151, 187, 1),
-                      shape: RoundedRectangleBorder(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15),
                         ),
-                    ),
-                    child: Text(
-                      'Edit',
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: Colors.white,
+                      ),
+                      child: Text(
+                        'Edit',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
-                ),
                   SizedBox(height: 16),
                   SizedBox(
-                  width: 220,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      
+                    width: 220,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Notification'),
+                              content: Text(
+                                  'คุณแน่ใจหรือไม่ว่าต้องการลบบัญชีนี้? การลบนี้ไม่สามารถย้อนกลับได้'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text('No',style: TextStyle(color: Colors.black)),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    deleteUserAccount();
+                                  },
+                                  child: Text('Yes',style: TextStyle(color: Colors.black)),
+                                ),
+                              ],
+                            );
+                          },
+                        );
                       },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:  Color.fromRGBO(201, 151, 187, 1),
-                      shape: RoundedRectangleBorder(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15),
                         ),
-                    ),
-                    child: Text(
-                      'Delete User Account',
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Colors.white,
+                      ),
+                      child: Text(
+                        'Delete User Account',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
-                ),   ],
+                ],
               ),
             ),
       bottomNavigationBar: BottomNavigationBar(
@@ -266,8 +358,7 @@ class _ProfileMemberState extends State<ProfileMember> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (context) =>
-                        ProfileMember(userId: widget.userId)),
+                    builder: (context) => ProfileMember(userId: widget.userId)),
               );
               break;
           }

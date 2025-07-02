@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:project_concert_closeiin/Page/Admin/HomeAdmin.dart';
 import 'package:project_concert_closeiin/Page/Event/AddEvent.dart';
 import 'package:project_concert_closeiin/Page/Hotel/HomeHotel.dart';
+import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
 import 'package:project_concert_closeiin/Page/Member/hotel_search.dart';
 import 'package:project_concert_closeiin/Page/Restaurant/AddRestaurant.dart';
 import 'package:project_concert_closeiin/config/config.dart';
@@ -178,10 +179,8 @@ class _LoginPageState extends State<LoginPage> {
                                     Navigator.of(context).pop();
                                   },
                                   child: Text(
-                                    'ตกลง',
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    'OK',
+                                     style: TextStyle(color: Colors.black)
                                   ),
                                 ),
                               ],
@@ -209,10 +208,8 @@ class _LoginPageState extends State<LoginPage> {
                                     Navigator.of(context).pop();
                                   },
                                   child: Text(
-                                    'ตกลง',
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    'OK',
+                                     style: TextStyle(color: Colors.black)
                                   ),
                                 ),
                               ],
@@ -245,8 +242,22 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+//   void showLoadingDialog() {
+//   showDialog(
+//     context: context,
+//     barrierDismissible: false,
+//     builder: (context) => Center(
+//       child: CircularProgressIndicator(),
+//     ),
+//   );
+// }
+
+// void hideLoadingDialog() {
+//   Navigator.of(context, rootNavigator: true).pop();
+// }
 
   void loginU() async {
+    // showLoadingDialog();
     log(emailCtl.text);
     log(passwordCtl.text);
     try {
@@ -269,7 +280,7 @@ class _LoginPageState extends State<LoginPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => HotelSearch(userId: users.user.userId),
+              builder: (context) => Homemember(userId: users.user.userId),
             ),
           );
           break;
@@ -307,7 +318,8 @@ class _LoginPageState extends State<LoginPage> {
           break;
       }
     } catch (error) {
-      log(error.toString() + 'eiei');
+      // hideLoadingDialog();
+      log(error.toString() );
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -325,10 +337,8 @@ class _LoginPageState extends State<LoginPage> {
                   Navigator.of(context).pop();
                 },
                 child: Text(
-                  'ตกลง',
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  'OK',
+                   style: TextStyle(color: Colors.black)
                 ),
               ),
             ],

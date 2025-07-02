@@ -4,36 +4,33 @@ import 'dart:developer' as dev_log;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:project_concert_closeiin/Page/Home.dart';
-import 'package:project_concert_closeiin/Page/Member/DetailHotel.dart';
-import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
-import 'package:project_concert_closeiin/Page/Member/Notification.dart';
-import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
-import 'package:project_concert_closeiin/Page/Member/artist.dart';
+import 'package:project_concert_closeiin/Page/Login.dart';
+import 'package:project_concert_closeiin/Page/RegisterUser.dart';
+import 'package:project_concert_closeiin/Page/User/HomeUser.dart';
+import 'package:project_concert_closeiin/Page/User/artistUser.dart';
+import 'package:project_concert_closeiin/Page/User/detailHotelUser.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 import 'package:project_concert_closeiin/model/response/userGetHotelResponse.dart';
 import 'package:project_concert_closeiin/model/response/userGetSearchHResponse.dart';
 
-class Hotelevent extends StatefulWidget {
-  final int userId;
+class Hoteleventuser extends StatefulWidget {
   final int eventID;
   final double eventLat;
   final double eventLng;
 
-  const Hotelevent({
+  const Hoteleventuser({
     super.key,
-    required this.userId,
     required this.eventID,
     required this.eventLat,
     required this.eventLng,
   });
 
   @override
-  _HoteleventState createState() => _HoteleventState();
+  _HoteleventuserState createState() => _HoteleventuserState();
 }
 
-class _HoteleventState extends State<Hotelevent> {
+class _HoteleventuserState extends State<Hoteleventuser> {
   int _currentIndex = 0;
   late String url;
   String _searchHotel = '';
@@ -92,7 +89,7 @@ class _HoteleventState extends State<Hotelevent> {
           }
         });
 
-        // ✅ ระยะทางไม่เกิน 30 กิโลเมตร
+        // ระยะทางไม่เกิน 30 กิโลเมตร
         loadedHotels = loadedHotels
             .where((hotel) => (hotel.distance ?? double.infinity) <= 30)
             .toList();
@@ -180,7 +177,7 @@ class _HoteleventState extends State<Hotelevent> {
           return price >= minPrice! && price <= maxPrice!;
         }).toList();
 
-      // ✅ ระยะทางไม่เกิน 30 กิโลเมตร
+              // ✅ ระยะทางไม่เกิน 30 กิโลเมตร
         filteredHotels = filteredHotels
             .where((hotel) => (hotel.distance ?? double.infinity) <= 30)
             .toList();
@@ -190,10 +187,10 @@ class _HoteleventState extends State<Hotelevent> {
           final distB = b.distance ?? double.infinity;
           final int distanceCompare = distA.compareTo(distB);
           if (distanceCompare != 0) {
-            return distanceCompare; 
+            return distanceCompare; // เรียงตามระยะทางก่อน
           } else {
             return (b.totalPiont ?? 0)
-                .compareTo(a.totalPiont ?? 0); 
+                .compareTo(a.totalPiont ?? 0); // ถ้าระยะทางเท่ากัน ค่อยดูคะแนน
           }
         });
       } else {
@@ -221,8 +218,7 @@ class _HoteleventState extends State<Hotelevent> {
         final result = await Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DetailHotel(
-              userId: widget.userId,
+            builder: (context) => detailHoteluser(
               hotelID: hotel.hotelId,
             ),
           ),
@@ -344,35 +340,35 @@ class _HoteleventState extends State<Hotelevent> {
           onPressed: () => Navigator.pop(context, true),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('ยืนยันการออกจากระบบ'),
-                    content: const Text('คุณต้องการที่จะออกจากระบบหรือไม่?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('ไม่'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => const homeLogoPage()));
-                        },
-                        child: const Text('ตกลง'),
-                      ),
-                    ],
-                  );
-                },
-              );
+          PopupMenuButton<String>(
+            icon: const Icon(
+              Icons.more_vert,
+              color: Colors.white,
+            ),
+            onSelected: (value) {
+              if (value == 'Login') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                );
+              } else if (value == 'Sign Up') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const RegisterPageUser()),
+                );
+              }
             },
+            itemBuilder: (context) => [
+              const PopupMenuItem<String>(
+                value: 'Login',
+                child: Text('Log in', style: TextStyle(color: Colors.black)),
+              ),
+              const PopupMenuItem<String>(
+                value: 'Sign Up',
+                child: Text('Sign Up', style: TextStyle(color: Colors.black)),
+              ),
+            ],
           ),
         ],
       ),
@@ -461,42 +457,77 @@ class _HoteleventState extends State<Hotelevent> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          switch (index) {
-            case 0:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        Homemember(userId: widget.userId)), // 👈 ใส่หน้า Home
-              );
-              break;
-            case 1:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ArtistPage(userId: widget.userId)),
-              );
-              break;
-            case 2:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        NotificationPage(userId: widget.userId)),
-              );
-              break;
-            case 3:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ProfileMember(
-                          userId: widget.userId,
-                        )),
-              );
-              break;
+          if (index == 2 || index == 3) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  titlePadding: EdgeInsets.only(
+                      top: 16, left: 16, right: 8), // เพิ่ม padding สวยงาม
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Notification',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close),
+                        splashRadius: 20,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  ),
+                  content: Text('กรุณาเข้าสู่ระบบก่อน'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                        );
+                      },
+                      child:
+                          Text('Log in', style: TextStyle(color: Colors.black)),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => RegisterPageUser()),
+                        );
+                      },
+                      child: Text('Sign up',
+                          style: TextStyle(color: Colors.black)),
+                    ),
+                  ],
+                );
+              },
+            );
+          } else {
+            setState(() {
+              _currentIndex = index;
+            });
+
+            switch (index) {
+              case 0:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeUser()),
+                );
+                break;
+              case 1:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => ArtistUserPage()),
+                );
+                break;
+            }
           }
         },
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),

@@ -2,27 +2,32 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:math';
 import 'package:http/http.dart' as http;
-import 'package:project_concert_closeiin/Page/Home.dart';
-import 'package:project_concert_closeiin/Page/Member/artist.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:project_concert_closeiin/Page/Login.dart';
+import 'package:project_concert_closeiin/Page/RegisterUser.dart';
+import 'package:project_concert_closeiin/Page/User/HomeUser.dart';
+import 'package:project_concert_closeiin/Page/User/artistUser.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
-import 'package:project_concert_closeiin/Page/Member/Notification.dart';
-import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
-class RestaurantSearch extends StatefulWidget {
-  final int userId;
-  RestaurantSearch({super.key, required this.userId});
+class RestaurantHotelUser extends StatefulWidget {
+  final int hotelID;
+  final double hotelLat;
+  final double hotelLng;
+
+  RestaurantHotelUser({
+    super.key,
+    required this.hotelID,
+    required this.hotelLat,
+    required this.hotelLng,
+    });
 
   @override
-  _RestaurantSearch createState() => _RestaurantSearch();
+  _RestaurantHotelUser createState() => _RestaurantHotelUser();
 }
 
-class _RestaurantSearch extends State<RestaurantSearch> {
+class _RestaurantHotelUser extends State<RestaurantHotelUser> {
   TextEditingController searchController = TextEditingController();
   List<dynamic> restaurants = [];
   String query = "";
@@ -31,11 +36,6 @@ class _RestaurantSearch extends State<RestaurantSearch> {
   int _currentIndex = 0;
   bool isLoading = false;
 
-  final Map<String, LatLng> concertVenues = {
-    'Impact Arena': LatLng(13.988, 100.522),
-    'Thunder Dome': LatLng(13.945, 100.595),
-    'Rajamangala National Stadium': LatLng(13.7556, 100.6212),
-  };
 
   @override
   void initState() {
@@ -45,64 +45,63 @@ class _RestaurantSearch extends State<RestaurantSearch> {
         url = config['apiEndpoint'];
       },
     ).catchError((err) {});
-    fetchRestaurants(); // โหลดทั้งหมดเริ่มต้น
+    fetchRestaurants(); 
   }
 
-  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-    const R = 6371; // Earth's radius in km
-    double dLat = (lat2 - lat1) * pi / 180;
-    double dLon = (lon2 - lon1) * pi / 180;
-    double a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(lat1 * pi / 180) *
-            cos(lat2 * pi / 180) *
-            sin(dLon / 2) *
-            sin(dLon / 2);
-    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
-    return R * c;
-  }
+ double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+  const R = 6371; 
+  double dLat = (lat2 - lat1) * pi / 180;
+  double dLon = (lon2 - lon1) * pi / 180;
+  double a = sin(dLat / 2) * sin(dLat / 2) +
+      cos(lat1 * pi / 180) *
+          cos(lat2 * pi / 180) *
+          sin(dLon / 2) *
+          sin(dLon / 2);
+  double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+  return R * c; 
+}
+
 
   Future<void> fetchRestaurants() async {
-    setState(() {
-      isLoading = true;
-    });
-    final uri = Uri.parse('$API_ENDPOINT/search/restaurant?query=$query');
+  setState(() {
+    isLoading = true;
+  });
 
-    try {
-      final response = await http.get(uri);
-      if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.body);
+  final uri = Uri.parse('$API_ENDPOINT/search/restaurant?query=$query');
 
-        if (selectedVenue != null) {
-          LatLng venueLatLng = concertVenues[selectedVenue]!;
+  try {
+    final response = await http.get(uri);
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
 
-          for (var res in data) {
-            double resLat = double.tryParse(res['lat'].toString()) ?? 0;
-            double resLon = double.tryParse(res['long'].toString()) ?? 0;
-            res['distance'] = calculateDistance(
-              venueLatLng.latitude,
-              venueLatLng.longitude,
-              resLat,
-              resLon,
-            );
-          }
+     for (var res in data) {
+  double resLat = double.tryParse(res['lat'].toString()) ?? 0;
+  double resLon = double.tryParse(res['long'].toString()) ?? 0;
+  res['distance'] = calculateDistance(
+    widget.hotelLat,
+    widget.hotelLng,
+    resLat,
+    resLon,
+  );
+}
 
-          data.sort((a, b) => a['distance'].compareTo(b['distance']));
-        }
+data.sort((a, b) => a['distance'].compareTo(b['distance']));
 
-        setState(() {
-          restaurants = data;
-        });
-      } else {
-        print('Error: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Exception: $e');
-    } finally {
+
       setState(() {
-        isLoading = false;
+        restaurants = data;
       });
+    } else {
+      print('Error: ${response.statusCode}');
     }
+  } catch (e) {
+    print('Exception: $e');
+  } finally {
+    setState(() {
+      isLoading = false;
+    });
   }
+}
 
   Widget buildRestaurantCard(dynamic res) {
     return Card(
@@ -287,102 +286,74 @@ class _RestaurantSearch extends State<RestaurantSearch> {
             color: Colors.white,
           ),
         ),
-              actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: () {
-              showDialog(
-                context: context,
-                 builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('ยืนยันการออกจากระบบ'),
-                    content: const Text('คุณต้องการที่จะออกจากระบบหรือไม่?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('ไม่'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => const homeLogoPage()));
-                        },
-                        child: const Text('ตกลง'),
-                      ),
-                    ],
+               actions: [
+            PopupMenuButton<String>(
+              icon: const Icon(
+                Icons.more_vert,
+                color: Colors.white,
+              ),
+              onSelected: (value) {
+                if (value == 'Login') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const LoginPage()), 
                   );
-                },
-              );
-            },
-          ),
-        ],
-      ),
+                } else if (value == 'Sign Up') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const RegisterPageUser()), 
+                  );
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem<String>(
+                  value: 'Login',
+                  child: Text('Log in', style: TextStyle(color: Colors.black)),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'Sign Up',
+                  child: Text('Sign Up', style: TextStyle(color: Colors.black)),
+                ),
+              ],
+            ),
+          ],
+        ),
       body: Column(
         children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Container(
-                    width: 200,
-                    height: 40,
-                    margin: const EdgeInsets.only(right: 10),
-                    child: TextField(
-                      controller: searchController,
-                      onChanged: (val) {
+          Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Align(
+        alignment: Alignment.topRight,
+        child: Container(
+          width: 200,
+          height: 40,
+          child: TextField(
+            controller: searchController,
+           onChanged: (val) {
                         setState(() {
                           query = val;
                         });
                         fetchRestaurants();
                       },
-                      decoration: InputDecoration(
-                        contentPadding:
-                            EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-                        hintText: 'Search',
-                        prefixIcon: Icon(Icons.search, size: 20),
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Wrap(
-                    spacing: 8,
-                    children: concertVenues.entries.map((entry) {
-                      final bool isSelected = selectedVenue == entry.key;
-                      return FilterChip(
-                        label: Text(
-                          entry.key,
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : Colors.black,
-                          ),
-                        ),
-                        selected: isSelected,
-                        selectedColor: Color.fromRGBO(201, 151, 187, 1),
-                        backgroundColor: Colors.grey[200],
-                        checkmarkColor: Colors.white,
-                        side: BorderSide.none, 
-                        onSelected: (selected) {
-                          setState(() {
-                            selectedVenue = selected ? entry.key : null;
-                          });
-                          fetchRestaurants();
-                        },
-                      );
-                    }).toList(),
-                  ),
-                ],
+            decoration: InputDecoration(
+              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+              hintText: 'Search',
+              prefixIcon: Icon(Icons.search, size: 20),
+              filled: true,
+              fillColor: Colors.grey[200],
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
               ),
             ),
           ),
+        ),
+      ),
+    ),
           if (isLoading)
             Expanded(
               child: Center(
@@ -407,44 +378,78 @@ class _RestaurantSearch extends State<RestaurantSearch> {
             ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
+ bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          switch (index) {
-            case 0:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => Homemember(userId: widget.userId)),
-              );
-              break;
-            case 1:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ArtistPage(userId: widget.userId)),
-              );
-              break;
-            case 2:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        NotificationPage(userId: widget.userId)),
-              );
-              break;
-            case 3:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ProfileMember(
-                          userId: widget.userId,
-                        )),
-              );
-              break;
+          if (index == 2 || index == 3) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  titlePadding: EdgeInsets.only(
+                      top: 16, left: 16, right: 8),
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Notification',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close),
+                        splashRadius: 20,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  ),
+                  content: Text('กรุณาเข้าสู่ระบบก่อน'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                        );
+                      },
+                      child: Text('Log in', style: TextStyle(color: Colors.black)),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => RegisterPageUser()),
+                        );
+                      },
+                      child: Text('Sign up', style: TextStyle(color: Colors.black)),
+                    ),
+                  ],
+                );
+              },
+            );
+          } else {
+            setState(() {
+              _currentIndex = index;
+            });
+
+            switch (index) {
+              case 0:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeUser()),
+                );
+                break;
+              case 1:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => ArtistUserPage()),
+                );
+                break;
+            }
           }
         },
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
