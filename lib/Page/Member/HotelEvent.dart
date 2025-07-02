@@ -349,22 +349,28 @@ class _HoteleventState extends State<Hotelevent> {
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (_) => AlertDialog(
-                  title: const Text('Confirm Logout'),
-                  content: const Text('คุณต้องการออกจากระบบ?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('No',style: TextStyle(color: Colors.black)),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (_) => const homeLogoPage()),
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('ยืนยันการออกจากระบบ'),
+                    content: const Text('คุณต้องการที่จะออกจากระบบหรือไม่?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('ไม่'),
                       ),
-                      child: const Text('Yes',style: TextStyle(color: Colors.black)),
-                    ),
-                  ],
-                ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                  builder: (context) => const homeLogoPage()));
+                        },
+                        child: const Text('ตกลง'),
+                      ),
+                    ],
+                  );
+                },
               );
             },
           ),

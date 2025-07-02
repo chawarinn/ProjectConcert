@@ -476,13 +476,14 @@ Widget _buildDropdownField({
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: const Text('Confirm Logout'),
-                    content: const Text('คุณต้องการออกจากระบบ?'),
+                    title: const Text('ยืนยันการออกจากระบบ'),
+                    content: const Text('คุณต้องการที่จะออกจากระบบหรือไม่?'),
                     actions: [
                       TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('No',
-                            style: TextStyle(color: Colors.black)),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('No',style: TextStyle(color: Colors.black)),
                       ),
                       TextButton(
                         onPressed: () {
@@ -490,8 +491,7 @@ Widget _buildDropdownField({
                               MaterialPageRoute(
                                   builder: (context) => const homeLogoPage()));
                         },
-                        child: const Text('Yes',
-                            style: TextStyle(color: Colors.black)),
+                        child: const Text('Yes',style: TextStyle(color: Colors.black)),
                       ),
                     ],
                   );

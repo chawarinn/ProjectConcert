@@ -12,20 +12,110 @@ class HomeAdmin extends StatefulWidget {
 class _HomeAdminState extends State<HomeAdmin> {
   int _currentIndex = 2;
 
+  // ปรับให้แสดงชื่อใต้ไอคอนและยังขยับขึ้นได้ มี animation เด้ง label
   Widget _buildNavIcon(Icon icon, int index) {
     bool isSelected = _currentIndex == index;
-    return Transform.translate(
-      offset: isSelected ? const Offset(0, -5) : Offset.zero,
-      child: icon,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Transform.translate(
+          offset: isSelected ? const Offset(0, -5) : Offset.zero,
+          child: Icon(
+            icon.icon,
+            size: 30,
+            color: Colors.white,
+          ),
+        ),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (child, animation) {
+            final offsetAnimation = Tween<Offset>(
+              begin: const Offset(0, 0.5),
+              end: Offset.zero,
+            ).animate(animation);
+            final scaleAnimation = Tween<double>(
+              begin: 0.8,
+              end: 1.0,
+            ).animate(animation);
+            return SlideTransition(
+              position: offsetAnimation,
+              child: ScaleTransition(
+                scale: scaleAnimation,
+                child: child,
+              ),
+            );
+          },
+          child: isSelected
+              ? Text(
+                  _getLabel(index),
+                  key: ValueKey('label_$index'),
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                )
+              : const SizedBox.shrink(key: ValueKey('empty')),
+        ),
+      ],
     );
   }
 
   Widget _buildNavFaIcon(IconData iconData, int index) {
     bool isSelected = _currentIndex == index;
-    return Transform.translate(
-      offset: isSelected ? const Offset(0, -5) : Offset.zero,
-      child: FaIcon(iconData),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Transform.translate(
+          offset: isSelected ? const Offset(0, -5) : Offset.zero,
+          child: FaIcon(
+            iconData,
+            size: 30,
+            color: Colors.white,
+          ),
+        ),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (child, animation) {
+            final offsetAnimation = Tween<Offset>(
+              begin: const Offset(0, 0.5),
+              end: Offset.zero,
+            ).animate(animation);
+            final scaleAnimation = Tween<double>(
+              begin: 0.8,
+              end: 1.0,
+            ).animate(animation);
+            return SlideTransition(
+              position: offsetAnimation,
+              child: ScaleTransition(
+                scale: scaleAnimation,
+                child: child,
+              ),
+            );
+          },
+          child: isSelected
+              ? Text(
+                  _getLabel(index),
+                  key: ValueKey('label_$index'),
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                )
+              : const SizedBox.shrink(key: ValueKey('empty')),
+        ),
+      ],
     );
+  }
+
+  String _getLabel(int index) {
+    switch (index) {
+      case 0:
+        return 'Home';
+      case 1:
+        return 'Ticket';
+      case 2:
+        return 'Hotel';
+      case 3:
+        return 'Food';
+      case 4:
+        return 'Profile';
+      default:
+        return '';
+    }
   }
 
   void _showLogoutDialog() {
@@ -45,8 +135,7 @@ class _HomeAdminState extends State<HomeAdmin> {
             TextButton(
               child: const Text('ออกจากระบบ'),
               onPressed: () {
-                Navigator.of(context).pop(); // ปิด dialog
-                // TODO: เปลี่ยนเส้นทางกลับไปหน้า login หรือ home page
+                Navigator.of(context).pop();
                 Navigator.of(context).pushReplacementNamed('/login');
               },
             ),
@@ -80,31 +169,18 @@ class _HomeAdminState extends State<HomeAdmin> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-       backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+        backgroundColor: const Color.fromRGBO(201, 151, 187, 1),
         selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white70,
-        showUnselectedLabels: false,
+        unselectedItemColor: Colors.white,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
         onTap: (index) {
           if (index == _currentIndex) return;
           setState(() {
             _currentIndex = index;
           });
-
-          switch (index) {
-            case 0:
-              break;
-            case 1:
-              break;
-            case 2:
-              break;
-            case 3:
-              break;
-            case 4:
-              break;
-          }
         },
-        
         items: [
           BottomNavigationBarItem(
             icon: _buildNavIcon(const Icon(Icons.home), 0),

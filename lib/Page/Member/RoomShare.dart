@@ -200,8 +200,7 @@ class _RoomshareState extends State<Roomshare> {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('No',
-                          style: TextStyle(color: Colors.black)),
+                      child: const Text('No',style: TextStyle(color: Colors.black)),
                     ),
                     TextButton(
                       onPressed: () {
@@ -210,8 +209,7 @@ class _RoomshareState extends State<Roomshare> {
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
                         );
                       },
-                      child: const Text('Yes',
-                          style: TextStyle(color: Colors.black)),
+                      child: const Text('Yes',style: TextStyle(color: Colors.black)),
                     ),
                   ],
                 ),

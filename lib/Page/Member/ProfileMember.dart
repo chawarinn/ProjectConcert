@@ -255,7 +255,6 @@ class _ProfileMemberState extends State<ProfileMember> {
                     );
 
                     if (confirmDelete == true) {
-                      // แสดงวงกลมโหลดระหว่างลบ
                       showDialog(
                         context: context,
                         barrierDismissible: false,
@@ -268,7 +267,7 @@ class _ProfileMemberState extends State<ProfileMember> {
                           '$API_ENDPOINT/deleteroomshare/${room['roomshareID']}',
                         ));
 
-                        Navigator.pop(context); // ปิด loading dialog
+                        Navigator.pop(context);
 
                         if (response.statusCode == 200) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -347,17 +346,16 @@ class _ProfileMemberState extends State<ProfileMember> {
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (BuildContext context) {
+                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: const Text('Confirm Logout'),
-                    content: const Text('คุณต้องการออกจากระบบ?'),
+                    title: const Text('ยืนยันการออกจากระบบ'),
+                    content: const Text('คุณต้องการที่จะออกจากระบบหรือไม่?'),
                     actions: [
                       TextButton(
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
-                        child: const Text('No',
-                            style: TextStyle(color: Colors.black)),
+                        child: const Text('No',style: TextStyle(color: Colors.black)),
                       ),
                       TextButton(
                         onPressed: () {
@@ -365,8 +363,7 @@ class _ProfileMemberState extends State<ProfileMember> {
                               MaterialPageRoute(
                                   builder: (context) => const homeLogoPage()));
                         },
-                        child: const Text('Yes',
-                            style: TextStyle(color: Colors.black)),
+                        child: const Text('Yes',style: TextStyle(color: Colors.black)),
                       ),
                     ],
                   );

@@ -218,26 +218,28 @@ late AddHotelPostResponse hotelData;
       onPressed: () {
         showDialog(
           context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Confirm Logout'),
-              content: const Text('Are you sure you want to log out?'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('No'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const homeLogoPage()));
-                  },
-                  child: const Text('Yes'),
-                ),
-              ],
-            );
-          },
+           builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('ยืนยันการออกจากระบบ'),
+                    content: const Text('คุณต้องการที่จะออกจากระบบหรือไม่?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('ไม่'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                  builder: (context) => const homeLogoPage()));
+                        },
+                        child: const Text('ตกลง'),
+                      ),
+                    ],
+                  );
+                },
         );
       },
     ),

@@ -1,3 +1,4 @@
+// ...import คงเดิม
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -38,6 +39,7 @@ class _AdminHotelPageState extends State<AdminHotelPage> {
       'distance': 5.1,
     },
   ];
+
   List<Map<String, dynamic>> filteredhotels = [];
   List<Map<String, dynamic>> filteredhotel = [];
 
@@ -58,111 +60,17 @@ class _AdminHotelPageState extends State<AdminHotelPage> {
     });
   }
 
-  Widget buildHotelCard(Map<String, dynamic> hotel) {
-    return Card(
-      color: Colors.grey[200],
-      margin: EdgeInsets.symmetric(vertical: 6),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                hotel['name'] ?? '',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-            if ((hotel['name2'] ?? '').isNotEmpty)
-              Text(hotel['name2'], style: TextStyle(fontSize: 14)),
-            SizedBox(height: 12),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    hotel['photo'] ?? 'https://picsum.photos/80/70',
-                    width: 80,
-                    height: 70,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'ราคา : เริ่มต้น ${hotel['price']} บาท',
-                        softWrap: true,
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        hotel['location'] ?? '',
-                        softWrap: true,
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'โทรศัพท์ : ${hotel['phone'] ?? ''}',
-                        softWrap: true,
-                      ),
-                      if ((hotel['contact'] ?? '').isNotEmpty) ...[
-                        const SizedBox(height: 6),
-                        Text(
-                          'Facebook : ${hotel['contact']}',
-                          style: const TextStyle(
-                            decoration: TextDecoration.underline,
-                          ),
-                          softWrap: true,
-                        ),
-                      ],
-                      if ((hotel['distance'] ?? 0) > 0)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 6),
-                          child: Text(
-                            'ระยะห่าง : ${(hotel['distance'] as num).toStringAsFixed(2)} กม.',
-                            softWrap: true,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: GestureDetector(
-                onTap: () {
-                  _showDeleteConfirmDialog(hotel);
-                },
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Center(
-                    child: FaIcon(
-                      FontAwesomeIcons.trash,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  void _deleteHotel(Map<String, dynamic> hotel) {
+    setState(() {
+      hotels.remove(hotel);
+      filteredhotels = hotels;
+      filteredhotel = hotels
+          .where((h) => h['name']
+              .toString()
+              .toLowerCase()
+              .contains(_searchHotel.toLowerCase()))
+          .toList();
+    });
   }
 
   void _showDeleteConfirmDialog(Map<String, dynamic> hotel) {
@@ -188,110 +96,6 @@ class _AdminHotelPageState extends State<AdminHotelPage> {
     );
   }
 
-  void _deleteHotel(Map<String, dynamic> hotel) {
-    setState(() {
-      hotels.remove(hotel);
-      filteredhotels = hotels;
-      filteredhotel = hotels
-          .where((h) => h['name']
-              .toString()
-              .toLowerCase()
-              .contains(_searchHotel.toLowerCase()))
-          .toList();
-    });
-  }
-
-  Widget _buildNavIcon(Icon icon, int index) {
-    bool isSelected = _currentIndex == index;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Transform.translate(
-          offset: isSelected ? const Offset(0, -5) : Offset.zero,
-          child: Icon(icon.icon, size: 30, color: Colors.white),
-        ),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          transitionBuilder: (child, animation) {
-            final offsetAnimation = Tween<Offset>(
-              begin: const Offset(0, 0.5),
-              end: Offset.zero,
-            ).animate(animation);
-            final scaleAnimation = Tween<double>(
-              begin: 0.8,
-              end: 1.0,
-            ).animate(animation);
-            return SlideTransition(
-              position: offsetAnimation,
-              child: ScaleTransition(scale: scaleAnimation, child: child),
-            );
-          },
-          child: isSelected
-              ? Text(
-                  _getLabel(index),
-                  key: ValueKey('label_$index'),
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
-                )
-              : const SizedBox.shrink(key: ValueKey('empty')),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNavFaIcon(IconData iconData, int index) {
-    bool isSelected = _currentIndex == index;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Transform.translate(
-          offset: isSelected ? const Offset(0, -5) : Offset.zero,
-          child: FaIcon(iconData, size: 30, color: Colors.white),
-        ),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          transitionBuilder: (child, animation) {
-            final offsetAnimation = Tween<Offset>(
-              begin: const Offset(0, 0.5),
-              end: Offset.zero,
-            ).animate(animation);
-            final scaleAnimation = Tween<double>(
-              begin: 0.8,
-              end: 1.0,
-            ).animate(animation);
-            return SlideTransition(
-              position: offsetAnimation,
-              child: ScaleTransition(scale: scaleAnimation, child: child),
-            );
-          },
-          child: isSelected
-              ? Text(
-                  _getLabel(index),
-                  key: ValueKey('label_$index'),
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
-                )
-              : const SizedBox.shrink(key: ValueKey('empty')),
-        ),
-      ],
-    );
-  }
-
-  String _getLabel(int index) {
-    switch (index) {
-      case 0:
-        return 'Home';
-      case 1:
-        return 'Ticket';
-      case 2:
-        return 'Hotel';
-      case 3:
-        return 'Food';
-      case 4:
-        return 'Profile';
-      default:
-        return '';
-    }
-  }
-
   void _showLogoutDialog() {
     showDialog(
       context: context,
@@ -312,6 +116,193 @@ class _AdminHotelPageState extends State<AdminHotelPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget buildHotelCard(Map<String, dynamic> hotel) {
+    return Card(
+      color: Colors.grey[200],
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      hotel['name'],
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    if ((hotel['name2'] ?? '').isNotEmpty)
+                      Text(
+                        hotel['name2'],
+                        style: TextStyle(
+                            fontSize: 14, color: Colors.grey.shade600),
+                      ),
+                  ],
+                ),
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple[200],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  child: const Text("Detail"),
+                )
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    hotel['photo'],
+                    width: 120,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('ราคา : เริ่มต้น ${hotel['price']} บาท'),
+                      const SizedBox(height: 6),
+                      Text('ที่ตั้ง : ${hotel['location']}'),
+                      const SizedBox(height: 6),
+                      Text('โทรศัพท์ : ${hotel['phone']}'),
+                      const SizedBox(height: 6),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Row(
+                              children: [
+                                const FaIcon(
+                                  FontAwesomeIcons.facebook,
+                                  size: 14,
+                                  color: Color(0xFF4267B2),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    hotel['contact'].isEmpty
+                                        ? 'ไม่มีข้อมูล'
+                                        : hotel['contact'],
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        decoration: TextDecoration.underline,
+                                        color: Colors.grey.shade700),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () => _showDeleteConfirmDialog(hotel),
+                            child: Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Center(
+                                child: FaIcon(
+                                  FontAwesomeIcons.trash,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getLabel(int index) {
+    switch (index) {
+      case 0:
+        return 'Home';
+      case 1:
+        return 'Ticket';
+      case 2:
+        return 'Hotel';
+      case 3:
+        return 'Food';
+      case 4:
+        return 'Profile';
+      default:
+        return '';
+    }
+  }
+
+  Widget _buildNavIcon(Icon icon, int index) {
+    bool isSelected = _currentIndex == index;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Transform.translate(
+          offset: isSelected ? const Offset(0, -5) : Offset.zero,
+          child: Icon(icon.icon, size: 30, color: Colors.white),
+        ),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: isSelected
+              ? Text(
+                  _getLabel(index),
+                  key: ValueKey(index),
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                )
+              : const SizedBox.shrink(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNavFaIcon(IconData iconData, int index) {
+    bool isSelected = _currentIndex == index;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Transform.translate(
+          offset: isSelected ? const Offset(0, -5) : Offset.zero,
+          child: FaIcon(iconData, size: 30, color: Colors.white),
+        ),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: isSelected
+              ? Text(
+                  _getLabel(index),
+                  key: ValueKey(index),
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                )
+              : const SizedBox.shrink(),
+        ),
+      ],
     );
   }
 
@@ -338,7 +329,7 @@ class _AdminHotelPageState extends State<AdminHotelPage> {
             padding: const EdgeInsets.only(top: 16, right: 16),
             child: Align(
               alignment: Alignment.centerRight,
-              child: Container(
+              child: SizedBox(
                 width: 180,
                 height: 40,
                 child: TextField(
@@ -348,9 +339,9 @@ class _AdminHotelPageState extends State<AdminHotelPage> {
                   },
                   decoration: InputDecoration(
                     contentPadding:
-                        EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                        const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
                     hintText: 'Search',
-                    prefixIcon: Icon(Icons.search, size: 20),
+                    prefixIcon: const Icon(Icons.search, size: 20),
                     filled: true,
                     fillColor: Colors.grey[200],
                     border: OutlineInputBorder(
@@ -364,37 +355,28 @@ class _AdminHotelPageState extends State<AdminHotelPage> {
           ),
           Expanded(
             child: _isLoading
-                ? Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator())
                 : Builder(
                     builder: (context) {
-                      if (_searchHotel.isNotEmpty) {
-                        if (filteredhotel.isEmpty) {
-                          return Center(child: Text('ไม่พบโรงแรมที่ค้นหา'));
-                        } else {
-                          return ListView.builder(
-                            itemCount: filteredhotel.length,
-                            itemBuilder: (context, index) {
-                              var hotel = filteredhotel[index];
-                              return buildHotelCard(hotel);
-                            },
-                          );
-                        }
-                      } else {
-                        if (filteredhotels.isEmpty) {
-                          return Center(child: Text('ไม่มีโรงแรมในระบบ'));
-                        } else {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: ListView.builder(
-                              itemCount: filteredhotels.length,
-                              itemBuilder: (context, index) {
-                                var hotel = filteredhotels[index];
-                                return buildHotelCard(hotel);
-                              },
-                            ),
-                          );
-                        }
+                      final showList = _searchHotel.isNotEmpty
+                          ? filteredhotel
+                          : filteredhotels;
+
+                      if (showList.isEmpty) {
+                        return Center(
+                          child: Text(_searchHotel.isNotEmpty
+                              ? 'ไม่พบโรงแรมที่ค้นหา'
+                              : 'ไม่มีโรงแรมในระบบ'),
+                        );
                       }
+
+                      return ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: showList.length,
+                        itemBuilder: (context, index) {
+                          return buildHotelCard(showList[index]);
+                        },
+                      );
                     },
                   ),
           ),
