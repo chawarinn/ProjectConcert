@@ -111,7 +111,7 @@ class _RegisterPageUserState extends State<RegisterPageUser> {
     }
 if (!nameRegex.hasMatch(fullnameCtl.text)) {
   _showAlertDialog(context,
-    "กรุณาเพิ่มชื่อให้ตรงตามมมาตรฐาน");
+    "กรุณาเพิ่มชื่อให้ตรงตามมาตรฐาน");
   return;
 }
 
