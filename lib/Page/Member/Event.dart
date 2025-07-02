@@ -196,14 +196,20 @@ class _Event extends State<Event> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
+                        onPressed: () async {
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
                                 builder: (context) => Eventdetailmember(
                                     userId: widget.userId,
                                     eventID: event['eventID'])),
                           );
+                          if (result == true) {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+                                        fetchEvent();
+                                      }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
@@ -240,9 +246,9 @@ class _Event extends State<Event> {
         leading: IconButton(
           icon:
               const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+         onPressed: () {
+    Navigator.pop(context, true); 
+  },
         ),
         title: Text(
           'Event',
@@ -258,16 +264,16 @@ class _Event extends State<Event> {
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (BuildContext context) {
+                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: const Text('Confirm Logout'),
-                    content: const Text('Are you sure you want to log out?'),
+                    title: const Text('ยืนยันการออกจากระบบ'),
+                    content: const Text('คุณต้องการที่จะออกจากระบบหรือไม่?'),
                     actions: [
                       TextButton(
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
-                        child: const Text('No'),
+                        child: const Text('ไม่'),
                       ),
                       TextButton(
                         onPressed: () {
@@ -275,7 +281,7 @@ class _Event extends State<Event> {
                               MaterialPageRoute(
                                   builder: (context) => const homeLogoPage()));
                         },
-                        child: const Text('Yes'),
+                        child: const Text('ตกลง'),
                       ),
                     ],
                   );

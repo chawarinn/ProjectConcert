@@ -63,6 +63,7 @@ class _ProfileMemberState extends State<ProfileMember> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        
         automaticallyImplyLeading: false,
         title: Text(
           'Profile',
@@ -78,16 +79,16 @@ class _ProfileMemberState extends State<ProfileMember> {
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (BuildContext context) {
+                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: const Text('Confirm Logout'),
-                    content: const Text('Are you sure you want to log out?'),
+                    title: const Text('ยืนยันการออกจากระบบ'),
+                    content: const Text('คุณต้องการที่จะออกจากระบบหรือไม่?'),
                     actions: [
                       TextButton(
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
-                        child: const Text('No'),
+                        child: const Text('ไม่'),
                       ),
                       TextButton(
                         onPressed: () {
@@ -95,7 +96,7 @@ class _ProfileMemberState extends State<ProfileMember> {
                               MaterialPageRoute(
                                   builder: (context) => const homeLogoPage()));
                         },
-                        child: const Text('Yes'),
+                        child: const Text('ตกลง'),
                       ),
                     ],
                   );
@@ -177,12 +178,18 @@ class _ProfileMemberState extends State<ProfileMember> {
                   width: 200,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: () {
-                       Navigator.push(
-                context,
-                MaterialPageRoute(
+                    onPressed: () async {
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
                     builder: (context) => EditProfileMember(userId: widget.userId)),
               );
+                if (result == true) {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+                                        fetchUserData();
+                                      }
                       },
                     style: ElevatedButton.styleFrom(
                       backgroundColor:  Color.fromRGBO(201, 151, 187, 1),

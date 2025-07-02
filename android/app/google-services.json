@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "259988227090",
+    "firebase_url": "https://project-rider-1b5ac-default-rtdb.firebaseio.com",
+    "project_id": "project-rider-1b5ac",
+    "storage_bucket": "project-rider-1b5ac.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:259988227090:android:db894289cac749ff6c04cb",
+        "android_client_info": {
+          "package_name": "com.example.mini_projec"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiVnY-8Ajak4xVeQNLzynr8skqCgNFulg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:259988227090:android:3b5b3411977fbae16c04cb",
+        "android_client_info": {
+          "package_name": "com.example.project_concert_closeiin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiVnY-8Ajak4xVeQNLzynr8skqCgNFulg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

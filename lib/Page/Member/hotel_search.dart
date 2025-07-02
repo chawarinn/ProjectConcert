@@ -20,7 +20,6 @@ import 'package:project_concert_closeiin/model/response/userGetHotelResponse.dar
 import 'package:project_concert_closeiin/model/response/userGetSearchHResponse.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-
 class HotelSearch extends StatefulWidget {
   int userId;
   HotelSearch({super.key, required this.userId});
@@ -315,109 +314,125 @@ class _hotelSearch extends State<HotelSearch> {
     });
   }
 
- Widget buildHotelCard(var hotel) {
-  return InkWell(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DetailHotel(
-            userId: widget.userId,
-            hotelID: hotel.hotelId,
+  Widget buildHotelCard(var hotel) {
+    return InkWell(
+      onTap: () async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailHotel(
+              userId: widget.userId,
+              hotelID: hotel.hotelId,
+            ),
+          ),
+        );
+        if (result == true) {
+          setState(() {
+            _isLoading = false;
+          });
+          _fetchAllHotels();
+        }
+      },
+      child: Card(
+        color: Colors.grey[200],
+        margin: EdgeInsets.symmetric(vertical: 6),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      hotel.hotelName ?? '',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${hotel.totalPiont ?? 0}/',
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.w500),
+                        ),
+                        SizedBox(width: 4),
+                        Icon(Icons.star, color: Colors.amber, size: 18),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              if (hotel.hotelName2.isNotEmpty)
+                Text(hotel.hotelName2, style: TextStyle(fontSize: 14)),
+              SizedBox(height: 12),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      hotel.hotelPhoto,
+                      width: 120,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('ราคา : เริ่มต้น ${hotel.startingPrice} บาท'),
+                        SizedBox(height: 6),
+                        Text(hotel.location),
+                        SizedBox(height: 6),
+                        Text('โทรศัพท์ : ${hotel.phone}'),
+                        if (hotel.contact.isNotEmpty) ...[
+                          SizedBox(height: 6),
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "Facebook : ",
+                                ),
+                                TextSpan(
+                                  text: hotel.contact,
+                                  style: TextStyle(
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                        if (hotel.distance != null && hotel.distance! > 0)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 6),
+                            child: Text(
+                              'ระยะห่าง : ${hotel.distance!.toStringAsFixed(2)} กม.',
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
-      );
-    },
-    child: Card(
-      color: Colors.grey[200],
-      margin: EdgeInsets.symmetric(vertical: 6),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
       ),
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    hotel.hotelName ?? '',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '${hotel.totalPiont ?? 0}/',
-                        style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.w500),
-                      ),
-                      SizedBox(width: 4),
-                      Icon(Icons.star, color: Colors.amber, size: 18),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            if (hotel.hotelName2.isNotEmpty)
-              Text(hotel.hotelName2, style: TextStyle(fontSize: 14)),
-            SizedBox(height: 12),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    hotel.hotelPhoto,
-                    width: 120,
-                    height: 100,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('ราคา : เริ่มต้น ${hotel.startingPrice} บาท'),
-                      SizedBox(height: 6),
-                      Text(hotel.location),
-                      SizedBox(height: 6),
-                      Text('โทรศัพท์ : ${hotel.phone}'),
-                      if (hotel.contact.isNotEmpty) ...[
-                        SizedBox(height: 6),
-                        Text(
-                          'Facebook : ${hotel.contact}',
-                          style: TextStyle(
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ],
-                      if (hotel.distance != null && hotel.distance! > 0)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 6),
-                          child: Text(
-                            'ระยะห่าง : ${hotel.distance!.toStringAsFixed(2)} กม.',
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -427,7 +442,7 @@ class _hotelSearch extends State<HotelSearch> {
           icon:
               const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.pop(context, true);
           },
         ),
         title: Text(
@@ -441,16 +456,16 @@ class _hotelSearch extends State<HotelSearch> {
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (BuildContext context) {
+                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: const Text('Confirm Logout'),
-                    content: const Text('Are you sure you want to log out?'),
+                    title: const Text('ยืนยันการออกจากระบบ'),
+                    content: const Text('คุณต้องการที่จะออกจากระบบหรือไม่?'),
                     actions: [
                       TextButton(
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
-                        child: const Text('No'),
+                        child: const Text('ไม่'),
                       ),
                       TextButton(
                         onPressed: () {
@@ -458,7 +473,7 @@ class _hotelSearch extends State<HotelSearch> {
                               MaterialPageRoute(
                                   builder: (context) => const homeLogoPage()));
                         },
-                        child: const Text('Yes'),
+                        child: const Text('ตกลง'),
                       ),
                     ],
                   );

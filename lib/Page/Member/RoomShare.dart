@@ -27,7 +27,7 @@ class _RoomshareState extends State<Roomshare> {
           icon:
               const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.pop(context, true);
           },
         ),
         title: Text('Roomshare' ,
@@ -43,16 +43,16 @@ class _RoomshareState extends State<Roomshare> {
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (BuildContext context) {
+                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: const Text('Confirm Logout'),
-                    content: const Text('Are you sure you want to log out?'),
+                    title: const Text('ยืนยันการออกจากระบบ'),
+                    content: const Text('คุณต้องการที่จะออกจากระบบหรือไม่?'),
                     actions: [
                       TextButton(
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
-                        child: const Text('No'),
+                        child: const Text('ไม่'),
                       ),
                       TextButton(
                         onPressed: () {
@@ -60,7 +60,7 @@ class _RoomshareState extends State<Roomshare> {
                               MaterialPageRoute(
                                   builder: (context) => const homeLogoPage()));
                         },
-                        child: const Text('Yes'),
+                        child: const Text('ตกลง'),
                       ),
                     ],
                   );

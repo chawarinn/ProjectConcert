@@ -126,7 +126,7 @@ class _EventDetailMemberState extends State<Eventdetailmember> {
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.pop(context, true),
         ),
         title: Text(
           'Detail',
@@ -141,20 +141,28 @@ class _EventDetailMemberState extends State<Eventdetailmember> {
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (_) => AlertDialog(
-                  title: Text('Confirm Logout'),
-                  content: Text('Are you sure you want to log out?'),
-                  actions: [
-                    TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: Text('No')),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (_) => homeLogoPage())),
-                      child: Text('Yes'),
-                    ),
-                  ],
-                ),
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('ยืนยันการออกจากระบบ'),
+                    content: const Text('คุณต้องการที่จะออกจากระบบหรือไม่?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('ไม่'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                  builder: (context) => const homeLogoPage()));
+                        },
+                        child: const Text('ตกลง'),
+                      ),
+                    ],
+                  );
+                },
               );
             },
           ),
@@ -300,10 +308,10 @@ class _EventDetailMemberState extends State<Eventdetailmember> {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                             ),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
+                            onPressed: () async {
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
                                   builder: (_) => Hotelevent(
                                     userId: widget.userId,
                                     eventID: widget.eventID,
@@ -312,6 +320,12 @@ class _EventDetailMemberState extends State<Eventdetailmember> {
                                   ),
                                 ),
                               );
+                                if (result == true) {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+                                        fetchEvent();
+                                      }
                             },
                             child: Text('Hotel',
                                 style: TextStyle(color: const Color.fromARGB(206, 0, 0, 0))),

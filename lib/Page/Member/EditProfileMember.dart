@@ -1,8 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:project_concert_closeiin/Page/Artist/artist.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
+import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
+import 'package:project_concert_closeiin/Page/Member/Notification.dart';
+import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
 
 class EditProfileMember extends StatefulWidget {
   int userId;
@@ -13,7 +18,8 @@ class EditProfileMember extends StatefulWidget {
 
 class _EditProfileMemberState extends State<EditProfileMember> {
   File? _image;
-  int _currentIndex = 0;
+  int _currentIndex = 3;
+  bool isLoading = true;
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -81,20 +87,23 @@ class _EditProfileMemberState extends State<EditProfileMember> {
     },
   );
 }
-
-  @override
-  Widget build(BuildContext context) {
+ Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile', style: TextStyle(fontSize: 20)),
-        backgroundColor: Colors.purple.shade200,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+         leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          onPressed: () => Navigator.pop(context, true),
         ),
-              actions: [
+        automaticallyImplyLeading: false,
+        title: Text(
+          'Edit Profile',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+             actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () {
@@ -102,14 +111,14 @@ class _EditProfileMemberState extends State<EditProfileMember> {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: const Text('Confirm Logout'),
-                    content: const Text('Are you sure you want to log out?'),
+                    title: const Text('ยืนยันการออกจากระบบ'),
+                    content: const Text('คุณต้องการที่จะออกจากระบบหรือไม่?'),
                     actions: [
                       TextButton(
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
-                        child: const Text('No'),
+                        child: const Text('ไม่'),
                       ),
                       TextButton(
                         onPressed: () {
@@ -117,7 +126,7 @@ class _EditProfileMemberState extends State<EditProfileMember> {
                               MaterialPageRoute(
                                   builder: (context) => const homeLogoPage()));
                         },
-                        child: const Text('Yes'),
+                        child: const Text('ตกลง'),
                       ),
                     ],
                   );
@@ -127,7 +136,11 @@ class _EditProfileMemberState extends State<EditProfileMember> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body:  
+      // isLoading
+      //     ? Center(child: CircularProgressIndicator())
+      //     :
+          SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -202,7 +215,7 @@ class _EditProfileMemberState extends State<EditProfileMember> {
                 ),
               ),
               onPressed: () {
-                bool isEditSuccess = false; // ตัวอย่างเงื่อนไข (แก้ไขไม่สำเร็จ)
+                bool isEditSuccess = false; 
                 _showEditResultDialog(isSuccess: isEditSuccess);
               },
               child: Text(
@@ -213,39 +226,61 @@ class _EditProfileMemberState extends State<EditProfileMember> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
+     bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        selectedItemColor: Colors.purple.shade200,
-        unselectedItemColor: Colors.grey,
         onTap: (index) {
           setState(() {
             _currentIndex = index;
           });
-          if (index == 0) {
-            // Navigate to Home
-          } else if (index == 1) {
-            // Navigate to Favorite Artist Page
-          } else if (index == 2) {
-            // Navigate to Notifications
-          } else if (index == 3) {
-            // Navigate to Profile
+          switch (index) {
+            case 0:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Homemember(userId: widget.userId)),
+              );
+              break;
+            case 1:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ArtistPage(userId: widget.userId)),
+              );
+              break;
+            case 2:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        NotificationPage(userId: widget.userId)),
+              );
+              break;
+            case 3:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        ProfileMember(userId: widget.userId)),
+              );
+              break;
           }
         },
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white70,
+        showUnselectedLabels: false,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
           BottomNavigationBarItem(
-            icon: Icon(FontAwesomeIcons.heartPulse),
-            label: 'Favorite Artist',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Notifications',
-          ),
+              icon: Icon(FontAwesomeIcons.heartPulse), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: ''),
           BottomNavigationBarItem(icon: Icon(Icons.face), label: 'Profile'),
         ],
       ),
     );
   }
+}
 
   Widget _buildTextField({
     required String label,
@@ -285,4 +320,3 @@ class _EditProfileMemberState extends State<EditProfileMember> {
       ],
     );
   }
-}

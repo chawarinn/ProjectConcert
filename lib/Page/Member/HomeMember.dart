@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:project_concert_closeiin/Page/Artist/artist.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
+import 'package:project_concert_closeiin/Page/Member/DetailHotel.dart';
 import 'package:project_concert_closeiin/Page/Member/Event.dart';
 import 'package:project_concert_closeiin/Page/Member/EventDetailMember.dart';
 import 'package:project_concert_closeiin/Page/Member/Notification.dart';
@@ -103,14 +104,14 @@ class _HomeMember extends State<Homemember> {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: const Text('Confirm Logout'),
-                    content: const Text('Are you sure you want to log out?'),
+                    title: const Text('ยืนยันการออกจากระบบ'),
+                    content: const Text('คุณต้องการที่จะออกจากระบบหรือไม่?'),
                     actions: [
                       TextButton(
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
-                        child: const Text('No'),
+                        child: const Text('ไม่'),
                       ),
                       TextButton(
                         onPressed: () {
@@ -118,7 +119,7 @@ class _HomeMember extends State<Homemember> {
                               MaterialPageRoute(
                                   builder: (context) => const homeLogoPage()));
                         },
-                        child: const Text('Yes'),
+                        child: const Text('ตกลง'),
                       ),
                     ],
                   );
@@ -153,14 +154,21 @@ class _HomeMember extends State<Homemember> {
                                   child: _buildIconWithLabel(
                                     FontAwesomeIcons.ticket,
                                     "Event",
-                                    () {
-                                      Navigator.push(
+                                    () async {
+                                      final result = await Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) =>
                                               Event(userId: widget.userId),
                                         ),
                                       );
+                                      if (result == true) {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+                                        fetchEvent();
+                                        fetchTopHotels();
+                                      }
                                     },
                                   ),
                                 ),
@@ -168,14 +176,21 @@ class _HomeMember extends State<Homemember> {
                                   child: _buildIconWithLabel(
                                     FontAwesomeIcons.hotel,
                                     "Hotel",
-                                    () {
-                                      Navigator.push(
+                                         () async {
+                                      final result = await Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => HotelSearch(
                                               userId: widget.userId),
                                         ),
                                       );
+                                      if (result == true) {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+                                        fetchEvent();
+                                        fetchTopHotels();
+                                      }
                                     },
                                   ),
                                 ),
@@ -183,14 +198,21 @@ class _HomeMember extends State<Homemember> {
                                   child: _buildIconWithLabel(
                                     FontAwesomeIcons.bed,
                                     "Room Share",
-                                    () {
-                                      Navigator.push(
+                                     () async {
+                                      final result = await Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) =>
                                               Roomshare(userId: widget.userId),
                                         ),
                                       );
+                                      if (result == true) {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+                                        fetchEvent();
+                                        fetchTopHotels();
+                                      }
                                     },
                                   ),
                                 ),
@@ -198,8 +220,8 @@ class _HomeMember extends State<Homemember> {
                                   child: _buildIconWithLabel(
                                     FontAwesomeIcons.utensils,
                                     "Restaurant",
-                                    () {
-                                      Navigator.push(
+                                    () async {
+                                      final result = await Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) =>
@@ -207,6 +229,13 @@ class _HomeMember extends State<Homemember> {
                                                   userId: widget.userId),
                                         ),
                                       );
+                                      if (result == true) {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+                                        fetchEvent();
+                                        fetchTopHotels();
+                                      }
                                     },
                                   ),
                                 ),
@@ -240,16 +269,23 @@ class _HomeMember extends State<Homemember> {
                         return Container(
                           margin: EdgeInsets.only(left: leftMargin, right: 8),
                           child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
+                            onTap: () async {
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
                                   builder: (context) => Eventdetailmember(
                                     userId: widget.userId,
                                     eventID: event['eventID'],
                                   ),
                                 ),
                               );
+                                      if (result == true) {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+                                        fetchEvent();
+                                        fetchTopHotels();
+                                      }
                             },
                             child: _buildEventCardWidget(
                               Image.network(
@@ -386,83 +422,112 @@ class _HomeMember extends State<Homemember> {
   }
 
   Widget _buildHotelCard(dynamic hotel) {
-    return Card(
-      color: Colors.grey[200],
-      margin: EdgeInsets.symmetric(vertical: 6),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    hotel['hotelName'] ?? '',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(width: 4),
-                      Text(
-                        '${hotel['totalPiont'] ?? 0}/',
-                        style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.w500),
-                      ),
-                      Icon(Icons.star, color: Colors.amber, size: 18),
-                    ],
-                  ),
-                ),
-              ],
+    return InkWell(
+      onTap: () async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailHotel(
+              userId: widget.userId,
+              hotelID: hotel['hotelID'],
             ),
-            Text(hotel['hotelName2'], style: TextStyle(fontSize: 14)),
-            SizedBox(height: 12),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    hotel['hotelPhoto'],
-                    width: 120,
-                    height: 100,
-                    fit: BoxFit.cover,
+          ),
+        );
+        if (result == true) {
+          setState(() {
+            isLoading = false;
+          });
+         fetchEvent();
+    fetchTopHotels();
+        }
+      },
+      child:  Card(
+        color: Colors.grey[200],
+        margin: EdgeInsets.symmetric(vertical: 6),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      hotel['hotelName'] ?? '',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('ราคา : เริ่มต้น ${hotel['startingPrice']} บาท'),
-                      SizedBox(height: 6),
-                      Text(hotel['location']),
-                      SizedBox(height: 6),
-                      Text('โทรศัพท์ : ${hotel['phone']}'),
-                      if (hotel['contact'].isNotEmpty) ...[
-                        SizedBox(height: 6),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(width: 4),
                         Text(
-                          'Facebook : ${hotel['contact']}',
+                          '${hotel['totalPiont'] ?? 0}/',
                           style: TextStyle(
-                            decoration: TextDecoration.underline,
-                          ),
+                              fontSize: 12, fontWeight: FontWeight.w500),
                         ),
+                        Icon(Icons.star, color: Colors.amber, size: 18),
                       ],
-                    ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+              Text(hotel['hotelName2'], style: TextStyle(fontSize: 14)),
+              SizedBox(height: 12),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      hotel['hotelPhoto'],
+                      width: 120,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('ราคา : เริ่มต้น ${hotel['startingPrice']} บาท'),
+                        SizedBox(height: 6),
+                        Text(hotel['location']),
+                        SizedBox(height: 6),
+                        Text('โทรศัพท์ : ${hotel['phone']}'),
+                        if (hotel['contact'].isNotEmpty) ...[
+                          SizedBox(height: 6),
+                         Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "Facebook : ",
+                                ),
+                                TextSpan(
+                                  text: hotel['contact'],
+                                  style: TextStyle(
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

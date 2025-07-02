@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyD9lRm9qBJhfz4KbeOMlX6dIy-_hUBgfno</string>
+	<key>GCM_SENDER_ID</key>
+	<string>259988227090</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.projectConcertCloseiin</string>
+	<key>PROJECT_ID</key>
+	<string>project-rider-1b5ac</string>
+	<key>STORAGE_BUCKET</key>
+	<string>project-rider-1b5ac.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:259988227090:ios:f33be07ff4b84f8f6c04cb</string>
+	<key>DATABASE_URL</key>
+	<string>https://project-rider-1b5ac-default-rtdb.firebaseio.com</string>
+</dict>
+</plist>
