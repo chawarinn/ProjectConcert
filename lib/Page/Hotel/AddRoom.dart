@@ -9,6 +9,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class AddRoom extends StatefulWidget {
   final int hotelID;
@@ -178,49 +180,50 @@ class _AddRoomState extends State<AddRoom> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 190, 150, 198),
-        title: const Text(
-          'Detail',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+       appBar: AppBar(
+        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+        title: Text(
+          'Add Room',
+           style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          icon:
+              const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
-        actions: [
+       actions: [
           IconButton(
-      icon: const Icon(Icons.logout, color: Colors.white),
-      onPressed: () {
-        showDialog(
-          context: context,
-           builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('ยืนยันการออกจากระบบ'),
-                    content: const Text('คุณต้องการที่จะออกจากระบบหรือไม่?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('ไม่'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => const homeLogoPage()));
-                        },
-                        child: const Text('ตกลง'),
-                      ),
-                    ],
-                  );
-                },
-        );
-      },
-    ),
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => AlertDialog(
+                  title: const Text('Confirm Logout'),
+                  content: const Text('คุณต้องการออกจากระบบ?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('No',style: TextStyle(color: Colors.black)),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => homeLogoPage()),
+                        );
+                      },
+                      child: const Text('Yes',style: TextStyle(color: Colors.black)),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ],
       ),
       body: SingleChildScrollView(

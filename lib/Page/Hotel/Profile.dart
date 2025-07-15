@@ -6,22 +6,23 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:project_concert_closeiin/Page/Home.dart';
+import 'package:project_concert_closeiin/Page/Hotel/HomeHotel.dart';
 import 'package:project_concert_closeiin/Page/Member/EditProfileMember.dart';
 import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
 import 'package:project_concert_closeiin/Page/Member/Notification.dart';
 import 'package:project_concert_closeiin/Page/Member/artist.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
-class Profile extends StatefulWidget {
+class ProfileHotel extends StatefulWidget {
   int userId;
-  Profile({super.key, required this.userId});
+  ProfileHotel({super.key, required this.userId});
 
   @override
-  _ProfileState createState() => _ProfileState();
+  _ProfileHotelState createState() => _ProfileHotelState();
 }
 
-class _ProfileState extends State<Profile> {
-  int _currentIndex = 3;
+class _ProfileHotelState extends State<ProfileHotel> {
+  int _currentIndex = 1;
   bool isLoading = true;
   Map<String, dynamic>? userData;
   bool _isDeleting = false;
@@ -118,7 +119,7 @@ class _ProfileState extends State<Profile> {
         );
       }
     } catch (e) {
-      Navigator.pop(context); // ปิด dialog loading
+      Navigator.pop(context); 
     } finally {
       setState(() {
         _isDeleting = false;
@@ -129,46 +130,41 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+       appBar: AppBar(
+        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         automaticallyImplyLeading: false,
         title: Text(
           'Profile',
-          style: GoogleFonts.poppins(
+           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
-        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-        actions: [
+       actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('Confirm Logout'),
-                    content: const Text('คุณต้องการออกจากระบบ?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('No',
-                            style: TextStyle(color: Colors.black)),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => const homeLogoPage()));
-                        },
-                        child: const Text('Yes',
-                            style: TextStyle(color: Colors.black)),
-                      ),
-                    ],
-                  );
-                },
+                builder: (BuildContext context) => AlertDialog(
+                  title: const Text('Confirm Logout'),
+                  content: const Text('คุณต้องการออกจากระบบ?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('No',style: TextStyle(color: Colors.black)),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => homeLogoPage()),
+                        );
+                      },
+                      child: const Text('Yes',style: TextStyle(color: Colors.black)),
+                    ),
+                  ],
+                ),
               );
             },
           ),
@@ -331,7 +327,7 @@ class _ProfileState extends State<Profile> {
                 ],
               ),
             ),
-      bottomNavigationBar: BottomNavigationBar(
+       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
@@ -342,29 +338,15 @@ class _ProfileState extends State<Profile> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => Homemember(userId: widget.userId)),
+                    builder: (context) =>
+                        HomeHotel(userId : widget.userId)),
               );
               break;
             case 1:
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => ArtistPage(userId: widget.userId)),
-              );
-              break;
-            case 2:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        NotificationPage(userId: widget.userId)),
-              );
-              break;
-            case 3:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => Profile(userId: widget.userId)),
+                    builder: (context) => ProfileHotel(userId: widget.userId)),
               );
               break;
           }
@@ -375,11 +357,14 @@ class _ProfileState extends State<Profile> {
         unselectedItemColor: Colors.white70,
         showUnselectedLabels: false,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
           BottomNavigationBarItem(
-              icon: Icon(FontAwesomeIcons.heartPulse), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.face), label: 'Profile'),
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.face),
+            label: 'Profile',
+          ),
         ],
       ),
     );

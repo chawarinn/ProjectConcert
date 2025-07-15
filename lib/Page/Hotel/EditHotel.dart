@@ -23,15 +23,15 @@ import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 import 'package:project_concert_closeiin/model/response/AddPostHotelResponse.dart';
 
-class AddHotel extends StatefulWidget {
+class Edithotel extends StatefulWidget {
   int userId;
-  AddHotel({super.key, required this.userId});
+  Edithotel ({super.key, required this.userId});
 
   @override
-  State<AddHotel> createState() => _AddHotelState();
+  State<Edithotel > createState() => _AddHotelState();
 }
 
-class _AddHotelState extends State<AddHotel> {
+class _AddHotelState extends State<Edithotel> {
   @override
   var fullnameCtl = TextEditingController();
   var fullname2Ctl = TextEditingController();
@@ -56,21 +56,17 @@ class _AddHotelState extends State<AddHotel> {
 void initState() {
   super.initState();
 
-  // Focus node listener
   _FocusNode.addListener(() {
     setState(() {
       _isFocused = _FocusNode.hasFocus;
     });
   });
-
-  // Delay 5 วิ ก่อนแสดงหน้าจอจริง
   Future.delayed(Duration(seconds: 1), () {
     setState(() {
       isLoading = false;
     });
   });
 
-  // โหลด config API
   Configuration.getConfig().then((config) {
     url = config['apiEndpoint'];
   }).catchError((err) {
