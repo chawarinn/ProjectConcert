@@ -25,7 +25,8 @@ import 'package:project_concert_closeiin/model/response/AddPostHotelResponse.dar
 
 class Edithotel extends StatefulWidget {
   int userId;
-  Edithotel ({super.key, required this.userId});
+  int hotelID;
+  Edithotel ({super.key, required this.userId, required this.hotelID});
 
   @override
   State<Edithotel > createState() => _AddHotelState();
