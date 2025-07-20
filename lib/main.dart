@@ -3,7 +3,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:project_concert_closeiin/Page/Admin/AdminDetail.dart';
+import 'package:project_concert_closeiin/Page/Admin/AdminEvent.dart';
+import 'package:project_concert_closeiin/Page/Admin/AdminEventDetail.dart';
 import 'package:project_concert_closeiin/Page/Admin/AdminHotel.dart';
+import 'package:project_concert_closeiin/Page/Admin/AdminRes.dart';
 import 'package:project_concert_closeiin/Page/Admin/HomeAdmin.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Hotel/AddHotel.dart';
@@ -19,6 +22,7 @@ import 'package:project_concert_closeiin/Page/Member/EventDetailMember.dart';
 import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
 import 'package:project_concert_closeiin/Page/Member/Notification.dart';
 import 'package:project_concert_closeiin/Page/Member/hotel_search.dart';
+import 'package:project_concert_closeiin/Page/User/detailHotelUser.dart';
 import 'firebase_options.dart';
 
 
@@ -46,16 +50,21 @@ class MyApp extends StatelessWidget {
       ),
       // home: RestaurantSearch(userId: 3)
       // home: Event(userId: 3)
-      home: Homemember(userId: 3)
+      // home: Homemember(userId: 3)
       // home: Eventdetailmember(userId: 3,eventID: 1,),
       // home: homeLogoPage()
-      // home: HomeAdmin(userId: 7,)
-      // home: AdminHotelPage(userId: 7,)
-      // home: HotelSearch(userId: 3,)
+      // home: HomeAdmin(userId: 7,eventID1)
+      home: AdminHotelPage(userId: 7,)
+      // home: HotelSearch(userId: 6,)
       // home: LoginPage()
       // home: NotificationPage(userId: 3,) 
-      // home: Admindetail(userId: 3),
-  
+      // home: Admindetail(userId: 7),
+      // home: detailHoteluser(hotelID: 5),
+      // home:AdminEvent(userId: 3)
+      // home: AdminEventDetail(userId: 7),
+        // home: AdminEventDetail(userId: 3, eventID: 1),
+        // home: AdminRes(userId: 7),
+        // home: Admindetail(hotelID: 11)
     );
   }
 }
