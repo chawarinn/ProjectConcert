@@ -99,7 +99,6 @@ class _EditRoomState extends State<EditRoom> {
         final data = json.decode(response.body);
         final sizeValue = (data['size'] as num).toDouble();
 
-        // หา key ที่ตรงกับ value (size)
         final matchedEntry = bedSizeValues.entries.firstWhere(
           (entry) => entry.value == sizeValue,
           orElse: () => MapEntry('', 0),
@@ -149,17 +148,23 @@ class _EditRoomState extends State<EditRoom> {
       },
     );
   }
+bool _isDataChanged() {
+  if (originalRoomData == null) return true;
 
-  bool _isDataChanged() {
-    if (originalRoomData == null) return true;
+  String originalSizeKey = bedSizeValues.entries
+      .firstWhere(
+        (entry) => entry.value == (originalRoomData!['size'] as num).toDouble(),
+        orElse: () => MapEntry('', 0.0),
+      )
+      .key;
 
-    return _nameController.text != (originalRoomData!['roomName'] ?? '') ||
-        _priceController.text !=
-            (originalRoomData!['price']?.toString() ?? '') ||
-        _sizeController.text != (originalRoomData!['size'] ?? '') ||
-        roomStatus != (originalRoomData!['status'] ?? '') ||
-        _image != null;
-  }
+  return _nameController.text != (originalRoomData!['roomName'] ?? '') ||
+      _priceController.text != (originalRoomData!['price']?.toString() ?? '') ||
+      selectedSize != originalSizeKey ||
+      roomStatus != (originalRoomData!['status'] ?? 0) ||
+      _image != null;
+}
+
 
   void _showEditResultDialog() async {
      if (!_isDataChanged()) {
