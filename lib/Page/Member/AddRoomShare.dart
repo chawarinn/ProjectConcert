@@ -53,6 +53,8 @@ class _AddRoomShareState extends State<AddRoomShare> {
   }
 
 Future<void> _submitRoomShare() async {
+  // final noteRegex = RegExp(r'^[a-zA-Z0-9\s]{2,}$');
+
   if (selectedFriendGender == null ||
       selectedArtistId == null ||
       selectedEventId == null ||
@@ -64,7 +66,24 @@ Future<void> _submitRoomShare() async {
     _showAlertDialog(context, "กรุณากรอกข้อมูลให้ครบ");
     return;
   }
+bool isValidText(String text) {
+  // ต้องมีอย่างน้อย 1 ตัวอักษร a-z A-Z ก-ฮ หรือ ตัวเลข 0-9
+  return RegExp(r'[a-zA-Zก-ฮ0-9]').hasMatch(text);
+}
 
+if (!isValidText(priceCtl.text) ||
+    !isValidText(contactCtl.text) ||
+    !isValidText(noteCtl.text)) {
+  _showAlertDialog(context, "ข้อมูลไม่ถูกต้อง");
+  return;
+}
+
+
+//   if (!noteRegex.hasMatch(noteCtl.text)) {
+//   _showAlertDialog(context,
+//     "รูปแบบการเขียนโน้ตไม่ถูกต้อง");
+//   return;
+// }
   try {
     showLoadingDialog();
 
@@ -81,6 +100,8 @@ Future<void> _submitRoomShare() async {
     request.fields['contact'] = contactCtl.text;
     request.fields['note'] = noteCtl.text;
     request.fields['status'] = '0';
+
+
 
     var response = await request.send();
     hideLoadingDialog();

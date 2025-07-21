@@ -7,8 +7,6 @@ import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
-import 'package:project_concert_closeiin/Page/Hotel/AddRoom.dart';
-import 'package:project_concert_closeiin/Page/Hotel/EditRoom.dart';
 import 'package:project_concert_closeiin/Page/Hotel/HomeHotel.dart';
 import 'package:project_concert_closeiin/Page/Hotel/Location.dart';
 import 'package:project_concert_closeiin/Page/Hotel/Profile.dart';
@@ -115,14 +113,20 @@ class _AddHotelState extends State<Edithotel> {
         _phoneController.text != (originalHotelData!['phone'] ?? '') ||
         _contactController.text != (originalHotelData!['contact'] ?? '') ||
         _detailController.text != (originalHotelData!['detail'] ?? '') ||
-        _locationController.text != (originalHotelData!['location'] ?? '') ||
+        _addressController.text != (originalHotelData!['location'] ?? '') ||
         selectedLatitude?.toString() != originalLat ||
         selectedLongitude?.toString() != originalLong ||
         _image != null;
   }
 
   void _showEditResultDialog() async {
-     if (!_isDataChanged()) {
+    final phoneRegex = RegExp(r'^[0-9]{10}$');
+
+    if (!phoneRegex.hasMatch(_phoneController.text)) {
+      _showAlertDialog(context, "กรุณาใส่หมายเลขโทรศัพท์ให้ถูกต้อง");
+      return;
+    }
+    if (!_isDataChanged()) {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
@@ -135,47 +139,6 @@ class _AddHotelState extends State<Edithotel> {
           ],
         ),
       );
-      return;
-    }
-    final phoneRegex = RegExp(r'^[0-9]{10}$');
-    final nameRegex = RegExp(r'^(?=.*[ก-๙])[ก-๙]+( [ก-๙]+)*$');
-    final name2Regex = RegExp(r'^(?=.*[a-zA-Z])[a-zA-Z0-9]+( [a-zA-Z0-9]+)*$');
-    if (_nameController.text.isEmpty ||
-        _name2Controller.text.isEmpty ||
-        _priceController.text.isEmpty ||
-        _phoneController.text.isEmpty ||
-        _contactController.text.isEmpty ||
-        _detailController.text.isEmpty ||
-        _locationController.text.isEmpty ||
-        selectedLatitude == null ||
-        selectedLongitude == null ||
-        _image != null) {
-      _showAlertDialog(context, "กรอกข้อมูลไม่ครบ");
-      return;
-    }
-    bool isValidText(String text) {
-      return RegExp(r'[a-zA-Zก-ฮ0-9]').hasMatch(text);
-    }
-
-    if (!isValidText(_nameController.text) ||
-        !isValidText(_name2Controller.text) ||
-        !isValidText(_priceController.text) ||
-        !isValidText(_contactController.text) ||
-        !isValidText(_detailController.text) ||
-        !isValidText(_locationController.text)) {
-      _showAlertDialog(context, "ข้อมูลไม่ถูกต้อง");
-      return;
-    }
-    if (!nameRegex.hasMatch(_nameController.text)) {
-      _showAlertDialog(context, "กรุณาเพิ่มชื่อให้ตรงตามมาตรฐาน");
-      return;
-    }
-    if (!name2Regex.hasMatch(_name2Controller.text)) {
-      _showAlertDialog(context, "กรุณาเพิ่มชื่อให้ตรงตามมาตรฐาน");
-      return;
-    }
-    if (!phoneRegex.hasMatch(_phoneController.text)) {
-      _showAlertDialog(context, "กรุณาใส่หมายเลขโทรศัพท์ให้ถูกต้อง");
       return;
     }
     final uri = Uri.parse('$API_ENDPOINT/edithotel');
@@ -222,7 +185,7 @@ class _AddHotelState extends State<Edithotel> {
           context: context,
           builder: (_) => AlertDialog(
             title: Text('Notification'),
-            content: Text(data['message'] ?? 'อัปเดตแก้ไขข้อมูลโรงแรมสำเร็จ'),
+            content: Text(data['message'] ?? 'อัปเดตแก้ไขข้อมูลส่วนตัวสำเร็จ'),
             actions: [
               TextButton(
                   onPressed: () {
@@ -464,48 +427,6 @@ class _AddHotelState extends State<Edithotel> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Align(
-                  //   alignment: Alignment.topRight,
-                  //   child: Padding(
-                  //     padding: const EdgeInsets.only(right: 30, top: 10),
-                  //     child: Container(
-                  //       width: 50,
-                  //       height: 50,
-                  //       decoration: BoxDecoration(
-                  //         color: const Color.fromRGBO(232, 234, 237, 1),
-                  //         shape: BoxShape.circle,
-                  //       ),
-                  //       child: Stack(
-                  //         children: [
-                  //           Center(
-                  //             child: Column(
-                  //               mainAxisAlignment: MainAxisAlignment.center,
-                  //               children: const [
-                  //                 Icon(Icons.bed,
-                  //                     color: Colors.black, size: 20),
-                  //                 Text(
-                  //                   "Edit",
-                  //                   style: TextStyle(
-                  //                       fontSize: 10, color: Colors.black),
-                  //                 ),
-                  //               ],
-                  //             ),
-                  //           ),
-
-                  //           // const Positioned(
-                  //           //   top: 0,
-                  //           //   right: 0,
-                  //           //   child: Icon(
-                  //           //     Icons.edit,
-                  //           //     size: 14,
-                  //           //     color: Colors.black,
-                  //           //   ),
-                  //           // ),
-                  //         ],
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
                   const SizedBox(height: 20),
                   Center(
                       child: Stack(
@@ -537,7 +458,7 @@ class _AddHotelState extends State<Edithotel> {
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.black),
+                            icon: const Icon(Icons.add, color: Colors.black),
                             onPressed: _pickImage,
                           ),
                         ),
@@ -835,15 +756,15 @@ class _AddHotelState extends State<Edithotel> {
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                    padding: EdgeInsets.fromLTRB(20, 30, 20, 30),
                     child: Center(
                       child: SizedBox(
-                        width: 120,
+                        width: 150,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color.fromRGBO(201, 151, 187, 1),
                             textStyle: const TextStyle(
-                              fontSize: 18,
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
                             padding: const EdgeInsets.symmetric(vertical: 15),
@@ -855,81 +776,6 @@ class _AddHotelState extends State<Edithotel> {
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Image.asset(
-                              'assets/images/album.jpg',
-                              width: 200,
-                              height: 200,
-                              fit: BoxFit.cover,
-                            ),
-                            const Positioned(
-                              bottom: 13,
-                              child: Text(
-                                'Photo Album',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        InkWell(
-                          onTap: () async {
-                              final result = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => AddRoom(
-                                      hotelID: widget.hotelID,
-                                      userId: widget.userId)),
-                            );
-                              if (result == true) {
-                                setState(() {
-                                  isLoading = true;
-                                });
-                                fetchHotelData();
-                              }
-                          },
-                          child: Container(
-                            width: 150,
-                            height: 195,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.rectangle,
-                            ),
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.bed,
-                                  color: Color.fromARGB(202, 0, 0, 0),
-                                  size: 150,
-                                ),
-                                const Positioned(
-                                  bottom: 10,
-                                  child: Text(
-                                    'Edit Room',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                   const SizedBox(height: 20),

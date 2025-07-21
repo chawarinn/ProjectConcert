@@ -138,12 +138,12 @@ late AddHotelPostResponse hotelData;
         log(data);
        hotelData = addHotelPostResponseFromJson(data); // Now hotelData is initialized
 
-       Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AddRoom(hotelID: hotelData.hotelId), // Pass hotelId from hotelData
-        ),
-      );
+      //  Navigator.push(
+      //   context,
+      //   MaterialPageRoute(
+      //     builder: (context) => AddRoom(hotelID: hotelData.hotelId), // Pass hotelId from hotelData
+      //   ),
+      // );
 
       } else {
 

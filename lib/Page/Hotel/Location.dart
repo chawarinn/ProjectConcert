@@ -23,12 +23,12 @@ class _LocationPageState extends State<LocationPage> {
   final TextEditingController addressCtl = TextEditingController();
   List<Placemark> placemarks = [];
 String? selectedAddress;
-  LatLng? latLng; // เก็บตำแหน่งที่ผู้ใช้เลือก
+  LatLng? latLng; 
 
   @override
   void initState() {
     super.initState();
-    _determinePosition(); // เรียกใช้ฟังก์ชันเพื่อกำหนดตำแหน่งปัจจุบัน
+    _determinePosition();
   }
 
   Future<void> _determinePosition() async {
