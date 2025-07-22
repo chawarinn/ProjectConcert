@@ -560,7 +560,7 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
                                                 'ราคา : เริ่มต้น ${room!['startingPrice']} บาท'),
                                             SizedBox(height: 6),
                                             Text(
-                                                'ที่อยู่ : ${room!['hotelLocation']}'),
+                                                'ที่ตั้ง : ${room!['hotelLocation']}'),
                                             SizedBox(height: 6),
                                             Text(
                                                 'โทรศัพท์ : ${room!['hotelPhone']}'),

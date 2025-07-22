@@ -8,9 +8,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Hotel/AddRoom.dart';
-import 'package:project_concert_closeiin/Page/Hotel/EditRoom.dart';
 import 'package:project_concert_closeiin/Page/Hotel/HomeHotel.dart';
 import 'package:project_concert_closeiin/Page/Hotel/Location.dart';
+import 'package:project_concert_closeiin/Page/Hotel/Photohotel.dart';
 import 'package:project_concert_closeiin/Page/Hotel/Profile.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
@@ -862,27 +862,44 @@ class _AddHotelState extends State<Edithotel> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Image.asset(
-                              'assets/images/album.jpg',
-                              width: 200,
-                              height: 200,
-                              fit: BoxFit.cover,
-                            ),
-                            const Positioned(
-                              bottom: 13,
-                              child: Text(
-                                'Photo Album',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
+                        InkWell(
+                          onTap: () async {
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Photohotel(
+                                      hotelID: widget.hotelID,
+                                      userId: widget.userId)),
+                            );
+                              if (result == true) {
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                fetchHotelData();
+                              }
+                          },
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Image.asset(
+                                'assets/images/album.jpg',
+                                width: 200,
+                                height: 200,
+                                fit: BoxFit.cover,
+                              ),
+                              const Positioned(
+                                bottom: 13,
+                                child: Text(
+                                  'Photo Album',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                         InkWell(
                           onTap: () async {

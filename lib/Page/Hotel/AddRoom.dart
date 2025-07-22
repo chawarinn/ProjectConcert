@@ -697,7 +697,7 @@ class _AddRoomState extends State<AddRoom> {
                                 ),
                                 onPressed: addRoom,
                                 child: const Text(
-                                  "Save",
+                                  "Next",
                                   style: TextStyle(color: Colors.white,fontSize: 18),
                                 ),
                               ),

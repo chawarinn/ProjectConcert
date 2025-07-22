@@ -7,17 +7,19 @@ import 'package:http/http.dart' as http;
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Hotel/HomeHotel.dart';
 import 'package:project_concert_closeiin/Page/Hotel/Profile.dart';
+import 'package:project_concert_closeiin/Page/Restaurant/HomeRestaurant.dart';
+import 'package:project_concert_closeiin/Page/Restaurant/ProfileRestaurant.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
-class EditProfileH extends StatefulWidget {
+class EditProfileR extends StatefulWidget {
   final int userId;
-  EditProfileH({super.key, required this.userId});
+  EditProfileR({super.key, required this.userId});
 
   @override
-  _EditProfileHState createState() => _EditProfileHState();
+  _EditProfileRState createState() => _EditProfileRState();
 }
 
-class _EditProfileHState extends State<EditProfileH> {
+class _EditProfileRState extends State<EditProfileR> {
   File? _image;
   int _currentIndex = 1;
   bool isLoading = true;
@@ -136,7 +138,6 @@ class _EditProfileHState extends State<EditProfileH> {
       return;
     }
 
-    // เช็คฟิลด์บังคับ
     if (_nameController.text.isEmpty ||
         _phoneController.text.isEmpty ||
         _emailController.text.isEmpty ||
@@ -145,7 +146,6 @@ class _EditProfileHState extends State<EditProfileH> {
       return;
     }
 
-    // เช็คว่ามีการแก้ไขข้อมูลหรือไม่
     if (!_isDataChanged()) {
       showDialog(
         context: context,
@@ -510,14 +510,14 @@ Widget _buildDropdownField({
                 context,
                 MaterialPageRoute(
                     builder: (context) =>
-                        HomeHotel(userId : widget.userId)),
+                        Homerestaurant(userId : widget.userId)),
               );
               break;
             case 1:
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => ProfileHotel(userId: widget.userId)),
+                    builder: (context) => ProfileRestaurant(userId: widget.userId)),
               );
               break;
           }

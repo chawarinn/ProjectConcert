@@ -159,11 +159,42 @@ data.sort((a, b) => a['distance'].compareTo(b['distance']));
                       ],
                     ),
                   ),
+                      Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "เวลา : ",
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: res['open'] ?? '',
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.normal),
+                        ),
+                        TextSpan(
+                          text: " - ",
+                          style: TextStyle(
+                              fontSize: 12),
+                        ),
+                        TextSpan(
+                          text: res['close'] ?? '',
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.normal),
+                        ),
+                        TextSpan(
+                          text: " น. ",
+                          style: TextStyle(
+                              fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
                   Text.rich(
                     TextSpan(
                       children: [
                         TextSpan(
-                          text: "ที่อยู่ : ",
+                          text: "ที่ตั้ง : ",
                           style: TextStyle(
                               fontSize: 12, fontWeight: FontWeight.bold),
                         ),

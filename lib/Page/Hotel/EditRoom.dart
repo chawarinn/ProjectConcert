@@ -599,7 +599,7 @@ bool _isDataChanged() {
                           ),
                           onPressed: _showEditResultDialog,
                           child: const Text(
-                            "Save",
+                            "Confirm",
                             style: TextStyle(color: Colors.white,fontSize: 18),
                           ),
                         ),

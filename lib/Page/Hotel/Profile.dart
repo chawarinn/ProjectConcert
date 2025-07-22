@@ -244,7 +244,7 @@ class _ProfileHotelState extends State<ProfileHotel> {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  EditProfileMember(userId: widget.userId)),
+                                  EditProfileH(userId: widget.userId)),
                         );
                         if (result == true) {
                           setState(() {

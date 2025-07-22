@@ -122,6 +122,22 @@ class _EditProfileMemberState extends State<EditProfileMember> {
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     final phoneRegex = RegExp(r'^[0-9]{10}$');
 
+     if (!_isDataChanged()) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text('Notification'),
+          content: Text('กรุณาอัปเดตข้อมูลก่อนกดยืนยัน'),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('OK', style: TextStyle(color: Colors.black))),
+          ],
+        ),
+      );
+      return;
+    }
+
     if (!nameRegex.hasMatch(_nameController.text)) {
   _showAlertDialog(context,
     "กรุณาเพิ่มชื่อให้ตรงตามมาตรฐาน");
@@ -145,23 +161,6 @@ class _EditProfileMemberState extends State<EditProfileMember> {
         _emailController.text.isEmpty ||
         _selectedGender == null) {
       _showAlertDialog(context, "กรุณากรอกข้อมูลให้ครบ");
-      return;
-    }
-
-    // เช็คว่ามีการแก้ไขข้อมูลหรือไม่
-    if (!_isDataChanged()) {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: Text('Notification'),
-          content: Text('กรุณาอัปเดตข้อมูลก่อนกดยืนยัน'),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('OK', style: TextStyle(color: Colors.black))),
-          ],
-        ),
-      );
       return;
     }
     final uri = Uri.parse('$API_ENDPOINT/editprofile');

@@ -160,7 +160,38 @@ class _RestaurantSearch extends State<RestaurantSearch> {
                     TextSpan(
                       children: [
                         TextSpan(
-                          text: "ที่อยู่ : ",
+                          text: "เวลา : ",
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: res['open'] ?? '',
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.normal),
+                        ),
+                        TextSpan(
+                          text: " - ",
+                          style: TextStyle(
+                              fontSize: 12),
+                        ),
+                        TextSpan(
+                          text: res['close'] ?? '',
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.normal),
+                        ),
+                        TextSpan(
+                          text: " น. ",
+                          style: TextStyle(
+                              fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "ที่ตั้ง : ",
                           style: TextStyle(
                               fontSize: 12, fontWeight: FontWeight.bold),
                         ),

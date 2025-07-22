@@ -1,29 +1,31 @@
-import 'dart:developer';
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'dart:io';
-import 'dart:convert';  
+import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:path/path.dart' as path;
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
-import 'package:project_concert_closeiin/Page/Restaurant/Location.dart';
 import 'package:project_concert_closeiin/Page/Restaurant/HomeRestaurant.dart';
 import 'package:project_concert_closeiin/Page/Restaurant/ProfileRestaurant.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
+import 'package:project_concert_closeiin/Page/Restaurant/Location.dart';
+import 'dart:developer';
+import 'package:flutter/services.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
-class AddRestaurant extends StatefulWidget {
- final int userId;
-  AddRestaurant({super.key,  required this.userId});
+class EditRestaurant extends StatefulWidget {
+  final int userId;
+  final int resID;
+  const EditRestaurant({super.key, required this.userId, required this.resID});
 
   @override
-  State<AddRestaurant> createState() => _AddRestaurantState();
+  _EditRestaurantState createState() => _EditRestaurantState();
 }
 
-class _AddRestaurantState extends State<AddRestaurant> {
-   @override
+class _EditRestaurantState extends State<EditRestaurant> {
+  @override
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _openController = TextEditingController();
   final TextEditingController _closeController = TextEditingController();
@@ -41,11 +43,13 @@ class _AddRestaurantState extends State<AddRestaurant> {
   int _currentIndex = 0;
   bool isLoading = true;
   Map<String, dynamic>? resData;
+  Map<String, dynamic>? originalResData;
   String? _photo;
 
   @override
   void initState() {
     super.initState();
+    fetchResData();
 
     _FocusNode.addListener(() {
       setState(() {
@@ -85,9 +89,74 @@ class _AddRestaurantState extends State<AddRestaurant> {
     }
   }
 
+  Future<void> fetchResData() async {
+    final url = Uri.parse('$API_ENDPOINT/Res?resID=${widget.resID}');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          resData = data;
+          originalResData = Map<String, dynamic>.from(data);
+          _nameController.text = data['resName'] ?? '';
+          _openController.text = data['open'] ?? '';
+          _closeController.text = data['close'] ?? '';
+          _typeController.text = data['type'] ?? '';
+          _contactController.text = data['contact'] ?? '';
+          _locationController.text = data['location'] ?? '';
+          selectedLatitude = data['lat'];
+          selectedLongitude = data['long'];
+          selectedLocation = '${data['lat']}, ${data['long']}';
+          _photo = data['resPhoto'];
+          isLoading = false;
+        });
+      } else {
+        setState(() => isLoading = false);
+        print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      setState(() => isLoading = false);
+      print('Error fetching user: $e');
+    }
+  }
+
+  bool _isDataChanged() {
+    if (originalResData == null) return true;
+
+    final originalLat = originalResData!['lat']?.toString() ?? '';
+    final originalLong = originalResData!['long']?.toString() ?? '';
+
+    return _nameController.text != (originalResData!['resName'] ?? '') ||
+        _openController.text != (originalResData!['open'] ?? '') ||
+        _closeController.text !=
+            (originalResData!['close'] ?? '') ||
+        _typeController.text != (originalResData!['type'] ?? '') ||
+        _contactController.text != (originalResData!['contact'] ?? '') ||
+        _locationController.text != (originalResData!['location'] ?? '') ||
+        selectedLatitude?.toString() != originalLat ||
+        selectedLongitude?.toString() != originalLong ||
+        _image != null;
+  }
+
   void _showEditResultDialog() async {
+    if (!_isDataChanged()) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text('Notification'),
+          content: Text('กรุณาอัปเดตข้อมูลก่อนกดยืนยัน'),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('OK', style: TextStyle(color: Colors.black))),
+          ],
+        ),
+      );
+      return;
+    }
     final phoneRegex = RegExp(r'^[0-9]{10}$');
     final nameRegex = RegExp(r'^(?=.*[ก-๙a-zA-Z])[ก-๙a-zA-Z0-9]+( [ก-๙a-zA-Z0-9]+)*$');
+
 
  if (_nameController.text.isEmpty) {
   _showAlertDialog(context, "กรุณากรอกชื่อร้าน");
@@ -128,7 +197,6 @@ if (_image == null) {
   _showAlertDialog(context, "กรุณาเลือกรูปร้านอาหาร");
   return;
 }
-
     bool isValidText(String text) {
       return RegExp(r'[a-zA-Zก-ฮ0-9]').hasMatch(text);
     }
@@ -150,19 +218,9 @@ if (_image == null) {
       _showAlertDialog(context, "กรุณาใส่หมายเลขโทรศัพท์ให้ถูกต้อง");
       return;
     }
+    final uri = Uri.parse('$API_ENDPOINT/editres');
+    final request = http.MultipartRequest('PUT', uri);
 
-    var uri = Uri.parse("$API_ENDPOINT/addres");
-    var request = http.MultipartRequest('POST', uri);
-
-    var imageStream = http.ByteStream(_image!.openRead());
-    var imageLength = await _image!.length();
-    var multipartFile = http.MultipartFile(
-      'file',
-      imageStream,
-      imageLength,
-      filename: path.basename(_image!.path),
-    );
-    request.files.add(multipartFile);
     request.fields['resName'] = _nameController.text;
     request.fields['open'] = _openController.text;
     request.fields['close'] = _closeController.text;
@@ -171,31 +229,77 @@ if (_image == null) {
     request.fields['location'] = _locationController.text;
     request.fields['lat'] = selectedLatitude?.toString() ?? '';
     request.fields['long'] = selectedLongitude?.toString() ?? '';
-    request.fields['userID'] = widget.userId.toString() ?? '';
+    request.fields['resID'] = widget.resID.toString();
 
+    if (_image != null) {
+      final fileStream = http.ByteStream(_image!.openRead());
+      final length = await _image!.length();
 
-try {
-      showLoadingDialog();
-      var response = await request.send();
-      hideLoadingDialog();
-      if (response.statusCode == 201) {
-        var data = await response.stream.bytesToString();
-        log(data);
+      request.files.add(http.MultipartFile(
+        'file',
+        fileStream,
+        length,
+        filename: _image!.path.split('/').last,
+      ));
+    }
 
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Homerestaurant(
-              
-              userId: widget.userId,
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => Center(child: CircularProgressIndicator()),
+    );
 
-            ),
+    try {
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      Navigator.pop(context); // ปิด loading
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: Text('Notification'),
+            content: Text(data['message'] ?? 'อัปเดตแก้ไขข้อมูลโรงแรมสำเร็จ'),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.pop(context, true);
+                  },
+                  child: Text('OK', style: TextStyle(color: Colors.black))),
+            ],
           ),
         );
-      } else {}
-   } catch (e) {
-      hideLoadingDialog();
-      _showAlertDialog(context, "Error during registration: $e");
+      } else {
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: Text('Notification'),
+            content: Text('Failed to update profile. (${response.statusCode})'),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('OK', style: TextStyle(color: Colors.black))),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      Navigator.pop(context); // ปิด loading
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text('Error'),
+          content: Text('An error occurred: $e'),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('OK', style: TextStyle(color: Colors.black))),
+          ],
+        ),
+      );
     }
   }
 
@@ -309,7 +413,7 @@ try {
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         title: Text(
-          'Add Restaurant',
+          'Edit Restaurant',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
