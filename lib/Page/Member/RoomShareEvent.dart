@@ -51,7 +51,7 @@ class _RoomshareEventState extends State<RoomshareEvent> {
   }
 
   Widget _buildRoomCard(Map<String, dynamic> room) {
-       if (widget.userId == room['userID']) {
+       if (widget.userId == room['userId']) {
     return SizedBox.shrink(); 
   }
     return Container(
@@ -147,6 +147,7 @@ class _RoomshareEventState extends State<RoomshareEvent> {
                       builder: (context) => Roomsharedetail(
                         userId: widget.userId,
                         roomshareID: room['roomshareID'],
+                         fromProfile: false,
                       ),
                     ),
                   );

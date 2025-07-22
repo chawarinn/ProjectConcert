@@ -4,8 +4,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
-
 import 'package:project_concert_closeiin/Page/Home.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class LocationPage extends StatefulWidget {
   const LocationPage({Key? key}) : super(key: key);
@@ -95,47 +96,49 @@ String? selectedAddress;
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor:  Color.fromARGB(255, 190, 150, 198),
-        title: const Text(
+        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+        title: Text(
           'Location',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+           style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         leading: IconButton(
           icon:
               const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           onPressed: () {
-            Navigator.pop(context, true);
+            Navigator.of(context).pop();
           },
         ),
-        actions: [
+       actions: [
           IconButton(
-      icon: const Icon(Icons.logout, color: Colors.white),
-      onPressed: () {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Confirm Logout'),
-              content: const Text('Are you sure you want to log out?'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('No'),
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => AlertDialog(
+                  title: const Text('Confirm Logout'),
+                  content: const Text('คุณต้องการออกจากระบบ?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('No',style: TextStyle(color: Colors.black)),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => homeLogoPage()),
+                        );
+                      },
+                      child: const Text('Yes',style: TextStyle(color: Colors.black)),
+                    ),
+                  ],
                 ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const homeLogoPage()));
-                  },
-                  child: const Text('Yes'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    ),
+              );
+            },
+          ),
         ],
       ),
       body: currentLocation == null
@@ -193,10 +196,10 @@ String? selectedAddress;
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromARGB(255, 190, 150, 198),
+                      backgroundColor: Color.fromRGBO(201, 151, 187, 1),
                     ),
                     child: const Text(
-                      'ยืนยัน',
+                      'Confirm',
                       style: TextStyle(
                         fontSize: 20,
                         color: Colors.white,

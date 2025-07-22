@@ -17,15 +17,16 @@ import 'package:project_concert_closeiin/config/internet_config.dart';
 class Roomsharedetail extends StatefulWidget {
   final int userId;
   final int roomshareID;
+  final bool fromProfile;
 
-  Roomsharedetail({super.key, required this.userId, required this.roomshareID});
+  Roomsharedetail({super.key, required this.userId, required this.roomshareID,this.fromProfile = false,});
 
   @override
   _RoomsharedetailState createState() => _RoomsharedetailState();
 }
 
 class _RoomsharedetailState extends State<Roomsharedetail> {
-  int _currentIndex = 0;
+  late int _currentIndex;
   bool isLoading = true;
   Map<String, dynamic>? room;
   bool hasRequested = false;
@@ -42,6 +43,10 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
         );
       });
       await checkRequestStatus();
+      print('widget.userId: ${widget.userId}, room userID: ${room!['userID']}');
+      print(
+          'widget.userId type: ${widget.userId.runtimeType}, room userID type: ${room!['userID'].runtimeType}');
+
       setState(() {
         isLoading = false;
       });
@@ -50,6 +55,7 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
         isLoading = false;
       });
     });
+    _currentIndex = widget.fromProfile ? 3 : 0;
   }
 
   Future<List<Map<String, dynamic>>> fetchRoomShares() async {
@@ -198,7 +204,8 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('No',style: TextStyle(color: Colors.black)),
+                      child: const Text('No',
+                          style: TextStyle(color: Colors.black)),
                     ),
                     TextButton(
                       onPressed: () {
@@ -207,7 +214,8 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
                         );
                       },
-                      child: const Text('Yes',style: TextStyle(color: Colors.black)),
+                      child: const Text('Yes',
+                          style: TextStyle(color: Colors.black)),
                     ),
                   ],
                 ),
@@ -224,78 +232,158 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8, right: 8),
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 5),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
+                      if (widget.userId.toString() ==
+                          room!['userId'].toString())
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8, right: 8),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: ElevatedButton.icon(
+                              label: Text("Delete Post",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 16)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.redAccent,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 5),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
                               ),
-                            ),
-                            onPressed: () async {
-                              if (hasRequested) {
-                                final confirmCancel = await showDialog<bool>(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: Text('Notification'),
-                                    content:
-                                        Text('คุณต้องการยกเลิกคำขอนี้หรือไม่?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.of(context).pop(false),
-                                        child: Text('No',style: TextStyle(color: Colors.black)),
-                                      ),
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.of(context).pop(true),
-                                        child: Text('Yes',style: TextStyle(color: Colors.black)),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                                if (confirmCancel == true) {
-                                  await cancelRequest();
-                                }
-                              } else {
-                                final confirm = await showDialog<bool>(
+                              onPressed: () async {
+                                final confirmDelete = await showDialog<bool>(
                                   context: context,
                                   builder: (context) => AlertDialog(
                                     title: Text('Notification'),
                                     content: Text(
-                                        'คุณต้องการส่งคำขอแชร์ห้องนี้หรือไม่?'),
+                                        'คุณแน่ใจว่าต้องการลบโพสต์แชร์ห้องนี้หรือไม่?'),
                                     actions: [
                                       TextButton(
                                         onPressed: () =>
                                             Navigator.of(context).pop(false),
-                                        child: Text('No'),
+                                        child: Text('No',
+                                            style:
+                                                TextStyle(color: Colors.black)),
                                       ),
                                       TextButton(
                                         onPressed: () =>
                                             Navigator.of(context).pop(true),
-                                        child: Text('Yes'),
+                                        child: Text('Yes',
+                                            style:
+                                                TextStyle(color: Colors.black)),
                                       ),
                                     ],
                                   ),
                                 );
-                                if (confirm == true) {
-                                  await requiredshare();
+
+                                if (confirmDelete == true) {
+                                  try {
+                                    final response = await http.delete(Uri.parse(
+                                        '$API_ENDPOINT/deleteroomshare/${widget.roomshareID}'));
+
+                                    if (response.statusCode == 200) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                            content:
+                                                Text("ลบโพสต์เรียบร้อยแล้ว")),
+                                      );
+                                      Navigator.pop(
+                                          context, true); // กลับไปหน้าก่อน
+                                    } else {
+                                      throw Exception(
+                                          "ลบไม่สำเร็จ: ${response.body}");
+                                    }
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text("เกิดข้อผิดพลาด: $e")),
+                                    );
+                                  }
                                 }
-                              }
-                            },
-                            child: Text(
-                              hasRequested ? "Cancel Request" : "Share",
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 16),
+                              },
                             ),
                           ),
                         ),
-                      ),
+                      if (widget.userId.toString() !=
+                          room!['userId'].toString())
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8, right: 8),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Color.fromRGBO(201, 151, 187, 1),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 5),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                              onPressed: () async {
+                                if (hasRequested) {
+                                  final confirmCancel = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: Text('Notification'),
+                                      content: Text(
+                                          'คุณต้องการยกเลิกคำขอนี้หรือไม่?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(false),
+                                          child: Text('No',
+                                              style: TextStyle(
+                                                  color: Colors.black)),
+                                        ),
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(true),
+                                          child: Text('Yes',
+                                              style: TextStyle(
+                                                  color: Colors.black)),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                  if (confirmCancel == true) {
+                                    await cancelRequest();
+                                  }
+                                } else {
+                                  final confirm = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: Text('Notification'),
+                                      content: Text(
+                                          'คุณต้องการส่งคำขอแชร์ห้องนี้หรือไม่?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(false),
+                                          child: Text('No'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(true),
+                                          child: Text('Yes'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                  if (confirm == true) {
+                                    await requiredshare();
+                                  }
+                                }
+                              },
+                              child: Text(
+                                hasRequested ? "Cancel Request" : "Share",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16),
+                              ),
+                            ),
+                          ),
+                        ),
 
                       if (room!['photo'] != null && room!['photo'].isNotEmpty)
                         Padding(
@@ -346,7 +434,6 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
                         ),
                       ),
 
-                      // Detail Section Header
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 8),
@@ -390,7 +477,6 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
                         ),
                       ),
 
-                      // Hotel Section Header
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 8),
@@ -410,7 +496,6 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
                         ),
                       ),
 
-                      // Hotel Info Card
                       Padding(
                         padding: const EdgeInsets.only(left: 25, right: 25),
                         child: InkWell(
@@ -565,7 +650,7 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.face),
-            label: '',
+            label: 'Profile',
           ),
         ],
       ),

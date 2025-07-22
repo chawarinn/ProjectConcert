@@ -1,66 +1,84 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
+import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:developer';
+import 'package:http/http.dart' as http;
+import 'package:google_fonts/google_fonts.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:project_concert_closeiin/Page/Home.dart';
+import 'package:project_concert_closeiin/Page/Hotel/AddRoom.dart';
+import 'package:project_concert_closeiin/Page/Hotel/HomeHotel.dart';
+import 'package:project_concert_closeiin/Page/Hotel/Location.dart';
 import 'package:project_concert_closeiin/Page/Login.dart';
+import 'package:project_concert_closeiin/Page/Hotel/Profile.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
+import 'package:project_concert_closeiin/model/response/AddPostHotelResponse.dart';
 
-class RegisterPageUser extends StatefulWidget {
-  const RegisterPageUser({super.key});
+class Edithotel extends StatefulWidget {
+  int userId;
+  Edithotel ({super.key, required this.userId});
 
   @override
-  State<RegisterPageUser> createState() => _RegisterPageUserState();
+  State<Edithotel > createState() => _AddHotelState();
 }
 
-class _RegisterPageUserState extends State<RegisterPageUser> {
+class _AddHotelState extends State<Edithotel> {
+  @override
   var fullnameCtl = TextEditingController();
+  var fullname2Ctl = TextEditingController();
+  var priceCtl = TextEditingController();
   var phoneCtl = TextEditingController();
-  var emailCtl = TextEditingController();
-  var passwordCtl = TextEditingController();
-  final FocusNode _passwordFocusNode = FocusNode();
-  bool _isPasswordFocused = false;
-  var confirmpassCtl = TextEditingController();
-  final FocusNode _confirmFocusNode = FocusNode();
-  bool _isConfirmFocused = false;
-  String? selectedGender;
-  final List<String> genderOptions = ['Male', 'Female', 'Prefer not to say'];
+  var contactCtl = TextEditingController();
+  var locationCtl = TextEditingController();
+  var detailCtl = TextEditingController();
   File? _image;
   String url = '';
-  String? selectedUserType;
-  final List<String> userTypes = ['User', 'Hotel', 'Restaurant', 'Organizer'];
+  late AddHotelPostResponse hotelData;
+  bool _isFocused = false;
+  final FocusNode _FocusNode = FocusNode();
+  String? selectedLocation;
+  double? selectedLatitude;
+  double? selectedLongitude;
+  int _currentIndex = 0;
+  bool isLoading = true;
 
-  @override
-  void initState() {
-    super.initState();
-    Configuration.getConfig().then((config) {
-      url = config['apiEndpoint'];
-    }).catchError((err) {
-      log(err.toString());
+
+@override
+void initState() {
+  super.initState();
+
+  _FocusNode.addListener(() {
+    setState(() {
+      _isFocused = _FocusNode.hasFocus;
     });
-    _passwordFocusNode.addListener(() {
-      setState(() {
-        _isPasswordFocused = _passwordFocusNode.hasFocus;
-      });
+  });
+  Future.delayed(Duration(seconds: 1), () {
+    setState(() {
+      isLoading = false;
     });
-     _confirmFocusNode.addListener(() {
-      setState(() {
-        _isConfirmFocused = _confirmFocusNode.hasFocus;
-      });
-    });
-  }
+  });
+
+  Configuration.getConfig().then((config) {
+    url = config['apiEndpoint'];
+  }).catchError((err) {
+    log(err.toString());
+  });
+}
+
+
 
   @override
   void dispose() {
-    passwordCtl.dispose();
-    confirmpassCtl.dispose();
-    _passwordFocusNode.dispose();
-    _confirmFocusNode.dispose();
+    _FocusNode.dispose();
     super.dispose();
   }
 
@@ -74,122 +92,112 @@ class _RegisterPageUserState extends State<RegisterPageUser> {
         });
       }
     } catch (e) {
-      _showAlertDialog(context, "Image selection failed: $e");
+      // _showAlertDialog(context, "Image selection failed: $e");
     }
   }
 
-  Future<void> _registerUser(BuildContext context) async {
-    final nameRegex = RegExp(r'^(?=.*[a-zA-Zก-๙])[a-zA-Zก-๙0-9]{2,}$');
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    final passwordRegex = RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,14}$');
+  void _selectLocation() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LocationPage(),
+      ),
+    );
+
+    if (result != null && result is Map<String, dynamic>) {
+      setState(() {
+        selectedLatitude = result['latitude'];
+        selectedLongitude = result['longitude'];
+        selectedLocation = "$selectedLatitude, $selectedLongitude";
+        locationCtl.text = result['Address'] ?? '';
+      });
+      log('Selected Location: $selectedLocation');
+    }
+  }
+
+  Future<void> addhotel(BuildContext context) async {
     final phoneRegex = RegExp(r'^[0-9]{10}$');
 
     if (fullnameCtl.text.isEmpty ||
+        fullname2Ctl.text.isEmpty ||
+        priceCtl.text.isEmpty ||
         phoneCtl.text.isEmpty ||
-        emailCtl.text.isEmpty ||
-        passwordCtl.text.isEmpty ||
-        confirmpassCtl.text.isEmpty ||
-        selectedUserType == null ||
-        selectedUserType!.isEmpty ||
-        selectedGender == null ||
-        selectedGender!.isEmpty) {
-      _showAlertDialog(context, "กรุณากรอกข้อมูลให้ครบ");
-      return;
-    }
-    if (fullnameCtl.text.contains(' ') ||
-        fullnameCtl.text.trim() != fullnameCtl.text ||
-        phoneCtl.text.contains(' ') ||
-        phoneCtl.text.trim() != phoneCtl.text ||
-        emailCtl.text.contains(' ') ||
-        emailCtl.text.trim() != emailCtl.text ||
-        passwordCtl.text.contains(' ') ||
-        passwordCtl.text.trim() != passwordCtl.text ||
-        confirmpassCtl.text.contains(' ') ||
-        confirmpassCtl.text.trim() != confirmpassCtl.text) {
-      _showAlertDialog(context, "ห้ามเว้นวรรค");
-      return;
-    }
-if (!nameRegex.hasMatch(fullnameCtl.text)) {
-  _showAlertDialog(context,
-    "กรุณาเพิ่มชื่อให้ตรงตามมาตรฐาน");
-  return;
-}
-
-    if (!phoneRegex.hasMatch(phoneCtl.text)) {
-      _showAlertDialog(context,
-          "กรุณาใส่หมายเลขโทรศัพท์ให้ถูกต้อง");
-      return;
-    }
-
-    if (!emailRegex.hasMatch(emailCtl.text)) {
-      _showAlertDialog(context, "รูปแบบอีเมลไม่ถูกต้อง");
-      return;
-    }
-    if (!passwordRegex.hasMatch(passwordCtl.text)) {
-      _showAlertDialog(context,
-          "รหัสผ่านต้องมีความยาว 6-14 ตัว และต้องมีทั้งตัวอักษรและตัวเลข");
-      return;
-    }
-
-    if (passwordCtl.text != confirmpassCtl.text) {
-      _showAlertDialog(context, "รหัสผ่านไม่ตรงกัน");
+        contactCtl.text.isEmpty ||
+        locationCtl.text.isEmpty ||
+        selectedLatitude.toString().isEmpty) {
+      _showAlertDialog(context, "กรอกข้อมูลไม่ครบ");
       return;
     }
 
     if (_image == null) {
-      _showAlertDialog(context, "กรุณาเพิ่มรูปโปรไฟล์");
+      _showAlertDialog(context, "กรุณาเพิ่มรูป");
+      return;
+    }
+    if (!phoneRegex.hasMatch(phoneCtl.text)) {
+      _showAlertDialog(context, "กรุณาใส่หมายเลขโทรศัพท์ให้ถูกต้อง");
       return;
     }
 
+    var uri = Uri.parse("$API_ENDPOINT/addhotel");
+    var request = http.MultipartRequest('POST', uri);
+
+    var imageStream = http.ByteStream(_image!.openRead());
+    var imageLength = await _image!.length();
+    var multipartFile = http.MultipartFile(
+      'file',
+      imageStream,
+      imageLength,
+      filename: path.basename(_image!.path),
+    );
+
+    request.files.add(multipartFile);
+
+    request.fields['hotelName'] = fullnameCtl.text;
+    request.fields['hotelName2'] = fullname2Ctl.text;
+    request.fields['startingPrice'] = priceCtl.text;
+    request.fields['phone'] = phoneCtl.text;
+    request.fields['contact'] = contactCtl.text;
+    request.fields['detail'] = detailCtl.text;
+    request.fields['location'] = locationCtl.text;
+    request.fields['lat'] = selectedLatitude?.toString() ?? '';
+    request.fields['long'] = selectedLongitude?.toString() ?? '';
+    request.fields['userID'] = widget.userId.toString() ?? '';
+
     try {
-      showLoadingDialog(); 
-      var uri = Uri.parse("$API_ENDPOINT/registerU");
-      var request = http.MultipartRequest('POST', uri);
-
-      var imageStream = http.ByteStream(_image!.openRead());
-      var imageLength = await _image!.length();
-
-      var multipartFile = http.MultipartFile(
-        'file',
-        imageStream,
-        imageLength,
-        filename: path.basename(_image!.path),
-      );
-
-      request.files.add(multipartFile);
-      request.fields['name'] = fullnameCtl.text;
-      request.fields['gender'] = selectedGender ?? '';
-      request.fields['phone'] = phoneCtl.text;
-      request.fields['email'] = emailCtl.text;
-      request.fields['password'] = passwordCtl.text;
-      request.fields['confirmPassword'] = confirmpassCtl.text;
-      request.fields['userType'] = selectedUserType ?? '';
-
+      showLoadingDialog();
       var response = await request.send();
-
-       hideLoadingDialog();
-
+      hideLoadingDialog(); 
       if (response.statusCode == 201) {
         var data = await response.stream.bytesToString();
         log(data);
+        hotelData = addHotelPostResponseFromJson(data);
 
-        _showAlertDialog(context, "สมัครสมาชิกสำเร็จ", onOkPressed: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const LoginPage()),
-          );
-        });
-      } else {
-        var errorData = await response.stream.bytesToString();
-        log(errorData);
-        _showAlertDialog(
-            context, "ไม่สามารถสมัครสมาชิกได้ เบอร์โทรหรืออีเมลนี้ถูกใช้ไปแล้ว");
-      }
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AddRoom(hotelID: hotelData.hotelId),
+          ),
+        );
+      } else {}
     } catch (e) {
       hideLoadingDialog();
       _showAlertDialog(context, "Error during registration: $e");
     }
   }
+
+   void showLoadingDialog() {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => Center(
+      child: CircularProgressIndicator(),
+    ),
+  );
+}
+
+void hideLoadingDialog() {
+  Navigator.of(context, rootNavigator: true).pop();
+}
 
   void _showAlertDialog(BuildContext context, String message,
       {VoidCallback? onOkPressed}) {
@@ -207,27 +215,13 @@ if (!nameRegex.hasMatch(fullnameCtl.text)) {
                   onOkPressed();
                 }
               },
-              child: const Text("OK", style: TextStyle(color: Colors.black)),
+              child: const Text("OK",style: TextStyle(color: Colors.black)),
             ),
           ],
         );
       },
     );
   }
-  void showLoadingDialog() {
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (context) => Center(
-      child: CircularProgressIndicator(),
-    ),
-  );
-}
-
-void hideLoadingDialog() {
-  Navigator.of(context, rootNavigator: true).pop();
-}
-
 
   Widget _buildTextField(String label, TextEditingController controller,
       {bool obscureText = false,
@@ -262,7 +256,7 @@ void hideLoadingDialog() {
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         title: Text(
-          'Sign Up',
+          'Add Hotel',
            style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -271,49 +265,122 @@ void hideLoadingDialog() {
         leading: IconButton(
           icon:
               const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+          onPressed: () => Navigator.pop(context, true),
         ),
+       actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => AlertDialog(
+                  title: const Text('Confirm Logout'),
+                  content: const Text('คุณต้องการออกจากระบบ?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('No',style: TextStyle(color: Colors.black)),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => homeLogoPage()),
+                        );
+                      },
+                      child: const Text('Yes',style: TextStyle(color: Colors.black)),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
       ),
-      body: SingleChildScrollView(
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+          switch (index) {
+            case 0:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        HomeHotel(userId: widget.userId)),
+              );
+              break;
+            case 1:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ProfileHotel(userId: widget.userId)),
+              );
+              break;
+          }
+        },
+        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white70,
+        showUnselectedLabels: false,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.face),
+            label: 'Profile',
+          ),
+        ],
+      ),
+      body: isLoading
+        ? const Center(
+            child: CircularProgressIndicator(),
+          )
+        : SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 30),
-            Center(
-              child: Text(
-                "Concert Close Inn",
-                style: TextStyle(fontSize: 35),
-              ),
-            ),
             const SizedBox(height: 20),
             Center(
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 100,
-                    backgroundImage: _image != null
-                        ? FileImage(_image!)
-                        : const AssetImage('assets/images/Profile.png')
-                            as ImageProvider,
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 10,
-                    child: CircleAvatar(
-                      radius: 20,
-                      backgroundColor: const Color.fromRGBO(232, 234, 237, 1),
-                      child: IconButton(
-                        icon: const Icon(Icons.camera_alt, color: Colors.black),
-                        onPressed: _pickImage,
-                      ),
+                child: Stack(
+              children: [
+                Container(
+                  width: 200,
+                  height: 150,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    image: DecorationImage(
+                      image: _image != null
+                          ? FileImage(_image!)
+                          : const AssetImage('assets/images/album.jpg')
+                              as ImageProvider,
+                      fit: BoxFit.cover,
                     ),
                   ),
-                ],
-              ),
-            ),
+                ),
+                Positioned(
+                  bottom: 10,
+                  right: 10,
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: const Color.fromRGBO(232, 234, 237, 1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.add, color: Colors.black),
+                      onPressed: _pickImage,
+                    ),
+                  ),
+                ),
+              ],
+            )),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
               child: Column(
@@ -321,7 +388,7 @@ void hideLoadingDialog() {
                 children: [
                   RichText(
                     text: const TextSpan(
-                      text: 'Name ',
+                      text: 'Hotel Name (Thai) ',
                       style: TextStyle(fontSize: 18, color: Colors.black),
                       children: [
                         TextSpan(
@@ -331,6 +398,7 @@ void hideLoadingDialog() {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 3),
                   TextField(
                     controller: fullnameCtl,
                     decoration: InputDecoration(
@@ -354,7 +422,7 @@ void hideLoadingDialog() {
                 children: [
                   RichText(
                     text: const TextSpan(
-                      text: 'Gender ',
+                      text: 'Hotel Name (Eng) ',
                       style: TextStyle(fontSize: 18, color: Colors.black),
                       children: [
                         TextSpan(
@@ -364,22 +432,9 @@ void hideLoadingDialog() {
                       ],
                     ),
                   ),
-                  DropdownButtonFormField<String>(
-                    value: selectedGender,
-                    items: genderOptions.map((gender) {
-                      return DropdownMenuItem(
-                        value: gender,
-                        child: Text(
-                          gender,
-                          style: TextStyle(fontSize: 16, color: Colors.black),
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedGender = value;
-                      });
-                    },
+                  const SizedBox(height: 3),
+                  TextField(
+                    controller: fullname2Ctl,
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: const Color.fromRGBO(217, 217, 217, 1),
@@ -390,8 +445,42 @@ void hideLoadingDialog() {
                         borderSide: BorderSide.none,
                       ),
                     ),
-                    style: const TextStyle(fontSize: 16, color: Colors.black),
-                    dropdownColor: const Color.fromRGBO(217, 217, 217, 1),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  RichText(
+                    text: const TextSpan(
+                      text: 'Starting Price ',
+                      style: TextStyle(fontSize: 18, color: Colors.black),
+                      children: [
+                        TextSpan(
+                          text: '*',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  TextField(
+                    controller: priceCtl,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: const Color.fromRGBO(217, 217, 217, 1),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 15),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -413,8 +502,11 @@ void hideLoadingDialog() {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 3),
                   TextField(
                     controller: phoneCtl,
+                                 keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: const Color.fromRGBO(217, 217, 217, 1),
@@ -436,7 +528,7 @@ void hideLoadingDialog() {
                 children: [
                   RichText(
                     text: const TextSpan(
-                      text: 'Email ',
+                      text: 'Contact (Facebook)  ',
                       style: TextStyle(fontSize: 18, color: Colors.black),
                       children: [
                         TextSpan(
@@ -446,8 +538,9 @@ void hideLoadingDialog() {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 3),
                   TextField(
-                    controller: emailCtl,
+                    controller: contactCtl,
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: const Color.fromRGBO(217, 217, 217, 1),
@@ -469,7 +562,7 @@ void hideLoadingDialog() {
                 children: [
                   RichText(
                     text: const TextSpan(
-                      text: 'Password ',
+                      text: 'Detail ',
                       style: TextStyle(fontSize: 18, color: Colors.black),
                       children: [
                         TextSpan(
@@ -479,10 +572,10 @@ void hideLoadingDialog() {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 3),
                   TextField(
-                    controller: passwordCtl,
-                    focusNode: _passwordFocusNode,
-                    obscureText: true,
+                    controller: detailCtl,
+                    focusNode: _FocusNode,
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: const Color.fromRGBO(217, 217, 217, 1),
@@ -495,11 +588,11 @@ void hideLoadingDialog() {
                     ),
                   ),
                   const SizedBox(height: 5),
-          if (_isPasswordFocused)
+          if (_isFocused)
             const Align(
               alignment: Alignment.centerRight,
               child: Text(
-                'รหัสผ่านต้องมีความยาว 6-14 ตัวและต้องมีทั้งตัวอักษรและตัวเลข',
+                'Ex. อาหารเช้า, ฟิตเนส, โทรทัศน์จอ,...',
                 textAlign: TextAlign.right,
                 style: TextStyle(fontSize: 12, color: Colors.red),
               ),
@@ -514,7 +607,7 @@ void hideLoadingDialog() {
                 children: [
                   RichText(
                     text: const TextSpan(
-                      text: 'Confirm Password ',
+                      text: 'Address ',
                       style: TextStyle(fontSize: 18, color: Colors.black),
                       children: [
                         TextSpan(
@@ -524,10 +617,9 @@ void hideLoadingDialog() {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 3),
                   TextField(
-                    controller: confirmpassCtl,
-                    focusNode: _confirmFocusNode,
-                    obscureText: true,
+                    controller: locationCtl,
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: const Color.fromRGBO(217, 217, 217, 1),
@@ -539,86 +631,58 @@ void hideLoadingDialog() {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 5),
-              if (_isConfirmFocused)
-                const Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                'รหัสผ่านต้องมีความยาว 6-14 ตัวและต้องมีทั้งตัวอักษรและตัวเลข',
-                textAlign: TextAlign.right,
-                style: TextStyle(fontSize: 12, color: Colors.red),
-              ),
-                ),
                 ],
               ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  RichText(
-                    text: const TextSpan(
-                      text: 'User type ',
-                      style: TextStyle(fontSize: 18, color: Colors.black),
-                      children: [
-                        TextSpan(
-                          text: '*',
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      ],
+                  const Spacer(),
+                  if (selectedLocation != null) ...[
+                    Text(
+                      selectedLocation!,
+                      style: const TextStyle(fontSize: 12, color: Colors.red),
                     ),
-                  ),
-                  DropdownButtonFormField<String>(
-                    value: selectedUserType,
-                    items: userTypes.map((type) {
-                      return DropdownMenuItem(
-                        value: type,
-                        child: Text(
-                          type,
-                          style: TextStyle(fontSize: 16, color: Colors.black),
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedUserType = value;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: const Color.fromRGBO(217, 217, 217, 1),
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 15),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
+                    const SizedBox(width: 10),
+                    GestureDetector(
+                      onTap: _selectLocation,
+                      child: const Icon(
+                        Icons.add_location_alt_rounded,
+                        color: Colors.red,
+                        size: 30,
                       ),
                     ),
-                    style: const TextStyle(fontSize: 16, color: Colors.black),
-                    dropdownColor: const Color.fromRGBO(
-                        217, 217, 217, 1), // พื้นหลังเมนู dropdown
-                  ),
+                  ] else ...[
+                    GestureDetector(
+                      onTap: _selectLocation,
+                      child: const Icon(
+                        Icons.add_location_alt_rounded,
+                        color: Colors.red,
+                        size: 30,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
             Padding(
-              padding: EdgeInsets.fromLTRB(20, 40, 20, 30),
+              padding: EdgeInsets.fromLTRB(20, 30, 20, 30),
               child: Center(
                 child: SizedBox(
-                  width: double.infinity,
+                  width: 150,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 190, 150, 198),
+                      backgroundColor: Color.fromRGBO(201, 151, 187, 1),
                       textStyle: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 15),
                     ),
-                    onPressed: () => _registerUser(context),
+                    onPressed: () => addhotel(context),
                     child: Text(
-                      "Sign Up",
+                      "Next",
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
@@ -630,5 +694,6 @@ void hideLoadingDialog() {
         ),
       ),
     );
+    
   }
 }
