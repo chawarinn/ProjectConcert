@@ -97,7 +97,7 @@ class _EventuserState extends State<Eventuser> {
     String displayLTime = '';
 
     try {
-      final dt = DateTime.parse(dateStr);
+      final dt = DateTime.parse(dateStr).toLocal();
       const thaiMonths = [
         '',
         'มกราคม',

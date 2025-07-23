@@ -161,6 +161,7 @@ class _EditProfileRState extends State<EditProfileR> {
       );
       return;
     }
+    
     final uri = Uri.parse('$API_ENDPOINT/editprofile');
     final request = http.MultipartRequest('PUT', uri);
 

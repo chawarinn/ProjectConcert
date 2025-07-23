@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart'; // สำหรับจัดรูปแบบวันที่
+import 'package:project_concert_closeiin/Page/Event/AddArtist.dart';
 import 'package:project_concert_closeiin/Page/Event/AddEvent.dart';
 import 'package:project_concert_closeiin/Page/Event/EditEvent.dart';
 import 'package:project_concert_closeiin/Page/Event/Profile.dart';
@@ -48,7 +49,6 @@ class _HomeEventState extends State<HomeEvent> {
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);
         setState(() {
-          // decoded เป็น List<dynamic> อยู่แล้ว
           events = decoded;
         });
       } else {
@@ -63,7 +63,7 @@ class _HomeEventState extends State<HomeEvent> {
 
   String formatDate(String dateStr) {
     try {
-      final date = DateTime.parse(dateStr);
+      final date = DateTime.parse(dateStr).toLocal();
       return DateFormat.yMMMMd('th').format(date);
     } catch (e) {
       return dateStr;
@@ -115,26 +115,53 @@ class _HomeEventState extends State<HomeEvent> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white70,
         onTap: (index) {
           setState(() {
             _currentIndex = index;
           });
-          if (index == 1) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ProfileEvent(userId: widget.userId),
-              ),
-            );
+          switch (index) {
+            case 0:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        HomeEvent(userId : widget.userId)),
+              );
+              break;
+            case 1:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => AddArtistPage(userId: widget.userId)),
+              );
+              break;
+               case 2:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ProfileEvent(userId: widget.userId)),
+              );
+              break;
           }
         },
+        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white70,
+        showUnselectedLabels: false,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.library_music),
+            label: 'Artist',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.face),
+            label: 'Profile',
+          ),
         ],
       ),
       body: _isLoading
@@ -210,7 +237,7 @@ Widget buildEventCard(
   String displayLTime = '';
 
   try {
-    final dt = DateTime.parse(dateStr);
+    final dt = DateTime.parse(dateStr).toLocal();
     const thaiMonths = [
       '',
       'มกราคม',

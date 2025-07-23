@@ -18,6 +18,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'dart:async';
+
 
 class DetailHotel extends StatefulWidget {
   final int userId;
@@ -41,6 +43,7 @@ class _DetailHotelState extends State<DetailHotel> {
   final DatabaseReference rating =
       FirebaseDatabase.instance.ref().child('point');
   int? totalPoint;
+  StreamSubscription<DatabaseEvent>? _pointSubscription;
 
   @override
   void initState() {
@@ -54,8 +57,13 @@ class _DetailHotelState extends State<DetailHotel> {
     fetchHotel();
     fetchHotelPhotosFromFirebase();
     checkIfRated();
-    fetchTotalPointFromFirebase();
+    listenToTotalPoint();
   }
+  @override
+void dispose() {
+  _pointSubscription?.cancel(); // ยกเลิก listener เมื่อ widget ถูก dispose
+  super.dispose();
+}
 
   Future<void> fetchHotelPhotosFromFirebase() async {
     try {
@@ -122,28 +130,23 @@ class _DetailHotelState extends State<DetailHotel> {
     }
   }
 
-  Future<void> fetchTotalPointFromFirebase() async {
-    try {
-      final ref = FirebaseDatabase.instance
-          .ref('/point/ratings/${widget.userId}/${widget.hotelID}/rating');
+  void listenToTotalPoint() {
+  final ref = FirebaseDatabase.instance
+      .ref('/point/ratings/${widget.userId}/${widget.hotelID}/rating');
 
-      final snapshot = await ref.get();
-      if (snapshot.exists) {
-        setState(() {
-          totalPoint = int.tryParse(snapshot.value.toString()) ?? 0;
-        });
-      } else {
-        setState(() {
-          totalPoint = 0;
-        });
-      }
-    } catch (e) {
-      print('Error fetching totalPoint: $e');
+  _pointSubscription = ref.onValue.listen((event) {
+    final data = event.snapshot.value;
+    if (data != null) {
+      setState(() {
+        totalPoint = int.tryParse(data.toString()) ?? 0;
+      });
+    } else {
       setState(() {
         totalPoint = 0;
       });
     }
-  }
+  });
+}
 
   Future<void> fetchNearbyRestaurants() async {
     try {
@@ -431,48 +434,54 @@ class _DetailHotelState extends State<DetailHotel> {
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.bold)),
                         SizedBox(height: 8),
-                        Column(
-                          children:
-                              (hotel?['rooms'] as List<dynamic>? ?? []).map(
-                            (room) {
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 12.0),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                        color: Colors.grey.shade100),
-                                  ),
-                                  child: ListTile(
-                                    leading: room['photo'] != null
-                                        ? ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            child: Image.network(
-                                              room['photo'],
-                                              width: 60,
-                                              height: 60,
-                                              fit: BoxFit.cover,
-                                              errorBuilder:
-                                                  (context, error, stackTrace) {
-                                                return Icon(
-                                                  Icons.broken_image,
-                                                  color: Colors.grey,
-                                                );
-                                              },
-                                            ),
-                                          )
-                                        : null,
-                                    title: Text(room['roomName'] ?? ''),
-                                    subtitle:
-                                        Text('ราคา : ${room['price']} บาท'),
-                                  ),
-                                ),
-                              );
-                            },
-                          ).toList(),
-                        ),
+                       Column(
+  children: (hotel?['rooms'] as List<dynamic>? ?? []).map(
+    (room) {
+      final status = room['status'];
+      final statusText = status == 1 ? 'เต็ม' : 'ว่าง';
+      final statusColor = status == 1 ? Colors.red : Colors.green;
+
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.grey.shade100),
+          ),
+          child: ListTile(
+            leading: room['photo'] != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(5),
+                    child: Image.network(
+                      room['photo'],
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(Icons.broken_image, color: Colors.grey);
+                      },
+                    ),
+                  )
+                : null,
+            title: Text(room['roomName'] ?? ''),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('ราคา : ${room['price']} บาท'),
+                Text(
+                  '$statusText',
+                  style: TextStyle(color: statusColor),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  ).toList(),
+),
+
                         SizedBox(height: 16),
                         Text('สิ่งอำนวยความสะดวก : ',
                             style: TextStyle(
@@ -815,7 +824,7 @@ class _DetailHotelState extends State<DetailHotel> {
                                   fetchHotel();
                                   fetchHotelPhotosFromFirebase();
                                   checkIfRated();
-                                  fetchTotalPointFromFirebase();
+                                  listenToTotalPoint();
                                 }
                               },
                               child: Text("More",

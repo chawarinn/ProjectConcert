@@ -78,7 +78,7 @@ class _EventDetailMemberState extends State<Eventdetailmember> {
   String formatDateThai(String dateStr) {
     if (dateStr.isEmpty) return '';
     try {
-      final dt = DateTime.parse(dateStr);
+      final dt = DateTime.parse(dateStr).toLocal();
       const thaiMonths = [
         '',
         'มกราคม',

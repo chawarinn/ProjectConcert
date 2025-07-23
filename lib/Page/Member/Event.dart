@@ -100,7 +100,7 @@ class _Event extends State<Event> {
     String displayLTime = '';
 
     try {
-      final dt = DateTime.parse(dateStr);
+      final dt = DateTime.parse(dateStr).toLocal();
       const thaiMonths = [
         '',
         'มกราคม',

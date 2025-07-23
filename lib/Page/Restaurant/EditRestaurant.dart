@@ -218,6 +218,32 @@ if (_image == null) {
       _showAlertDialog(context, "กรุณาใส่หมายเลขโทรศัพท์ให้ถูกต้อง");
       return;
     }
+
+     try {
+    final startTimeParts = _openController.text.split(":");
+    final endTimeParts = _closeController.text.split(":");
+
+    final startTime = TimeOfDay(
+      hour: int.parse(startTimeParts[0]),
+      minute: int.parse(startTimeParts[1]),
+    );
+
+    final endTime = TimeOfDay(
+      hour: int.parse(endTimeParts[0]),
+      minute: int.parse(endTimeParts[1]),
+    );
+
+    bool isStartAfterEnd = startTime.hour > endTime.hour ||
+        (startTime.hour == endTime.hour && startTime.minute >= endTime.minute);
+
+    if (isStartAfterEnd) {
+      _showAlertDialog(context, "เนื่องจากเวลาปิดร้านคือ ${_closeController.text} น. เวลาเปิดร้านและเวลาปิดร้านไม่สอดคล้องกัน ");
+      return;
+    }
+  } catch (e) {
+    _showAlertDialog(context, "รูปแบบเวลาไม่ถูกต้อง");
+    return;
+  }
     final uri = Uri.parse('$API_ENDPOINT/editres');
     final request = http.MultipartRequest('PUT', uri);
 
@@ -377,33 +403,6 @@ if (_image == null) {
           ],
         );
       },
-    );
-  }
-
-  Widget _buildTextField(String label, TextEditingController controller,
-      {bool obscureText = false,
-      TextInputType keyboardType = TextInputType.text}) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(fontSize: 18, color: Colors.black),
-          ),
-          TextField(
-            controller: controller,
-            obscureText: obscureText,
-            keyboardType: keyboardType,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderSide: const BorderSide(width: 1),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 

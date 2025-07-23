@@ -34,8 +34,8 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
     // home: Homerestaurant(userId: 8)
-    home: HomeEvent(userId: 6)
-      // home: Homemember(userId: 13)
+    // home: HomeEvent(userId: 6)
+      home: Homemember(userId: 7)
     // home: HomeHotel(userId: 5)
     );
   }
