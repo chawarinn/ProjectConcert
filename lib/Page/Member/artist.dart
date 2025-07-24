@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:developer';
@@ -116,39 +117,93 @@ class _ArtistPageState extends State<ArtistPage> {
       );
 
       if (response.statusCode == 201) {
-        setState(() {
-          favoriteArtistIds.add(artistId);
-        });
-      } else {
-        print('Failed to add artist to favorites');
+  setState(() {
+    favoriteArtistIds.add(artistId);
+  });
+
+  // ดึงข้อมูล artist เต็มจาก artistList
+  final artist = artistList.firstWhere((a) => a['artistID'] == artistId);
+
+  // เพิ่มลง Firebase
+  final dbRef = FirebaseDatabase.instance.ref('roomshare_requests');
+  final snapshot = await dbRef.get();
+
+  if (snapshot.exists) {
+    Map<dynamic, dynamic> requests = snapshot.value as Map;
+
+    for (var entry in requests.entries) {
+      final key = entry.key;
+      final value = entry.value;
+
+      if (key == 'lastID') continue;
+      if (value['userReqID'] == widget.userId) {
+        final requestRef = dbRef.child('$key/favoriteArtists');
+        final DataSnapshot favSnapshot = await requestRef.get();
+
+        Map<String, dynamic> newArtist = {
+          'artistName': artist['artistName'],
+          'artistPhoto': artist['artistPhoto'],
+        };
+
+        if (favSnapshot.exists) {
+          await requestRef.child(artistId.toString()).set(newArtist);
+        } else {
+          await requestRef.set({
+            artistId.toString(): newArtist,
+          });
+        }
       }
+    }
+  }
+}
+
     } catch (e) {
       print('Error adding to favorites: $e');
     }
   }
 
-  Future<void> removeFromFavorites(int artistId) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$API_ENDPOINT/removeArtist'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'userID': widget.userId,
-          'artistID': artistId,
-        }),
-      );
+Future<void> removeFromFavorites(int artistId) async {
+  try {
+    final response = await http.post(
+      Uri.parse('$API_ENDPOINT/removeArtist'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'userID': widget.userId,
+        'artistID': artistId,
+      }),
+    );
 
-      if (response.statusCode == 200) {
-        setState(() {
-          favoriteArtistIds.remove(artistId);
-        });
-      } else {
-        print('Failed to remove artist from favorites');
+    if (response.statusCode == 200) {
+      setState(() {
+        favoriteArtistIds.remove(artistId);
+      });
+
+      // ลบออกจาก Firebase
+      final dbRef = FirebaseDatabase.instance.ref('roomshare_requests');
+      final snapshot = await dbRef.get();
+
+      if (snapshot.exists) {
+        Map<dynamic, dynamic> requests = snapshot.value as Map;
+
+        for (var entry in requests.entries) {
+          final key = entry.key;
+          final value = entry.value;
+
+          if (key == 'lastID') continue;
+          if (value['userReqID'] == widget.userId) {
+            final artistPath = '$key/favoriteArtists/${artistId.toString()}';
+            await dbRef.child(artistPath).remove();
+          }
+        }
       }
-    } catch (e) {
-      print('Error removing from favorites: $e');
+    } else {
+      print('Failed to remove artist from favorites');
     }
+  } catch (e) {
+    print('Error removing from favorites: $e');
   }
+}
+
 
   @override
   void dispose() {
@@ -239,7 +294,7 @@ body: Column(
 
     if (isLoading)
       const Expanded(
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(child: CircularProgressIndicator(color: Colors.black)),
       )
     else if (artistList.isEmpty)
       Expanded(

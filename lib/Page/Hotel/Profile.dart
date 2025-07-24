@@ -66,7 +66,7 @@ class _ProfileHotelState extends State<ProfileHotel> {
       barrierDismissible: false,
       builder: (context) {
         return Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(color: Colors.black),
         );
       },
     );
@@ -167,7 +167,7 @@ class _ProfileHotelState extends State<ProfileHotel> {
         ],
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: Colors.black))
           : SingleChildScrollView(
               padding: const EdgeInsets.only(top: 50),
               child: Column(

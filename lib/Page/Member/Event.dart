@@ -322,7 +322,7 @@ class _Event extends State<Event> {
           if (isLoading)
             Expanded(
               child: Center(
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(color: Colors.black),
               ),
             )
           else if (eventList.isEmpty)

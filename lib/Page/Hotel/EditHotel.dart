@@ -207,7 +207,7 @@ class _AddHotelState extends State<Edithotel> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => Center(child: CircularProgressIndicator()),
+      builder: (_) => Center(child: CircularProgressIndicator(color: Colors.black)),
     );
 
     try {
@@ -308,7 +308,7 @@ class _AddHotelState extends State<Edithotel> {
       context: context,
       barrierDismissible: false,
       builder: (context) => Center(
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(color: Colors.black),
       ),
     );
   }
@@ -458,7 +458,7 @@ class _AddHotelState extends State<Edithotel> {
       ),
       body: isLoading
           ? const Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(color: Colors.black),
             )
           : SingleChildScrollView(
               child: Column(
@@ -890,7 +890,7 @@ class _AddHotelState extends State<Edithotel> {
                               const Positioned(
                                 bottom: 13,
                                 child: Text(
-                                  'Photo Album',
+                                  'Photo Albums',
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Colors.black,

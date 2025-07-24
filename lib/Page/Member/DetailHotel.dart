@@ -250,7 +250,7 @@ void dispose() {
         ],
       ),
       body: isLoading || hotel == null
-          ? Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: Colors.black))
           : SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

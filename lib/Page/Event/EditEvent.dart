@@ -376,7 +376,7 @@ bool _areArtistListsEqual(List<dynamic> list1, List<dynamic> list2) {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
+      builder: (_) => const Center(child: CircularProgressIndicator(color: Colors.black)),
     );
 
     try {
@@ -445,7 +445,7 @@ bool _areArtistListsEqual(List<dynamic> list1, List<dynamic> list2) {
       context: context,
       barrierDismissible: false,
       builder: (context) => Center(
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(color: Colors.black),
       ),
     );
   }
@@ -580,7 +580,7 @@ bool _areArtistListsEqual(List<dynamic> list1, List<dynamic> list2) {
       ),
       body: isLoading
           ? const Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(color: Colors.black),
             )
           : SingleChildScrollView(
               child: Column(

@@ -233,7 +233,7 @@ class _AddEventState extends State<AddEvent> {
   showDialog(
     context: context,
     barrierDismissible: false,
-    builder: (_) => const Center(child: CircularProgressIndicator()),
+    builder: (_) => const Center(child: CircularProgressIndicator(color: Colors.black)),
   );
 
   try {
@@ -301,7 +301,7 @@ class _AddEventState extends State<AddEvent> {
       context: context,
       barrierDismissible: false,
       builder: (context) => Center(
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(color: Colors.black),
       ),
     );
   }
@@ -436,7 +436,7 @@ class _AddEventState extends State<AddEvent> {
       ),
       body: isLoading
           ? const Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(color: Colors.black),
             )
           : SingleChildScrollView(
               child: Column(

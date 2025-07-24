@@ -219,7 +219,7 @@ if (!nameRegex.hasMatch(fullnameCtl.text)) {
     context: context,
     barrierDismissible: false,
     builder: (context) => Center(
-      child: CircularProgressIndicator(),
+      child: CircularProgressIndicator(color: Colors.black),
     ),
   );
 }

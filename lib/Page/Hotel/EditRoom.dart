@@ -224,7 +224,7 @@ bool _isDataChanged() {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => Center(child: CircularProgressIndicator()),
+      builder: (_) => Center(child: CircularProgressIndicator(color: Colors.black)),
     );
 
     try {
@@ -371,7 +371,7 @@ bool _isDataChanged() {
       ),
       body: isLoading
           ? const Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(color: Colors.black),
             )
           :SingleChildScrollView(
         child: Column(

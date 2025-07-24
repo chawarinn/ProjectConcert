@@ -147,7 +147,7 @@ class _AddArtistPageState extends State<AddArtistPage> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => Center(child: CircularProgressIndicator()),
+      builder: (_) => Center(child: CircularProgressIndicator(color: Colors.black)),
     );
 
     final uri = Uri.parse('$API_ENDPOINT/add');
@@ -169,7 +169,7 @@ class _AddArtistPageState extends State<AddArtistPage> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
+      builder: (_) => const Center(child: CircularProgressIndicator(color: Colors.black)),
     );
 
     try {
@@ -378,7 +378,7 @@ class _AddArtistPageState extends State<AddArtistPage> {
           isLoading
               ? Expanded(
                   child: Center(
-                    child: CircularProgressIndicator(),
+                    child: CircularProgressIndicator(color: Colors.black),
                   ),
                 )
               : Expanded(
@@ -581,7 +581,7 @@ class _AddArtistPageState extends State<AddArtistPage> {
                   showDialog(
                     context: context,
                     barrierDismissible: false,
-                    builder: (_) => Center(child: CircularProgressIndicator()),
+                    builder: (_) => Center(child: CircularProgressIndicator(color: Colors.black)),
                   );
 
                   try {

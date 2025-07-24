@@ -74,7 +74,7 @@ class _ProfileEventState extends State<ProfileEvent> {
       barrierDismissible: false,
       builder: (context) {
         return Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(color: Colors.black),
         );
       },
     );
@@ -180,7 +180,7 @@ class _ProfileEventState extends State<ProfileEvent> {
         ],
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: Colors.black))
           : SingleChildScrollView(
               padding: const EdgeInsets.only(top: 50),
               child: Column(

@@ -146,7 +146,7 @@ class _AddRoomState extends State<AddRoom> {
       barrierDismissible: false,
       builder: (context) => const Dialog(
         backgroundColor: Colors.transparent,
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(child: CircularProgressIndicator(color: Colors.black)),
       ),
     );
 
@@ -271,7 +271,7 @@ class _AddRoomState extends State<AddRoom> {
                 barrierDismissible: false,
                 builder: (BuildContext context) {
                   return const Center(
-                    child: CircularProgressIndicator(),
+                    child: CircularProgressIndicator(color: Colors.black),
                   );
                 },
               );
@@ -341,7 +341,7 @@ class _AddRoomState extends State<AddRoom> {
                   barrierDismissible: false,
                   builder: (BuildContext context) {
                     return const Center(
-                      child: CircularProgressIndicator(),
+                      child: CircularProgressIndicator(color: Colors.black),
                     );
                   },
                 );
@@ -436,7 +436,7 @@ class _AddRoomState extends State<AddRoom> {
               barrierDismissible: false,
               builder: (BuildContext context) {
                 return const Center(
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(color: Colors.black),
                 );
               },
             );
@@ -503,7 +503,7 @@ class _AddRoomState extends State<AddRoom> {
         ],
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: Colors.black))
           : SingleChildScrollView(
               child: Column(
                 children: [
@@ -706,7 +706,7 @@ class _AddRoomState extends State<AddRoom> {
                           Padding(
                             padding: const EdgeInsets.only(top: 10),
                             child: isLoadingRoom
-                                ? const CircularProgressIndicator()
+                                ? const CircularProgressIndicator(color: Colors.black)
                                 : (roomData == null ||
                                         roomData!['rooms'] == null ||
                                         roomData!['rooms'].isEmpty)
@@ -826,7 +826,7 @@ class _AddRoomState extends State<AddRoom> {
                                                                       .transparent,
                                                               child: Center(
                                                                   child:
-                                                                      CircularProgressIndicator()),
+                                                                      CircularProgressIndicator(color: Colors.black)),
                                                             ),
                                                           );
 

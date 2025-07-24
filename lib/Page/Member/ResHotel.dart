@@ -386,7 +386,7 @@ data.sort((a, b) => a['distance'].compareTo(b['distance']));
           if (isLoading)
             Expanded(
               child: Center(
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(color: Colors.black),
               ),
             )
           else if (restaurants.isEmpty)

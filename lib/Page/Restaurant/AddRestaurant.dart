@@ -268,7 +268,7 @@ try {
       context: context,
       barrierDismissible: false,
       builder: (context) => Center(
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(color: Colors.black),
       ),
     );
   }
@@ -418,7 +418,7 @@ try {
       ),
       body: isLoading
           ? const Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(color: Colors.black),
             )
           : SingleChildScrollView(
               child: Column(

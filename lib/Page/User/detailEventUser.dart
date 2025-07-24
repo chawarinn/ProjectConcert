@@ -170,7 +170,7 @@ class _EventDetailUserState extends State<EventdetailUser> {
           ],
         ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: Colors.black))
           : event == null
               ? Center(child: Text('No events found'))
               : SingleChildScrollView(

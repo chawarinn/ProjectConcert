@@ -165,7 +165,7 @@ class _HomeEventState extends State<HomeEvent> {
         ],
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: Colors.black))
           : events.isEmpty
               ? Center(
                   child: Text(
@@ -412,7 +412,7 @@ Widget buildEventCard(
                       context: context,
                       barrierDismissible: false,
                       builder: (_) =>
-                          Center(child: CircularProgressIndicator()),
+                          Center(child: CircularProgressIndicator(color: Colors.black)),
                     );
 
                     try {

@@ -142,7 +142,7 @@ String? selectedAddress;
         ],
       ),
       body: currentLocation == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: Colors.black))
           : Stack(
               children: [
                 GoogleMap(

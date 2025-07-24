@@ -272,7 +272,7 @@ if (_image == null) {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => Center(child: CircularProgressIndicator()),
+      builder: (_) => Center(child: CircularProgressIndicator(color: Colors.black)),
     );
 
     try {
@@ -373,7 +373,7 @@ if (_image == null) {
       context: context,
       barrierDismissible: false,
       builder: (context) => Center(
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(color: Colors.black),
       ),
     );
   }
@@ -496,7 +496,7 @@ if (_image == null) {
       ),
       body: isLoading
           ? const Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(color: Colors.black),
             )
           : SingleChildScrollView(
               child: Column(

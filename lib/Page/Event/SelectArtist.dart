@@ -200,7 +200,7 @@ class _SelectArtistPageState extends State<SelectArtistPage> {
         ],
       ),
         body: isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(child: CircularProgressIndicator(color: Colors.black))
             : Column(
                 children: [
                   Padding(

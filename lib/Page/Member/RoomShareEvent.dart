@@ -223,7 +223,7 @@ class _RoomshareEventState extends State<RoomshareEvent> {
               future: futureRoomShares,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
+                  return Center(child: CircularProgressIndicator(color: Colors.black));
                 } else if (snapshot.hasError) {
                   return Center(child: Text('เกิดข้อผิดพลาดในการโหลดข้อมูล'));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
