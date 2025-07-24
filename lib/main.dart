@@ -50,24 +50,9 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      // home: RestaurantSearch(userId: 3)
-      // home: Event(userId: 3)
-      // home: Homemember(userId: 3)
-      // home: Eventdetailmember(userId: 3,eventID: 1,),
-      // home: homeLogoPage()
-      // home: HomeAdmin(userId: 7,)
-      // home: AdminHotelPage(userId: 7,)
-      // home: HotelSearch(userId: 3,)
-      // home: LoginPage()
-      // home: NotificationPage(userId: 3,) 
-      // home: Admindetail(userId: 3),
-      // home: DetailHotel(userId: 5, hotelID: 29,)
-  //  home: Admindetail(userId: 6, hotelID: 11),
-    // home: Homerestaurant(userId: 8)
-    // home: HomeEvent(userId: 6)
-    home: AdminRes(userId: 5),
-      // home: Homemember(userId: 13)
-    // home: HomeHotel(userId: 5)
+   
+      home: HomeAdmin(userId: 5)
+    //  home: Homemember(userId: 13),
     );
   }
 }

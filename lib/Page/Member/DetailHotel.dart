@@ -130,23 +130,33 @@ void dispose() {
     }
   }
 
-  void listenToTotalPoint() {
-  final ref = FirebaseDatabase.instance
-      .ref('/point/ratings/${widget.userId}/${widget.hotelID}/rating');
+void listenToTotalPoint() {
+  final ref = FirebaseDatabase.instance.ref('/point/ratings');
 
   _pointSubscription = ref.onValue.listen((event) {
     final data = event.snapshot.value;
-    if (data != null) {
-      setState(() {
-        totalPoint = int.tryParse(data.toString()) ?? 0;
-      });
-    } else {
-      setState(() {
-        totalPoint = 0;
+    int sum = 0;
+
+    if (data is Map) {
+      data.forEach((userId, userRatings) {
+        if (userRatings is Map) {
+          final hotelData = userRatings[widget.hotelID.toString()];
+          if (hotelData is Map && hotelData['rating'] != null) {
+            final rating = int.tryParse(hotelData['rating'].toString()) ?? 0;
+            sum += rating;
+          }
+        }
       });
     }
+
+    setState(() {
+      totalPoint = sum;
+    });
   });
 }
+
+
+
 
   Future<void> fetchNearbyRestaurants() async {
     try {
