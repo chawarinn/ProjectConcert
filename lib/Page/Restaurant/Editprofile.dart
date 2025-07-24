@@ -161,6 +161,7 @@ class _EditProfileRState extends State<EditProfileR> {
       );
       return;
     }
+    
     final uri = Uri.parse('$API_ENDPOINT/editprofile');
     final request = http.MultipartRequest('PUT', uri);
 
@@ -186,7 +187,7 @@ class _EditProfileRState extends State<EditProfileR> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => Center(child: CircularProgressIndicator()),
+      builder: (_) => Center(child: CircularProgressIndicator(color: Colors.black)),
     );
 
     try {
@@ -274,7 +275,7 @@ class _EditProfileRState extends State<EditProfileR> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (_) => Center(child: CircularProgressIndicator()),
+        builder: (_) => Center(child: CircularProgressIndicator(color: Colors.black)),
       );
 
       final response = await http.put(
@@ -539,7 +540,7 @@ Widget _buildDropdownField({
         ],
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: Colors.black))
           : SingleChildScrollView(
               padding: EdgeInsets.all(16.0),
               child: Column(

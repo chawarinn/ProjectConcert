@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:project_concert_closeiin/Page/Event/AddArtist.dart';
 import 'package:project_concert_closeiin/Page/Event/EditProfile.dart';
 import 'package:project_concert_closeiin/Page/Event/HomeEvent.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
@@ -25,7 +26,7 @@ class ProfileEvent extends StatefulWidget {
 }
 
 class _ProfileEventState extends State<ProfileEvent> {
-  int _currentIndex = 1;
+  int _currentIndex = 2;
   bool isLoading = true;
   Map<String, dynamic>? userData;
   bool _isDeleting = false;
@@ -73,7 +74,7 @@ class _ProfileEventState extends State<ProfileEvent> {
       barrierDismissible: false,
       builder: (context) {
         return Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(color: Colors.black),
         );
       },
     );
@@ -179,7 +180,7 @@ class _ProfileEventState extends State<ProfileEvent> {
         ],
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: Colors.black))
           : SingleChildScrollView(
               padding: const EdgeInsets.only(top: 50),
               child: Column(
@@ -335,7 +336,7 @@ class _ProfileEventState extends State<ProfileEvent> {
                 ],
               ),
             ),
-      bottomNavigationBar: BottomNavigationBar(
+     bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
@@ -346,10 +347,18 @@ class _ProfileEventState extends State<ProfileEvent> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => HomeEvent(userId: widget.userId)),
+                    builder: (context) =>
+                        HomeEvent(userId : widget.userId)),
               );
               break;
             case 1:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => AddArtistPage(userId: widget.userId)),
+              );
+              break;
+               case 2:
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -364,8 +373,18 @@ class _ProfileEventState extends State<ProfileEvent> {
         unselectedItemColor: Colors.white70,
         showUnselectedLabels: false,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.face), label: 'Profile'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.library_music),
+            label: 'Artist',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.face),
+            label: 'Profile',
+          ),
         ],
       ),
     );

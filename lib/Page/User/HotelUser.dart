@@ -672,7 +672,7 @@ class _HoteluserState extends State<Hoteluser> {
           ),
           Expanded(
             child: _isLoading
-                ? Center(child: CircularProgressIndicator())
+                ? Center(child: CircularProgressIndicator(color: Colors.black))
                 : Builder(
                     builder: (context) {
                       if (_searchHotel.isNotEmpty) {

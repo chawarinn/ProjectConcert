@@ -97,7 +97,7 @@ class _EventuserState extends State<Eventuser> {
     String displayLTime = '';
 
     try {
-      final dt = DateTime.parse(dateStr);
+      final dt = DateTime.parse(dateStr).toLocal();
       const thaiMonths = [
         '',
         'มกราคม',
@@ -324,7 +324,7 @@ class _EventuserState extends State<Eventuser> {
           if (isLoading)
             Expanded(
               child: Center(
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(color: Colors.black),
               ),
             )
           else if (eventList.isEmpty)

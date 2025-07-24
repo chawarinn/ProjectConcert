@@ -247,7 +247,7 @@ class _LoginPageState extends State<LoginPage> {
 //     context: context,
 //     barrierDismissible: false,
 //     builder: (context) => Center(
-//       child: CircularProgressIndicator(),
+//       child: CircularProgressIndicator(color: Colors.black),
 //     ),
 //   );
 // }

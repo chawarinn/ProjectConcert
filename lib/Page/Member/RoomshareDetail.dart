@@ -132,14 +132,15 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
         };
       }
 
-      // 3. สร้างข้อมูลที่ต้องบันทึก
       final Map<String, dynamic> requestData = {
-        'userReqID': widget.userId,
-        'roomshareID': room!['roomshareID'],
-        'userID': room!['userID'],
-        'userDetail': userData,
-        'favoriteArtists': favArtists,
-      };
+  'userReqID': widget.userId,
+  'roomshareID': room!['roomshareID'],
+  'roomshareContact': room!['shareContact'],
+  'userID': room!['userId'],
+  'userDetail': userData,
+  if (favArtists.isNotEmpty) 'favoriteArtists': favArtists,
+};
+
 
       // 4. บันทึกลง Firebase
       await dbRef.child('roomshare_requests/$newID').set(requestData);
@@ -225,7 +226,7 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
         ],
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: Colors.black))
           : room == null || room!.isEmpty
               ? Center(child: Text('No room data found'))
               : SingleChildScrollView(
@@ -361,12 +362,14 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
                                         TextButton(
                                           onPressed: () =>
                                               Navigator.of(context).pop(false),
-                                          child: Text('No'),
+                                          child: Text('No',
+                          style: TextStyle(color: Colors.black)),
                                         ),
                                         TextButton(
                                           onPressed: () =>
                                               Navigator.of(context).pop(true),
-                                          child: Text('Yes'),
+                                          child: Text('Yes',
+                          style: TextStyle(color: Colors.black)),
                                         ),
                                       ],
                                     ),

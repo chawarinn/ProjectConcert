@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:project_concert_closeiin/Page/Event/AddArtist.dart';
 import 'package:project_concert_closeiin/Page/Event/HomeEvent.dart';
 import 'package:project_concert_closeiin/Page/Event/Profile.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
@@ -23,7 +24,7 @@ class EditProfileE extends StatefulWidget {
 
 class _EditProfileEState extends State<EditProfileE> {
   File? _image;
-  int _currentIndex = 1;
+  int _currentIndex = 2;
   bool isLoading = true;
   Map<String, dynamic>? userData;
   Map<String, dynamic>? originalUserData; 
@@ -188,7 +189,7 @@ class _EditProfileEState extends State<EditProfileE> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => Center(child: CircularProgressIndicator()),
+      builder: (_) => Center(child: CircularProgressIndicator(color: Colors.black)),
     );
 
     try {
@@ -276,7 +277,7 @@ class _EditProfileEState extends State<EditProfileE> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (_) => Center(child: CircularProgressIndicator()),
+        builder: (_) => Center(child: CircularProgressIndicator(color: Colors.black)),
       );
 
       final response = await http.put(
@@ -500,7 +501,7 @@ Widget _buildDropdownField({
           ),
         ],
       ),
-        bottomNavigationBar: BottomNavigationBar(
+       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
@@ -516,6 +517,13 @@ Widget _buildDropdownField({
               );
               break;
             case 1:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => AddArtistPage(userId: widget.userId)),
+              );
+              break;
+               case 2:
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -535,13 +543,17 @@ Widget _buildDropdownField({
             label: 'Home',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.library_music),
+            label: 'Artist',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.face),
             label: 'Profile',
           ),
         ],
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: Colors.black))
           : SingleChildScrollView(
               padding: EdgeInsets.all(16.0),
               child: Column(

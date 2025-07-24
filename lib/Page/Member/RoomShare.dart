@@ -48,9 +48,6 @@ class _RoomshareState extends State<Roomshare> {
   }
 
   Widget _buildRoomCard(Map<String, dynamic> room) {
-    if (widget.userId == room['userId']) {
-      return SizedBox.shrink();
-    }
     return Container(
       padding: EdgeInsets.all(16),
       margin: EdgeInsets.only(bottom: 12),
@@ -200,7 +197,8 @@ class _RoomshareState extends State<Roomshare> {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('No',style: TextStyle(color: Colors.black)),
+                      child: const Text('No',
+                          style: TextStyle(color: Colors.black)),
                     ),
                     TextButton(
                       onPressed: () {
@@ -209,7 +207,8 @@ class _RoomshareState extends State<Roomshare> {
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
                         );
                       },
-                      child: const Text('Yes',style: TextStyle(color: Colors.black)),
+                      child: const Text('Yes',
+                          style: TextStyle(color: Colors.black)),
                     ),
                   ],
                 ),
@@ -257,20 +256,22 @@ class _RoomshareState extends State<Roomshare> {
               future: futureRoomShares,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
+                  return Center(
+                      child: CircularProgressIndicator(color: Colors.black));
                 } else if (snapshot.hasError) {
                   return Center(child: Text('เกิดข้อผิดพลาดในการโหลดข้อมูล'));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return Center(child: Text('No RoomShare'));
                 }
-
                 return Padding(
                   padding: const EdgeInsets.only(left: 16, right: 16),
-                  child: ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      return _buildRoomCard(snapshot.data![index]);
-                    },
+                  child: ListView(
+                    children: snapshot.data!
+                        .where((room) =>
+                            room['userId'] !=
+                            widget.userId) 
+                        .map((room) => _buildRoomCard(room))
+                        .toList(),
                   ),
                 );
               },

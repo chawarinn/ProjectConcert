@@ -150,6 +150,31 @@ if (_image == null) {
       _showAlertDialog(context, "กรุณาใส่หมายเลขโทรศัพท์ให้ถูกต้อง");
       return;
     }
+    try {
+    final startTimeParts = _openController.text.split(":");
+    final endTimeParts = _closeController.text.split(":");
+
+    final startTime = TimeOfDay(
+      hour: int.parse(startTimeParts[0]),
+      minute: int.parse(startTimeParts[1]),
+    );
+
+    final endTime = TimeOfDay(
+      hour: int.parse(endTimeParts[0]),
+      minute: int.parse(endTimeParts[1]),
+    );
+
+    bool isStartAfterEnd = startTime.hour > endTime.hour ||
+        (startTime.hour == endTime.hour && startTime.minute >= endTime.minute);
+
+    if (isStartAfterEnd) {
+      _showAlertDialog(context, "เนื่องจากเวลาปิดร้านคือ ${_closeController.text} น. เวลาเปิดร้านและเวลาปิดร้านไม่สอดคล้องกัน ");
+      return;
+    }
+  } catch (e) {
+    _showAlertDialog(context, "รูปแบบเวลาไม่ถูกต้อง");
+    return;
+  }
 
     var uri = Uri.parse("$API_ENDPOINT/addres");
     var request = http.MultipartRequest('POST', uri);
@@ -243,7 +268,7 @@ try {
       context: context,
       barrierDismissible: false,
       builder: (context) => Center(
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(color: Colors.black),
       ),
     );
   }
@@ -393,7 +418,7 @@ try {
       ),
       body: isLoading
           ? const Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(color: Colors.black),
             )
           : SingleChildScrollView(
               child: Column(
@@ -430,7 +455,7 @@ try {
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.black),
+                            icon:  Icon( _image != null ? Icons.edit : Icons.add, color: Colors.black),
                             onPressed: _pickImage,
                           ),
                         ),

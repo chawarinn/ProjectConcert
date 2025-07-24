@@ -143,7 +143,7 @@ class _HomeHotelState extends State<HomeHotel> {
         ],
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: Colors.black))
           : hotels.isEmpty
               ? Center(
                   child: Text(
@@ -300,7 +300,7 @@ Widget buildHotelCard(
                       context: context,
                       barrierDismissible: false,
                       builder: (_) =>
-                          Center(child: CircularProgressIndicator()),
+                          Center(child: CircularProgressIndicator(color: Colors.black)),
                     );
 
                     try {

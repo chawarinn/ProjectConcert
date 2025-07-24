@@ -191,7 +191,7 @@ body: Column(
 
     if (isLoading)
       const Expanded(
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(child: CircularProgressIndicator(color: Colors.black)),
       )
     else if (artistList.isEmpty)
       Expanded(

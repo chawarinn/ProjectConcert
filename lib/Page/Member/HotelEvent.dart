@@ -444,7 +444,7 @@ class _HoteleventState extends State<Hotelevent> {
           ),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator(color: Colors.black))
                 : displayList.isEmpty
                     ? const Center(child: Text('No hotels found'))
                     : ListView.builder(

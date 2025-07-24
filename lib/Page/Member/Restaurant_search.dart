@@ -414,7 +414,7 @@ class _RestaurantSearch extends State<RestaurantSearch> {
           if (isLoading)
             Expanded(
               child: Center(
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(color: Colors.black),
               ),
             )
           else if (restaurants.isEmpty)
