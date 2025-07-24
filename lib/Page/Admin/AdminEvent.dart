@@ -4,7 +4,8 @@ import 'package:project_concert_closeiin/Page/Admin/AdminDetail.dart';
 
 class AdminEvent extends StatefulWidget {
   final int userId;
-  const AdminEvent({super.key, required this.userId});
+  final int hotelID;
+  const AdminEvent({super.key, required this.userId, required this.hotelID});
 
   @override
   State<AdminEvent> createState() => _AdminEventPageState();
@@ -249,7 +250,7 @@ class _AdminEventPageState extends State<AdminEvent> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      Admindetail(userId: widget.userId),
+                                      Admindetail(userId: widget.userId,hotelID: widget.hotelID,),
                                 ),
                               );
                             },

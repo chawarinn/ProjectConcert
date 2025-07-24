@@ -4,27 +4,28 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart'; // สำหรับจัดรูปแบบวันที่
+import 'package:project_concert_closeiin/Page/Event/AddEvent.dart';
+import 'package:project_concert_closeiin/Page/Event/EditEvent.dart';
+import 'package:project_concert_closeiin/Page/Event/Profile.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
-import 'package:project_concert_closeiin/Page/Restaurant/AddRestaurant.dart';
-import 'package:project_concert_closeiin/Page/Restaurant/EditRestaurant.dart';
-import 'package:project_concert_closeiin/Page/Restaurant/ProfileRestaurant.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
-class Homerestaurant extends StatefulWidget {
+class HomeEvent extends StatefulWidget {
   final int userId;
-  const Homerestaurant({super.key, required this.userId});
+  const HomeEvent({super.key, required this.userId});
 
   @override
-  _HomerestaurantState createState() => _HomerestaurantState();
+  _HomeEventState createState() => _HomeEventState();
 }
 
-class _HomerestaurantState extends State<Homerestaurant> {
+class _HomeEventState extends State<HomeEvent> {
   int _currentIndex = 0;
   bool _isLoading = false;
   late String url;
 
-  List<dynamic> restaurants = [];
+  List<dynamic> events = [];
 
   @override
   void initState() {
@@ -35,18 +36,20 @@ class _HomerestaurantState extends State<Homerestaurant> {
       print(err);
     });
 
-    _fetchAllRestaurant();
+    _fetchAllEvent();
   }
 
-  Future<void> _fetchAllRestaurant() async {
+  Future<void> _fetchAllEvent() async {
     setState(() => _isLoading = true);
     try {
-      final uri = Uri.parse('$API_ENDPOINT/reshome?userID=${widget.userId}');
+      final uri = Uri.parse('$API_ENDPOINT/EventH?userID=${widget.userId}');
       final response = await http.get(uri);
 
       if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
         setState(() {
-          restaurants = json.decode(response.body);
+          // decoded เป็น List<dynamic> อยู่แล้ว
+          events = decoded;
         });
       } else {
         print('Error: ${response.statusCode}');
@@ -55,6 +58,15 @@ class _HomerestaurantState extends State<Homerestaurant> {
       print('Exception: $e');
     } finally {
       setState(() => _isLoading = false);
+    }
+  }
+
+  String formatDate(String dateStr) {
+    try {
+      final date = DateTime.parse(dateStr);
+      return DateFormat.yMMMMd('th').format(date);
+    } catch (e) {
+      return dateStr;
     }
   }
 
@@ -115,7 +127,7 @@ class _HomerestaurantState extends State<Homerestaurant> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => ProfileRestaurant(userId: widget.userId),
+                builder: (context) => ProfileEvent(userId: widget.userId),
               ),
             );
           }
@@ -127,10 +139,10 @@ class _HomerestaurantState extends State<Homerestaurant> {
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
-          : restaurants.isEmpty
+          : events.isEmpty
               ? Center(
                   child: Text(
-                    'Add your Restaurant',
+                    'Add your Event',
                     style: TextStyle(fontSize: 18),
                     textAlign: TextAlign.center,
                   ),
@@ -148,31 +160,31 @@ class _HomerestaurantState extends State<Homerestaurant> {
                             EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
-                        itemCount: restaurants.length,
+                        itemCount: events.length,
                         itemBuilder: (context, index) {
-                          return buildRestaurantCard(
+                          return buildEventCard(
                             context,
-                            restaurants[index],
-                            _fetchAllRestaurant,
+                            events[index],
+                            _fetchAllEvent,
                             widget.userId,
+                            formatDate,
                           );
                         },
                       ),
                       const SizedBox(height: 60),
                     ],
                   ),
-                  
                 ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final result = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AddRestaurant(userId: widget.userId,),
+              builder: (context) => AddEvent(userId: widget.userId),
             ),
           );
           if (result == true) {
-            _fetchAllRestaurant();
+            _fetchAllEvent();
           }
         },
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
@@ -182,12 +194,65 @@ class _HomerestaurantState extends State<Homerestaurant> {
   }
 }
 
-Widget buildRestaurantCard(
+Widget buildEventCard(
   BuildContext context,
-  dynamic res,
-  Future<void> Function() onRestaurantUpdated,
+  dynamic event,
+  Future<void> Function() onEventUpdated,
   int userId,
+  String Function(String) formatDate,
 ) {
+  String dateStr = event['date'] ?? '';
+  String timeStr = event['time'] ?? '';
+  String ltimeStr = event['ltime'] ?? '';
+
+  String displayDate = '';
+  String displayTime = '';
+  String displayLTime = '';
+
+  try {
+    final dt = DateTime.parse(dateStr);
+    const thaiMonths = [
+      '',
+      'มกราคม',
+      'กุมภาพันธ์',
+      'มีนาคม',
+      'เมษายน',
+      'พฤษภาคม',
+      'มิถุนายน',
+      'กรกฎาคม',
+      'สิงหาคม',
+      'กันยายน',
+      'ตุลาคม',
+      'พฤศจิกายน',
+      'ธันวาคม'
+    ];
+    displayDate = '${dt.day} ${thaiMonths[dt.month]} ${dt.year}';
+  } catch (_) {
+    displayDate = dateStr;
+  }
+
+  try {
+    final parts = timeStr.split(':');
+    if (parts.length >= 2) {
+      final hour = parts[0].padLeft(2, '0');
+      final minute = parts[1].padLeft(2, '0');
+      displayTime = '$hour:$minute';
+    }
+  } catch (_) {
+    displayTime = timeStr;
+  }
+
+  try {
+    final parts = ltimeStr.split(':');
+    if (parts.length >= 2) {
+      final hour = parts[0].padLeft(2, '0');
+      final minute = parts[1].padLeft(2, '0');
+      displayLTime = '$hour:$minute น.';
+    }
+  } catch (_) {
+    displayLTime = ltimeStr;
+  }
+
   return Card(
     color: Colors.grey[200],
     margin: EdgeInsets.symmetric(vertical: 6),
@@ -196,21 +261,82 @@ Widget buildRestaurantCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(res['resName'] ?? '',
+          Text(event['eventName'] ?? '',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           SizedBox(height: 8),
-          if (res['resPhoto'] != null)
-            Image.network(
-              res['resPhoto'],
-              height: 180,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (event['eventPhoto'] != null &&
+                  event['eventPhoto'].toString().isNotEmpty)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    event['eventPhoto'],
+                    height: 180,
+                    width: 140,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        Container(color: Colors.grey, width: 140, height: 180),
+                  ),
+                ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(event['typeEventName'] ?? ''),
+                    SizedBox(height: 4),
+                    Text(displayDate, style: TextStyle(fontSize: 12)),
+                    SizedBox(height: 4),
+                    Text('$displayTime - $displayLTime',
+                        style: TextStyle(fontSize: 12)),
+                    SizedBox(height: 4),
+                    Text(event['location']),
+                    SizedBox(height: 4),
+                    Text('Link : ${event['linkticket'] ?? ''}'),
+                    SizedBox(height: 8),
+                  ],
+                ),
+              ),
+            ],
+          ),
           SizedBox(height: 8),
-          Text('ประเภทอาหาร : ${res['type'] ?? ''}'),
-          Text('เวลา : ${res['open'] ?? ''} - ${res['close'] ?? ''} น.'),
-          Text('ที่ตั้ง : ${res['location'] ?? ''}'),
-          Text('ติดต่อ : ${res['contact'] ?? ''}'),
+          Text('Artist'),
+          if (event['artists'] != null && event['artists'] is List)
+            SizedBox(
+              height: 80,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: event['artists'].length,
+                itemBuilder: (context, idx) {
+                  final artist = event['artists'][idx];
+                  return Padding(
+                    padding: EdgeInsets.only(right: 8),
+                    child: Column(
+                      children: [
+                        ClipOval(
+                          child: Image.network(
+                            artist['artistPhoto'] ?? '',
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                                    width: 50, height: 50, color: Colors.grey),
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          artist['artistName'] ?? '',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -220,14 +346,14 @@ Widget buildRestaurantCard(
                   final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => EditRestaurant(
+                      builder: (_) => EditEvent(
                         userId: userId,
-                        resID: res['resID'],
+                        eventID: event['eventID'],
                       ),
                     ),
                   );
                   if (result == true) {
-                    await onRestaurantUpdated();
+                    await onEventUpdated();
                   }
                 },
               ),
@@ -238,17 +364,17 @@ Widget buildRestaurantCard(
                     context: context,
                     builder: (context) => AlertDialog(
                       title: Text('Notification'),
-                      content: Text('ต้องการลบร้านอาหารนี้หรือไม่?'),
+                      content: Text('ต้องการลบอีเวนต์นี้หรือไม่?'),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
-                          child: Text('No',
-                          style: TextStyle(color: Colors.black)),
+                          child:
+                              Text('No', style: TextStyle(color: Colors.black)),
                         ),
                         TextButton(
                           onPressed: () => Navigator.pop(context, true),
                           child: Text('Yes',
-                          style: TextStyle(color: Colors.black)),
+                              style: TextStyle(color: Colors.black)),
                         ),
                       ],
                     ),
@@ -264,15 +390,15 @@ Widget buildRestaurantCard(
 
                     try {
                       final response = await http.delete(Uri.parse(
-                        '$API_ENDPOINT/deleterestaurant?resID=${res['resID']}',
+                        '$API_ENDPOINT/deleteevent?eventID=${event['eventID']}',
                       ));
-                      Navigator.pop(context); 
+                      Navigator.pop(context);
 
                       if (response.statusCode == 200) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('ลบเรียบร้อยแล้ว')),
                         );
-                        await onRestaurantUpdated();
+                        await onEventUpdated();
                       } else {
                         throw Exception('ลบไม่สำเร็จ: ${response.body}');
                       }

@@ -214,7 +214,7 @@ class _DetailHotelState extends State<DetailHotel> {
             color: Colors.white,
           ),
         ),
-       actions: [
+        actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () {
@@ -226,7 +226,8 @@ class _DetailHotelState extends State<DetailHotel> {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('No',style: TextStyle(color: Colors.black)),
+                      child: const Text('No',
+                          style: TextStyle(color: Colors.black)),
                     ),
                     TextButton(
                       onPressed: () {
@@ -235,7 +236,8 @@ class _DetailHotelState extends State<DetailHotel> {
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
                         );
                       },
-                      child: const Text('Yes',style: TextStyle(color: Colors.black)),
+                      child: const Text('Yes',
+                          style: TextStyle(color: Colors.black)),
                     ),
                   ],
                 ),
@@ -486,7 +488,7 @@ class _DetailHotelState extends State<DetailHotel> {
                           TextSpan(
                             children: [
                               TextSpan(
-                                text: 'ที่อยู่ : ',
+                                text: 'ที่ตั้ง : ',
                                 style: TextStyle(
                                     fontSize: 16, fontWeight: FontWeight.bold),
                               ),
@@ -607,7 +609,7 @@ class _DetailHotelState extends State<DetailHotel> {
                         children: [
                           ...nearbyRestaurants.map((r) => Container(
                                 width: 400, // กำหนดความกว้างการ์ดเท่าเดิม
-                                height: 160,
+                                height: 170,
                                 margin: EdgeInsets.only(right: 3),
                                 child: Card(
                                   color: Colors.grey[200],
@@ -625,12 +627,12 @@ class _DetailHotelState extends State<DetailHotel> {
                                               ? Image.network(
                                                   r['resPhoto'],
                                                   width: 100,
-                                                  height: 100,
+                                                  height: 120,
                                                   fit: BoxFit.cover,
                                                 )
                                               : Container(
                                                   width: 100,
-                                                  height: 100,
+                                                  height: 120,
                                                   color: Colors.grey[400],
                                                   child: Icon(Icons.image,
                                                       color: Colors.white),
@@ -667,11 +669,42 @@ class _DetailHotelState extends State<DetailHotel> {
                                                   ],
                                                 ),
                                               ),
+                                                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "เวลา : ",
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: r['open'] ?? '',
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.normal),
+                        ),
+                        TextSpan(
+                          text: " - ",
+                          style: TextStyle(
+                              fontSize: 12),
+                        ),
+                        TextSpan(
+                          text: r['close'] ?? '',
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.normal),
+                        ),
+                        TextSpan(
+                          text: " น. ",
+                          style: TextStyle(
+                              fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
                                               Text.rich(
                                                 TextSpan(
                                                   children: [
                                                     TextSpan(
-                                                      text: "ที่อยู่ : ",
+                                                      text: "ที่ตั้ง : ",
                                                       style: TextStyle(
                                                           fontSize: 11,
                                                           fontWeight:

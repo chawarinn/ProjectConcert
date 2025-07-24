@@ -3,14 +3,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Hotel/HomeHotel.dart';
-import 'package:project_concert_closeiin/Page/Member/EditProfileMember.dart';
-import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
-import 'package:project_concert_closeiin/Page/Member/Notification.dart';
-import 'package:project_concert_closeiin/Page/Member/artist.dart';
+import 'package:project_concert_closeiin/Page/Hotel/EditProfile.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
 class ProfileHotel extends StatefulWidget {
@@ -248,7 +244,7 @@ class _ProfileHotelState extends State<ProfileHotel> {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  EditProfileMember(userId: widget.userId)),
+                                  EditProfileH(userId: widget.userId)),
                         );
                         if (result == true) {
                           setState(() {

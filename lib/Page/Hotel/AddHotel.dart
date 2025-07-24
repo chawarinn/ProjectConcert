@@ -51,34 +51,28 @@ class _AddHotelState extends State<AddHotel> {
   int _currentIndex = 0;
   bool isLoading = true;
 
+  @override
+  void initState() {
+    super.initState();
 
-@override
-void initState() {
-  super.initState();
-
-  // Focus node listener
-  _FocusNode.addListener(() {
-    setState(() {
-      _isFocused = _FocusNode.hasFocus;
+    _FocusNode.addListener(() {
+      setState(() {
+        _isFocused = _FocusNode.hasFocus;
+      });
     });
-  });
-
-  // Delay 5 วิ ก่อนแสดงหน้าจอจริง
-  Future.delayed(Duration(seconds: 1), () {
-    setState(() {
-      isLoading = false;
+    Future.delayed(Duration(seconds: 1), () {
+      setState(() {
+        isLoading = false;
+      });
     });
-  });
 
-  // โหลด config API
-  Configuration.getConfig().then((config) {
-    url = config['apiEndpoint'];
-  }).catchError((err) {
-    log(err.toString());
-  });
-}
-
-
+    // โหลด config API
+    Configuration.getConfig().then((config) {
+      url = config['apiEndpoint'];
+    }).catchError((err) {
+      log(err.toString());
+    });
+  }
 
   @override
   void dispose() {
@@ -121,6 +115,8 @@ void initState() {
 
   Future<void> addhotel(BuildContext context) async {
     final phoneRegex = RegExp(r'^[0-9]{10}$');
+    final nameRegex = RegExp(r'^(?=.*[ก-๙])[ก-๙]+( [ก-๙]+)*$');
+    final name2Regex = RegExp(r'^(?=.*[a-zA-Z])[a-zA-Z0-9]+( [a-zA-Z0-9]+)*$');
 
     if (fullnameCtl.text.isEmpty ||
         fullname2Ctl.text.isEmpty ||
@@ -132,11 +128,33 @@ void initState() {
       _showAlertDialog(context, "กรอกข้อมูลไม่ครบ");
       return;
     }
-
-    if (_image == null) {
+     if (_image == null) {
       _showAlertDialog(context, "กรุณาเพิ่มรูป");
       return;
     }
+    bool isValidText(String text) {
+  return RegExp(r'[a-zA-Zก-ฮ0-9]').hasMatch(text);
+}
+
+if (!isValidText(fullnameCtl.text) ||
+    !isValidText(fullname2Ctl.text) ||
+    !isValidText(phoneCtl.text) ||
+    !isValidText(contactCtl.text) ||
+    !isValidText(locationCtl.text) ||
+    !isValidText(priceCtl.text)) {
+  _showAlertDialog(context, "ข้อมูลไม่ถูกต้อง");
+  return;
+}
+    if (!nameRegex.hasMatch(fullnameCtl.text)) {
+  _showAlertDialog(context,
+    "กรุณาเพิ่มชื่อให้ตรงตามมาตรฐาน");
+  return;
+}
+ if (!name2Regex.hasMatch(fullname2Ctl.text)) {
+  _showAlertDialog(context,
+    "กรุณาเพิ่มชื่อให้ตรงตามมาตรฐาน");
+  return;
+}
     if (!phoneRegex.hasMatch(phoneCtl.text)) {
       _showAlertDialog(context, "กรุณาใส่หมายเลขโทรศัพท์ให้ถูกต้อง");
       return;
@@ -170,7 +188,7 @@ void initState() {
     try {
       showLoadingDialog();
       var response = await request.send();
-      hideLoadingDialog(); 
+      hideLoadingDialog();
       if (response.statusCode == 201) {
         var data = await response.stream.bytesToString();
         log(data);
@@ -179,7 +197,11 @@ void initState() {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => AddRoom(hotelID: hotelData.hotelId),
+            builder: (context) => AddRoom(
+              hotelID: hotelData.hotelId,
+              userId: widget.userId,
+              fromAddHotel: true
+            ),
           ),
         );
       } else {}
@@ -189,19 +211,19 @@ void initState() {
     }
   }
 
-   void showLoadingDialog() {
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (context) => Center(
-      child: CircularProgressIndicator(),
-    ),
-  );
-}
+  void showLoadingDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
 
-void hideLoadingDialog() {
-  Navigator.of(context, rootNavigator: true).pop();
-}
+  void hideLoadingDialog() {
+    Navigator.of(context, rootNavigator: true).pop();
+  }
 
   void _showAlertDialog(BuildContext context, String message,
       {VoidCallback? onOkPressed}) {
@@ -219,7 +241,7 @@ void hideLoadingDialog() {
                   onOkPressed();
                 }
               },
-              child: const Text("OK",style: TextStyle(color: Colors.black)),
+              child: const Text("OK", style: TextStyle(color: Colors.black)),
             ),
           ],
         );
@@ -261,7 +283,7 @@ void hideLoadingDialog() {
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         title: Text(
           'Add Hotel',
-           style: GoogleFonts.poppins(
+          style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
@@ -271,7 +293,7 @@ void hideLoadingDialog() {
               const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           onPressed: () => Navigator.pop(context, true),
         ),
-       actions: [
+        actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () {
@@ -283,7 +305,8 @@ void hideLoadingDialog() {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('No',style: TextStyle(color: Colors.black)),
+                      child: const Text('No',
+                          style: TextStyle(color: Colors.black)),
                     ),
                     TextButton(
                       onPressed: () {
@@ -292,7 +315,8 @@ void hideLoadingDialog() {
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
                         );
                       },
-                      child: const Text('Yes',style: TextStyle(color: Colors.black)),
+                      child: const Text('Yes',
+                          style: TextStyle(color: Colors.black)),
                     ),
                   ],
                 ),
@@ -312,8 +336,7 @@ void hideLoadingDialog() {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (context) =>
-                        HomeHotel(userId: widget.userId)),
+                    builder: (context) => HomeHotel(userId: widget.userId)),
               );
               break;
             case 1:
@@ -342,362 +365,369 @@ void hideLoadingDialog() {
         ],
       ),
       body: isLoading
-        ? const Center(
-            child: CircularProgressIndicator(),
-          )
-        : SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            Center(
-                child: Stack(
-              children: [
-                Container(
-                  width: 200,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    image: DecorationImage(
-                      image: _image != null
-                          ? FileImage(_image!)
-                          : const AssetImage('assets/images/album.jpg')
-                              as ImageProvider,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 10,
-                  right: 10,
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: const Color.fromRGBO(232, 234, 237, 1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.add, color: Colors.black),
-                      onPressed: _pickImage,
-                    ),
-                  ),
-                ),
-              ],
-            )),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  RichText(
-                    text: const TextSpan(
-                      text: 'Hotel Name (Thai) ',
-                      style: TextStyle(fontSize: 18, color: Colors.black),
+                  const SizedBox(height: 20),
+                  Center(
+                      child: Stack(
+                    children: [
+                      Container(
+                        width: 200,
+                        height: 150,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          image: DecorationImage(
+                            image: _image != null
+                                ? FileImage(_image!)
+                                : const AssetImage('assets/images/album.jpg')
+                                    as ImageProvider,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 10,
+                        right: 10,
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: const Color.fromRGBO(232, 234, 237, 1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            icon: Icon(
+                              _image != null ? Icons.edit : Icons.add,
+                              color: Colors.black,
+                            ),
+                            onPressed: _pickImage,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextSpan(
-                          text: '*',
-                          style: TextStyle(color: Colors.red),
+                        RichText(
+                          text: const TextSpan(
+                            text: 'Hotel Name (Thai) ',
+                            style: TextStyle(fontSize: 18, color: Colors.black),
+                            children: [
+                              TextSpan(
+                                text: '*',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        TextField(
+                          controller: fullnameCtl,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: const Color.fromRGBO(217, 217, 217, 1),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 15),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 3),
-                  TextField(
-                    controller: fullnameCtl,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: const Color.fromRGBO(217, 217, 217, 1),
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 15),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  RichText(
-                    text: const TextSpan(
-                      text: 'Hotel Name (Eng) ',
-                      style: TextStyle(fontSize: 18, color: Colors.black),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextSpan(
-                          text: '*',
-                          style: TextStyle(color: Colors.red),
+                        RichText(
+                          text: const TextSpan(
+                            text: 'Hotel Name (Eng) ',
+                            style: TextStyle(fontSize: 18, color: Colors.black),
+                            children: [
+                              TextSpan(
+                                text: '*',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        TextField(
+                          controller: fullname2Ctl,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: const Color.fromRGBO(217, 217, 217, 1),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 15),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 3),
-                  TextField(
-                    controller: fullname2Ctl,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: const Color.fromRGBO(217, 217, 217, 1),
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 15),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  RichText(
-                    text: const TextSpan(
-                      text: 'Starting Price ',
-                      style: TextStyle(fontSize: 18, color: Colors.black),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextSpan(
-                          text: '*',
-                          style: TextStyle(color: Colors.red),
+                        RichText(
+                          text: const TextSpan(
+                            text: 'Starting Price ',
+                            style: TextStyle(fontSize: 18, color: Colors.black),
+                            children: [
+                              TextSpan(
+                                text: '*',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        TextField(
+                          controller: priceCtl,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: const Color.fromRGBO(217, 217, 217, 1),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 15),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 3),
-                  TextField(
-                    controller: priceCtl,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: const Color.fromRGBO(217, 217, 217, 1),
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 15),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  RichText(
-                    text: const TextSpan(
-                      text: 'Phone ',
-                      style: TextStyle(fontSize: 18, color: Colors.black),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextSpan(
-                          text: '*',
-                          style: TextStyle(color: Colors.red),
+                        RichText(
+                          text: const TextSpan(
+                            text: 'Phone ',
+                            style: TextStyle(fontSize: 18, color: Colors.black),
+                            children: [
+                              TextSpan(
+                                text: '*',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        TextField(
+                          controller: phoneCtl,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: const Color.fromRGBO(217, 217, 217, 1),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 15),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 3),
-                  TextField(
-                    controller: phoneCtl,
-                                 keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: const Color.fromRGBO(217, 217, 217, 1),
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 15),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  RichText(
-                    text: const TextSpan(
-                      text: 'Contact (Facebook)  ',
-                      style: TextStyle(fontSize: 18, color: Colors.black),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextSpan(
-                          text: '*',
-                          style: TextStyle(color: Colors.red),
+                        RichText(
+                          text: const TextSpan(
+                            text: 'Contact (Facebook)  ',
+                            style: TextStyle(fontSize: 18, color: Colors.black),
+                            children: [
+                              TextSpan(
+                                text: '*',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        TextField(
+                          controller: contactCtl,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: const Color.fromRGBO(217, 217, 217, 1),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 15),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 3),
-                  TextField(
-                    controller: contactCtl,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: const Color.fromRGBO(217, 217, 217, 1),
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 15),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        RichText(
+                          text: const TextSpan(
+                            text: 'Detail ',
+                            style: TextStyle(fontSize: 18, color: Colors.black),
+                            children: [
+                              TextSpan(
+                                text: '*',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        TextField(
+                          controller: detailCtl,
+                          focusNode: _FocusNode,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: const Color.fromRGBO(217, 217, 217, 1),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 15),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        if (_isFocused)
+                          const Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              'Ex. อาหารเช้า, ฟิตเนส, โทรทัศน์จอ,...',
+                              textAlign: TextAlign.right,
+                              style: TextStyle(fontSize: 12, color: Colors.red),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  RichText(
-                    text: const TextSpan(
-                      text: 'Detail ',
-                      style: TextStyle(fontSize: 18, color: Colors.black),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextSpan(
-                          text: '*',
-                          style: TextStyle(color: Colors.red),
+                        RichText(
+                          text: const TextSpan(
+                            text: 'Address ',
+                            style: TextStyle(fontSize: 18, color: Colors.black),
+                            children: [
+                              TextSpan(
+                                text: '*',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        TextField(
+                          controller: locationCtl,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: const Color.fromRGBO(217, 217, 217, 1),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 15),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 3),
-                  TextField(
-                    controller: detailCtl,
-                    focusNode: _FocusNode,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: const Color.fromRGBO(217, 217, 217, 1),
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 15),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-          if (_isFocused)
-            const Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                'Ex. อาหารเช้า, ฟิตเนส, โทรทัศน์จอ,...',
-                textAlign: TextAlign.right,
-                style: TextStyle(fontSize: 12, color: Colors.red),
-              ),
-            ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  RichText(
-                    text: const TextSpan(
-                      text: 'Address ',
-                      style: TextStyle(fontSize: 18, color: Colors.black),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                    child: Row(
                       children: [
-                        TextSpan(
-                          text: '*',
-                          style: TextStyle(color: Colors.red),
-                        ),
+                        const Spacer(),
+                        if (selectedLocation != null) ...[
+                          Text(
+                            selectedLocation!,
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.red),
+                          ),
+                          const SizedBox(width: 10),
+                          GestureDetector(
+                            onTap: _selectLocation,
+                            child: const Icon(
+                              Icons.add_location_alt_rounded,
+                              color: Colors.red,
+                              size: 30,
+                            ),
+                          ),
+                        ] else ...[
+                          GestureDetector(
+                            onTap: _selectLocation,
+                            child: const Icon(
+                              Icons.add_location_alt_rounded,
+                              color: Colors.red,
+                              size: 30,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
-                  const SizedBox(height: 3),
-                  TextField(
-                    controller: locationCtl,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: const Color.fromRGBO(217, 217, 217, 1),
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 15),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(20, 30, 20, 30),
+                    child: Center(
+                      child: SizedBox(
+                        width: 120,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+                            textStyle: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                          ),
+                          onPressed: () => addhotel(context),
+                          child: Text(
+                            "Next",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
                       ),
                     ),
                   ),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-              child: Row(
-                children: [
-                  const Spacer(),
-                  if (selectedLocation != null) ...[
-                    Text(
-                      selectedLocation!,
-                      style: const TextStyle(fontSize: 12, color: Colors.red),
-                    ),
-                    const SizedBox(width: 10),
-                    GestureDetector(
-                      onTap: _selectLocation,
-                      child: const Icon(
-                        Icons.add_location_alt_rounded,
-                        color: Colors.red,
-                        size: 30,
-                      ),
-                    ),
-                  ] else ...[
-                    GestureDetector(
-                      onTap: _selectLocation,
-                      child: const Icon(
-                        Icons.add_location_alt_rounded,
-                        color: Colors.red,
-                        size: 30,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(20, 30, 20, 30),
-              child: Center(
-                child: SizedBox(
-                  width: 150,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-                      textStyle: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                    ),
-                    onPressed: () => addhotel(context),
-                    child: Text(
-                      "Next",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
     );
-    
   }
 }

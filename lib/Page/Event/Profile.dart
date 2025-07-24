@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:project_concert_closeiin/Page/Event/EditProfile.dart';
+import 'package:project_concert_closeiin/Page/Event/HomeEvent.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Member/EditProfileMember.dart';
 import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
@@ -14,15 +16,15 @@ import 'package:project_concert_closeiin/Page/Restaurant/Editprofile.dart';
 import 'package:project_concert_closeiin/Page/Restaurant/HomeRestaurant.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
-class ProfileRestaurant extends StatefulWidget {
+class ProfileEvent extends StatefulWidget {
   int userId;
-  ProfileRestaurant({super.key, required this.userId});
+  ProfileEvent({super.key, required this.userId});
 
   @override
-  _ProfileRestaurantState createState() => _ProfileRestaurantState();
+  _ProfileEventState createState() => _ProfileEventState();
 }
 
-class _ProfileRestaurantState extends State<ProfileRestaurant> {
+class _ProfileEventState extends State<ProfileEvent> {
   int _currentIndex = 1;
   bool isLoading = true;
   Map<String, dynamic>? userData;
@@ -254,7 +256,7 @@ class _ProfileRestaurantState extends State<ProfileRestaurant> {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  EditProfileR(userId: widget.userId)),
+                                  EditProfileE(userId: widget.userId)),
                         );
                         if (result == true) {
                           setState(() {
@@ -344,14 +346,14 @@ class _ProfileRestaurantState extends State<ProfileRestaurant> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => Homerestaurant(userId: widget.userId)),
+                    builder: (context) => HomeEvent(userId: widget.userId)),
               );
               break;
             case 1:
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => ProfileRestaurant(userId: widget.userId)),
+                    builder: (context) => ProfileEvent(userId: widget.userId)),
               );
               break;
           }

@@ -218,7 +218,7 @@ class _AdminResState extends State<AdminRes> {
                 if (confirm == true) {
                   try {
                     final response = await http.delete(
-                      Uri.parse('$API_ENDPOINT/restaurant/${item.resID}'),
+                      Uri.parse('$API_ENDPOINT/deleterestaurant/${item.resID}'),
                     );
                     if (response.statusCode == 200) {
                       setState(() {

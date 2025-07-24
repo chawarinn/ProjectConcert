@@ -12,7 +12,8 @@ import 'package:http/http.dart' as http;
 
 class AdminHotelPage extends StatefulWidget {
   final int userId;
-  const AdminHotelPage({super.key, required this.userId});
+  final int hotelID;
+  const AdminHotelPage({super.key, required this.userId, required this.hotelID});
 
   @override
   State<AdminHotelPage> createState() => _AdminHotelPageState();
@@ -214,7 +215,7 @@ class _AdminHotelPageState extends State<AdminHotelPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => Admindetail(userId: widget.userId),
+                        builder: (context) => Admindetail(userId: widget.userId,hotelID: widget.hotelID,),
                       ),
                     );
                   },
@@ -318,7 +319,7 @@ class _AdminHotelPageState extends State<AdminHotelPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => Admindetail(userId: widget.userId),
+                        builder: (context) => Admindetail(userId: widget.userId,hotelID: widget.hotelID,),
                       ),
                     );
                   },

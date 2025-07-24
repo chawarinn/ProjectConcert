@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:project_concert_closeiin/Page/Admin/AdminDetail.dart';
 import 'package:project_concert_closeiin/Page/Admin/AdminHotel.dart';
+import 'package:project_concert_closeiin/Page/Admin/AdminRes.dart';
 import 'package:project_concert_closeiin/Page/Admin/HomeAdmin.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
+import 'package:project_concert_closeiin/Page/Event/HomeEvent.dart';
 import 'package:project_concert_closeiin/Page/Hotel/AddHotel.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:project_concert_closeiin/Page/Hotel/AddRoom.dart';
@@ -19,6 +21,12 @@ import 'package:project_concert_closeiin/Page/Member/EventDetailMember.dart';
 import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
 import 'package:project_concert_closeiin/Page/Member/Notification.dart';
 import 'package:project_concert_closeiin/Page/Member/hotel_search.dart';
+import 'package:project_concert_closeiin/Page/Hotel/AddRoom.dart';
+import 'package:project_concert_closeiin/Page/Hotel/HomeHotel.dart';
+import 'package:project_concert_closeiin/Page/Member/AddRoomShare.dart';
+import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
+import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
+import 'package:project_concert_closeiin/Page/Restaurant/HomeRestaurant.dart';
 import 'firebase_options.dart';
 
 
@@ -44,7 +52,7 @@ class MyApp extends StatelessWidget {
       ),
       // home: RestaurantSearch(userId: 3)
       // home: Event(userId: 3)
-      home: Homemember(userId: 3)
+      // home: Homemember(userId: 3)
       // home: Eventdetailmember(userId: 3,eventID: 1,),
       // home: homeLogoPage()
       // home: HomeAdmin(userId: 7,)
@@ -53,7 +61,13 @@ class MyApp extends StatelessWidget {
       // home: LoginPage()
       // home: NotificationPage(userId: 3,) 
       // home: Admindetail(userId: 3),
-  
+      // home: DetailHotel(userId: 5, hotelID: 29,)
+  //  home: Admindetail(userId: 6, hotelID: 11),
+    // home: Homerestaurant(userId: 8)
+    // home: HomeEvent(userId: 6)
+    home: AdminRes(userId: 5),
+      // home: Homemember(userId: 13)
+    // home: HomeHotel(userId: 5)
     );
   }
 }

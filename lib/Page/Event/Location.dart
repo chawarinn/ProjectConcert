@@ -186,7 +186,6 @@ String? selectedAddress;
                         log(latLng.toString());
                         log('Latitude: ${latLng!.latitude}, Longitude: ${latLng!.longitude}');
                       } else {
-                        // ส่งตำแหน่งปัจจุบันกลับไปหากไม่เลือกตำแหน่งใหม่
                         Navigator.pop(context, {
                           'latitude': currentLocation!.latitude,
                           'longitude': currentLocation!.longitude,

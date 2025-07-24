@@ -5,6 +5,7 @@ import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Hotel/AddHotel.dart';
+import 'package:project_concert_closeiin/Page/Hotel/EditHotel.dart';
 import 'package:project_concert_closeiin/Page/Hotel/Profile.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
@@ -144,264 +145,192 @@ class _HomeHotelState extends State<HomeHotel> {
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : hotels.isEmpty
-              ? Padding(
-                  padding: const EdgeInsets.only(top: 70.0),
-                  child: Column(
-                    children: [
-                      const Text(
-                        'เพิ่มข้อมูลโรงแรมของคุณ',
-                        style: TextStyle(fontSize: 25),
-                      ),
-                      const SizedBox(height: 163),
-                      Center(
-                        child: SizedBox(
-                          width: 250,
-                          height: 150,
-                          child: TextButton(
-                            onPressed: () async {
-                              final result = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      AddHotel(userId: widget.userId),
-                                ),
-                              );
-
-                              if (result == true) {
-                                setState(() {
-                                  _isLoading = false;
-                                });
-                                _fetchAllHotels();
-                              }
-                            },
-                            style: TextButton.styleFrom(
-                              backgroundColor:
-                                  const Color.fromARGB(117, 43, 161, 141),
-                              foregroundColor: Colors.black,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30.0),
-                              ),
-                            ),
-                            child: const Text(
-                              'Add',
-                              style: TextStyle(
-                                fontSize: 30,
-                                color: Color.fromARGB(255, 62, 61, 61),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const Spacer(),
-                    ],
+              ? Center(
+                  child: Text(
+                    'Add your Hotel',
+                    style: TextStyle(fontSize: 18),
+                    textAlign: TextAlign.center,
                   ),
                 )
               : SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(top: 12),
-                        child: Text('Delete / Update',
-                            style: TextStyle(fontSize: 25)),
-                      ),
-                      ListView.builder(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
-                        physics: NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: filteredHotels.length,
-                        itemBuilder: (context, index) {
-                          return buildHotelCard(
-                            context,
-                            filteredHotels[index],
-                            _fetchAllHotels, // 👈 ส่ง callback เข้าไป
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 30),
-                      Center(
-                        child: SizedBox(
-                          width: 200,
-                          height: 100,
-                          child: TextButton(
-                    onPressed: () async {
-                              final result = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      AddHotel(userId: widget.userId),
-                                ),
-                              );
-
-                              if (result == true) {
-                                setState(() {
-                                  _isLoading = false;
-                                });
-                                _fetchAllHotels();
-                              }
-                            },
-                            style: TextButton.styleFrom(
-                              backgroundColor:
-                                  const Color.fromARGB(117, 43, 161, 141),
-                              foregroundColor: Colors.black,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30.0),
-                              ),
-                            ),
-                            child: const Text(
-                              'Add',
-                              style: TextStyle(
-                                fontSize: 30,
-                                color: Color.fromARGB(255, 62, 61, 61),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 30),
-                    ],
-                  ),
+                  child: Column(children: [
+                    const Padding(
+                      padding: EdgeInsets.only(top: 12),
+                      child: Text('Delete / Update',
+                          style: TextStyle(fontSize: 25)),
+                    ),
+                    ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: filteredHotels.length,
+                      itemBuilder: (context, index) {
+                        return buildHotelCard(
+                          context,
+                          filteredHotels[index],
+                          _fetchAllHotels,
+                          widget.userId,
+                        );
+                      },
+                    ),
+                        const SizedBox(height: 60),
+                  ]),
                 ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddHotel(userId: widget.userId),
+            ),
+          );
+          if (result == true) {
+            _fetchAllHotels();
+          }
+        },
+        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+        child: Icon(Icons.add, size: 30),
+      ),
     );
   }
 }
 
-// ✅ รับ callback เพื่อเรียก refresh เมื่อ delete
-Widget buildHotelCard(BuildContext context, UserHotelGetResponse hotel,
-    Future<void> Function() onHotelDeleted) {
-  return InkWell(
-    child: Card(
-      color: Colors.grey[200],
-      margin: EdgeInsets.symmetric(vertical: 6),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    hotel.hotelName ?? '',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    overflow: TextOverflow.ellipsis,
+Widget buildHotelCard(
+  BuildContext context,
+  UserHotelGetResponse hotel,
+  Future<void> Function() onHotelDeleted,
+  int userId,
+) {
+  return Card(
+    color: Colors.grey[200],
+    margin: EdgeInsets.symmetric(vertical: 6),
+    child: Padding(
+      padding: EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      hotel.hotelName ?? '',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                SizedBox(width: 8),
-                Icon(Icons.add_box_outlined, color: Colors.teal, size: 28),
-              ],
-            ),
-            if (hotel.hotelName2.isNotEmpty)
-              Text(hotel.hotelName2, style: TextStyle(fontSize: 14)),
-            SizedBox(height: 12),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    hotel.hotelPhoto,
-                    width: 120,
-                    height: 100,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('ราคา : เริ่มต้น ${hotel.startingPrice} บาท'),
-                      SizedBox(height: 2),
-                      Text(hotel.location),
-                      SizedBox(height: 2),
-                      Text('โทรศัพท์ : ${hotel.phone}'),
-                      if (hotel.contact.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2.0),
-                          child: Text.rich(
-                            TextSpan(
-                              children: [
-                                TextSpan(text: "Facebook : "),
-                                TextSpan(
-                                  text: hotel.contact,
-                                  style: TextStyle(
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(width: 4),
+                        Text(
+                          '${hotel.totalPiont ?? 0}/',
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.w500),
                         ),
-                    ],
+                        Icon(Icons.star, color: Colors.amber, size: 18),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
+              Text(hotel.hotelName2 ?? '',
+              style: TextStyle(fontSize: 15)),
+          SizedBox(height: 8),
+          if ( hotel.hotelPhoto != null)
+            Image.network(
+               hotel.hotelPhoto,
+              height: 180,
+              width: double.infinity,
+              fit: BoxFit.cover,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.delete, color: Colors.red, size: 28),
-                  onPressed: () async {
-                    final confirmDelete = await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: Text('Notification'),
-                        content: Text('คุณแน่ใจว่าต้องการลบโรงแรมนี้หรือไม่?'),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(false),
-                            child: Text('No',
-                                style: TextStyle(color: Colors.black)),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(true),
-                            child: Text('Yes',
-                                style: TextStyle(color: Colors.black)),
-                          ),
-                        ],
+          SizedBox(height: 8),
+           Text('ราคา : เริ่มต้น ${hotel.startingPrice} บาท'),
+           Text('ที่ตั้ง : ${hotel.location}'),
+            Text('โทรศัพท์ : ${hotel.phone}'),
+             Text('Facebook : ${hotel.contact}'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                icon:
+                    Icon(Icons.edit, color: Colors.teal, size: 28),
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Edithotel(
+                        userId: userId,
+                        hotelID: hotel.hotelId,
                       ),
+                    ),
+                  );
+                  if (result == true) {
+                    await onHotelDeleted();
+                  }
+                },
+              ),
+             IconButton(
+                icon: Icon(Icons.delete, color: Colors.red, size: 28),
+                onPressed: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text('Notification'),
+                      content: Text('คุณแน่ใจว่าต้องการลบโรงแรมนี้หรือไม่?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text('No',
+                          style: TextStyle(color: Colors.black)),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: Text('Yes',
+                          style: TextStyle(color: Colors.black)),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirm == true) {
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (_) =>
+                          Center(child: CircularProgressIndicator()),
                     );
 
-                    if (confirmDelete == true) {
-                      showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (_) =>
-                            Center(child: CircularProgressIndicator()),
-                      );
+                    try {
+                      final response = await http.delete(Uri.parse(
+                        '$API_ENDPOINT/deletehotel?hotelID=${hotel.hotelId}',
+                      ));
+                      Navigator.pop(context); // close loading
 
-                      try {
-                        final response = await http.delete(Uri.parse(
-                          '$API_ENDPOINT/deletehotel?hotelID=${hotel.hotelId}',
-                        ));
-                        Navigator.pop(context); // close loading
-
-                        if (response.statusCode == 200) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("ลบเรียบร้อยแล้ว")),
-                          );
-                          await onHotelDeleted(); // เรียก callback
-                        } else {
-                          throw Exception("ลบไม่สำเร็จ: ${response.body}");
-                        }
-                      } catch (e) {
-                        Navigator.pop(context);
+                      if (response.statusCode == 200) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("เกิดข้อผิดพลาด: $e")),
+                          SnackBar(content: Text("ลบเรียบร้อยแล้ว")),
                         );
+                        await onHotelDeleted();
+                      } else {
+                        throw Exception("ลบไม่สำเร็จ: ${response.body}");
                       }
+                    } catch (e) {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("เกิดข้อผิดพลาด: $e")),
+                      );
                     }
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
+                  }
+                },
+              ),
+            ],
+          ),
+        ],
       ),
     ),
+   
   );
 }
