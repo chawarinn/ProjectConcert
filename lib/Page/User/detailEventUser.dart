@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:project_concert_closeiin/Page/Login.dart';
+import 'package:project_concert_closeiin/Page/Member/TicketWebviewPage.dart';
 import 'package:project_concert_closeiin/Page/RegisterUser.dart';
 import 'package:project_concert_closeiin/Page/User/HomeUser.dart';
 import 'package:project_concert_closeiin/Page/User/HotelEventUser.dart';
@@ -275,30 +276,33 @@ class _EventDetailUserState extends State<EventdetailUser> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          ElevatedButton(
-                        
-                            style: TextButton.styleFrom(
-                              backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
-                                   minimumSize: Size(100, 0),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                            ),
-                            onPressed: () {
-                              if (event!['linkticket'] != null &&
-                                  event!['linkticket']
-                                      .toString()
-                                      .startsWith('http')) {
-                                _launchTicketUrl(event!['linkticket']);
-                              }
-                            },
-                            child: Text(
-                              'Ticket',
-                              style: TextStyle(color: const Color.fromARGB(206, 0, 0, 0)),
-                            ),
-                          ),
+                                                  ElevatedButton(
+  style: TextButton.styleFrom(
+    backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+    minimumSize: Size(100, 0),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(20),
+    ),
+  ),
+  onPressed: () {
+    if (event!['linkticket'] != null &&
+        event!['linkticket'].toString().startsWith('http')) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) =>
+              TicketWebviewPage(url: event!['linkticket']),
+        ),
+      );
+    }
+  },
+  child: Text(
+    'Ticket',
+    style: TextStyle(color: const Color.fromARGB(206, 0, 0, 0)),
+  ),
+),
+
                           ElevatedButton(
                             style: TextButton.styleFrom(
                               backgroundColor: Color.fromRGBO(201, 151, 187, 1),

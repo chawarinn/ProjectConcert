@@ -251,25 +251,24 @@ class _RestaurantSearch extends State<RestaurantSearch> {
                     alignment: Alignment.centerRight,
                     child: ElevatedButton(
                       onPressed: () async {
-                        //รอลองเครื่องจริง
-                        // double lat =
-                        //     double.tryParse(res['lat'].toString()) ?? 0;
-                        // double lng =
-                        //     double.tryParse(res['long'].toString()) ?? 0;
-                        // final Uri uri = Uri.parse(
-                        //     'https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+                        double lat =
+                            double.tryParse(res['lat'].toString()) ?? 0;
+                        double lng =
+                            double.tryParse(res['long'].toString()) ?? 0;
+                        final Uri uri = Uri.parse(
+                            'https://www.google.com/maps/search/?api=1&query=$lat,$lng');
 
-                        // try {
-                        //   bool launched = await launchUrl(
-                        //     uri,
-                        //     mode: LaunchMode.externalApplication,
-                        //   );
-                        //   if (!launched) {
-                        //     print('Could not launch map');
-                        //   }
-                        // } catch (e) {
-                        //   print('Exception launching map: $e');
-                        // }
+                        try {
+                          bool launched = await launchUrl(
+                            uri,
+                            mode: LaunchMode.externalApplication,
+                          );
+                          if (!launched) {
+                            print('Could not launch map');
+                          }
+                        } catch (e) {
+                          print('Exception launching map: $e');
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
