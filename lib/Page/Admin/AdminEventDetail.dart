@@ -4,19 +4,20 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:project_concert_closeiin/Page/Member/RoomShareEvent.dart';
-import 'package:project_concert_closeiin/Page/Member/artist.dart';
+import 'package:project_concert_closeiin/Page/Admin/HomeAdmin.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
-import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
-import 'package:project_concert_closeiin/Page/Member/HotelEvent.dart';
-import 'package:project_concert_closeiin/Page/Member/Notification.dart';
-import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
+import 'package:project_concert_closeiin/Page/Admin/AdminArtist.dart';
+import 'package:project_concert_closeiin/Page/Admin/AdminEvent.dart';
+import 'package:project_concert_closeiin/Page/Admin/AdminHotel.dart';
+import 'package:project_concert_closeiin/Page/Admin/AdminProfile.dart';
+import 'package:project_concert_closeiin/Page/Admin/AdminRes.dart';
+
 
 class AdminEventDetail extends StatefulWidget {
   final int userId;
@@ -29,7 +30,7 @@ class AdminEventDetail extends StatefulWidget {
 }
 
 class _AdminEventDetailState extends State<AdminEventDetail> {
-  int _currentIndex = 0;
+  int _currentIndex = 1;
   Map<String, dynamic>? event;
   bool isLoading = true;
   String url = '';
@@ -78,7 +79,7 @@ class _AdminEventDetailState extends State<AdminEventDetail> {
   String formatDateThai(String dateStr) {
     if (dateStr.isEmpty) return '';
     try {
-      final dt = DateTime.parse(dateStr);
+      final dt = DateTime.parse(dateStr).toLocal();
       const thaiMonths = [
         '',
         'มกราคม',
@@ -120,20 +121,6 @@ class _AdminEventDetailState extends State<AdminEventDetail> {
     }
   }
 
-  static Widget _buildNavIcon(Icon icon, int index) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 4),
-      child: icon,
-    );
-  }
-
-  static Widget _buildNavFaIcon(IconData iconData, int index) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 4),
-      child: FaIcon(iconData, size: 20),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -150,34 +137,31 @@ class _AdminEventDetailState extends State<AdminEventDetail> {
             color: Colors.white,
           ),
         ),
-        actions: [
+       actions: [
           IconButton(
-            icon: Icon(Icons.logout, color: Colors.white),
+            icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('ยืนยันการออกจากระบบ'),
-                    content: const Text('คุณต้องการที่จะออกจากระบบหรือไม่?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('ไม่'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (context) => const homeLogoPage()),
-                          );
-                        },
-                        child: const Text('ตกลง'),
-                      ),
-                    ],
-                  );
-                },
+                builder: (BuildContext context) => AlertDialog(
+                  title: const Text('Confirm Logout'),
+                  content: const Text('คุณต้องการออกจากระบบ?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('No',style: TextStyle(color: Colors.black)),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => homeLogoPage()),
+                        );
+                      },
+                      child: const Text('Yes',style: TextStyle(color: Colors.black)),
+                    ),
+                  ],
+                ),
               );
             },
           ),
@@ -192,33 +176,37 @@ class _AdminEventDetailState extends State<AdminEventDetail> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Center(
-                        child: event!['eventPhoto'] != null &&
-                                event!['eventPhoto'].isNotEmpty
-                            ? Image.network(
-                                event!['eventPhoto'],
-                                height: 450,
-                                width: 350,
-                                fit: BoxFit.cover,
-                              )
-                            : Container(
-                                height: 300,
-                                width: double.infinity,
-                                color: Colors.grey,
-                                child: Center(child: Text('No image')),
-                              ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Center(
+                          child: event!['eventPhoto'] != null &&
+                                  event!['eventPhoto'].isNotEmpty
+                              ? Image.network(
+                                  event!['eventPhoto'],
+                                  height: 450,
+                                  width: 350,
+                                  fit: BoxFit.cover,
+                                )
+                              : Container(
+                                  height: 300,
+                                  width: double.infinity,
+                                  color: Colors.grey,
+                                  child: Center(child: Text('No image')),
+                                ),
+                        ),
                       ),
                       SizedBox(height: 16),
                       Text(
                         event!['eventName'] ?? '',
-                        style:
-                            TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       TextButton(
                         onPressed: () {},
                         style: TextButton.styleFrom(
                           backgroundColor: Colors.grey[200],
-                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           minimumSize: Size(100, 0),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
@@ -240,14 +228,56 @@ class _AdminEventDetailState extends State<AdminEventDetail> {
                         ),
                       ),
                       SizedBox(height: 16),
+                      Text(
+                        'Artists',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            ...?event!['artists']?.map<Widget>((artist) =>
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: Column(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 40,
+                                        backgroundImage:
+                                            artist['artistPhoto'] != null &&
+                                                    artist['artistPhoto']
+                                                        .isNotEmpty
+                                                ? NetworkImage(
+                                                    artist['artistPhoto'])
+                                                : null,
+                                        child: (artist['artistPhoto'] == null ||
+                                                artist['artistPhoto'].isEmpty)
+                                            ? Icon(Icons.person, size: 40)
+                                            : null,
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        artist['artistName'] ?? '',
+                                        style: TextStyle(fontSize: 12),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
+                                )),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           ElevatedButton(
                             style: TextButton.styleFrom(
                               backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-                              padding:
-                                  EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
                               minimumSize: Size(100, 0),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
@@ -255,56 +285,26 @@ class _AdminEventDetailState extends State<AdminEventDetail> {
                             ),
                             onPressed: () {
                               if (event!['linkticket'] != null &&
-                                  event!['linkticket'].toString().startsWith('http')) {
+                                  event!['linkticket']
+                                      .toString()
+                                      .startsWith('http')) {
                                 _launchTicketUrl(event!['linkticket']);
                               }
                             },
                             child: Text(
                               'Ticket',
-                              style:
-                                  TextStyle(color: const Color.fromARGB(206, 0, 0, 0)),
+                              style: TextStyle(
+                                  color: const Color.fromARGB(206, 0, 0, 0)),
                             ),
                           ),
-                          ElevatedButton(
-                            style: TextButton.styleFrom(
-                              backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-                              padding:
-                                  EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              minimumSize: Size(100, 0),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                            ),
-                            onPressed: () async {
-                              final result = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => Hotelevent(
-                                    userId: widget.userId,
-                                    eventID: widget.eventID,
-                                    eventLat: event!['lat'],
-                                    eventLng: event!['long'],
-                                  ),
-                                ),
-                              );
-                              if (result == true) {
-                                setState(() {
-                                  isLoading = true;
-                                });
-                                fetchEvent();
-                              }
-                            },
-                            child: Text('Hotel',
-                                style: TextStyle(
-                                    color: const Color.fromARGB(206, 0, 0, 0))),
-                          ),
+                          
                         ],
                       ),
                       SizedBox(height: 16),
                       Text(
-                        'แผนที่',
-                        style:
-                            TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        'Map',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 8),
                       Container(
@@ -319,8 +319,12 @@ class _AdminEventDetailState extends State<AdminEventDetail> {
                               ? GoogleMap(
                                   initialCameraPosition: CameraPosition(
                                     target: LatLng(
-                                      double.tryParse(event!['lat'].toString()) ?? 0.0,
-                                      double.tryParse(event!['long'].toString()) ?? 0.0,
+                                      double.tryParse(
+                                              event!['lat'].toString()) ??
+                                          0.0,
+                                      double.tryParse(
+                                              event!['long'].toString()) ??
+                                          0.0,
                                     ),
                                     zoom: 14,
                                   ),
@@ -328,8 +332,12 @@ class _AdminEventDetailState extends State<AdminEventDetail> {
                                     Marker(
                                       markerId: MarkerId('event_location'),
                                       position: LatLng(
-                                        double.tryParse(event!['lat'].toString()) ?? 0.0,
-                                        double.tryParse(event!['long'].toString()) ?? 0.0,
+                                        double.tryParse(
+                                                event!['lat'].toString()) ??
+                                            0.0,
+                                        double.tryParse(
+                                                event!['long'].toString()) ??
+                                            0.0,
                                       ),
                                     ),
                                   },
@@ -353,28 +361,45 @@ class _AdminEventDetailState extends State<AdminEventDetail> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (_) => Homemember(userId: widget.userId)),
+                    builder: (context) => HomeAdmin(userId: widget.userId)),
               );
               break;
             case 1:
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (_) => ArtistPage(userId: widget.userId)),
+                    builder: (context) => AdminEvent(userId: widget.userId)),
               );
               break;
             case 2:
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (_) => NotificationPage(userId: widget.userId)),
+                    builder: (context) =>
+                        AdminArtistPage(userId: widget.userId)),
               );
               break;
             case 3:
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (_) => ProfileMember(userId: widget.userId)),
+                    builder: (context) =>
+                        AdminHotelPage(userId: widget.userId)),
+              );
+              break;
+            case 4:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => AdminRes(userId: widget.userId)),
+              );
+              break;
+            case 5:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        ProfileAdmin(userId: widget.userId)),
               );
               break;
           }
@@ -385,11 +410,15 @@ class _AdminEventDetailState extends State<AdminEventDetail> {
         unselectedItemColor: Colors.white70,
         showUnselectedLabels: false,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.ticket), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.hotel), label: ''),
-          BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.utensils), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.face), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.ticket), label: 'Event'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.library_music), label: 'Artist'),
+          BottomNavigationBarItem(icon: Icon(Icons.hotel), label: 'Hotel'),
+          BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.utensils), label: 'Restaurant'),
+          BottomNavigationBarItem(icon: Icon(Icons.face), label: 'Profile'),
         ],
       ),
     );

@@ -1,11 +1,25 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:project_concert_closeiin/Page/Admin/AdminDetail.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+
+import 'package:project_concert_closeiin/Page/Admin/AdminArtist.dart';
+import 'package:project_concert_closeiin/Page/Admin/AdminEventDetail.dart';
+import 'package:project_concert_closeiin/Page/Admin/AdminHotel.dart';
+import 'package:project_concert_closeiin/Page/Admin/AdminProfile.dart';
+import 'package:project_concert_closeiin/Page/Admin/AdminRes.dart';
+import 'package:project_concert_closeiin/Page/Admin/HomeAdmin.dart';
+import 'package:project_concert_closeiin/Page/Home.dart';
+import 'package:project_concert_closeiin/config/config.dart';
+import 'package:project_concert_closeiin/config/internet_config.dart';
 
 class AdminEvent extends StatefulWidget {
   final int userId;
-  final int hotelID;
-  const AdminEvent({super.key, required this.userId, required this.hotelID});
+  const AdminEvent({super.key, required this.userId});
 
   @override
   State<AdminEvent> createState() => _AdminEventPageState();
@@ -13,390 +27,156 @@ class AdminEvent extends StatefulWidget {
 
 class _AdminEventPageState extends State<AdminEvent> {
   int _currentIndex = 1;
-  String _searchEvent = '';
   bool _isLoading = false;
-
-  List<Map<String, dynamic>> events = [
-    {
-      'name': 'คอนเสิร์ตดนตรีร็อค',
-      'totalPiont': 5,
-      'name2': 'Rock Night 2025',
-      'photo': 'https://picsum.photos/80/70',
-      'price': 1200,
-      'location': 'กรุงเทพฯ',
-      'phone': '0112345678',
-      'contact': 'fb.com/rockconcert',
-      'distance': 1.2,
-    },
-    {
-      'name': 'อีเวนต์อาหาร',
-      'totalPiont': 4,
-      'name2': 'Food Street Festival',
-      'photo': 'https://picsum.photos/80/70',
-      'price': 300,
-      'location': 'เชียงใหม่',
-      'phone': '0998765432',
-      'contact': '',
-      'distance': 3.8,
-    },
-  ];
-
-  List<Map<String, dynamic>> filteredEvents = [];
-  List<Map<String, dynamic>> filteredEvent = [];
+  late String url;
+  TextEditingController searchController = TextEditingController();
+  String searchQuery = '';
+  List<dynamic> events = [];
 
   @override
   void initState() {
     super.initState();
-    filteredEvents = List.from(events);
-  }
-
-  void _filterEventList(String keyword) {
-    setState(() {
-      filteredEvent = events
-          .where((event) => event['name']
-              .toString()
-              .toLowerCase()
-              .contains(keyword.toLowerCase()))
-          .toList();
+    Configuration.getConfig().then((config) {
+      url = config['apiEndpoint'];
+    }).catchError((err) {
+      print(err);
     });
+    _fetchAll();
   }
 
-  void _deleteEvent(Map<String, dynamic> event) {
-    setState(() {
-      events.remove(event);
-      filteredEvents = List.from(events);
-      if (_searchEvent.isNotEmpty) {
-        filteredEvent = events
-            .where((e) => e['name']
-                .toString()
-                .toLowerCase()
-                .contains(_searchEvent.toLowerCase()))
-            .toList();
-      }
-    });
-  }
-
-  void _showDeleteConfirmDialog(Map<String, dynamic> event) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          backgroundColor: const Color.fromRGBO(201, 151, 187, 1),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'ยืนยันการลบ',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[300],
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        minimumSize: const Size(80, 50),
-                      ),
-                      child: const Text('ไม่',
-                          style: TextStyle(color: Colors.black)),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        _deleteEvent(event);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[300],
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        minimumSize: const Size(80, 50),
-                      ),
-                      child: const Text('ตกลง',
-                          style: TextStyle(color: Colors.black)),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _showLogoutDialog() {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('ออกจากระบบ'),
-        content: const Text('คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ?'),
-        actions: [
-          TextButton(
-            child: const Text('ยกเลิก'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          TextButton(
-            child: const Text('ออกจากระบบ'),
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).pushReplacementNamed('/login');
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildEventCard(Map<String, dynamic> event) {
-    return Card(
-      color: Colors.grey[200],
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      elevation: 4,
-      child: Container(
-        height: 170, // เพิ่มความสูงจาก 150 เป็น 170
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // รูปภาพทางซ้าย
-            ClipRRect(
-              borderRadius: BorderRadius.circular(15), // มุมโค้งมนทุกมุม
-              child: Image.network(
-                event['photo'],
-                width: 120,
-                height: 150,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  width: 120,
-                  height: 120,
-                  color: Colors.grey[300],
-                  child: const Icon(Icons.broken_image, size: 40),
-                ),
-              ),
-            ),
-
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // ข้อมูลงาน (ชื่อ ราคา สถานที่)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          event['name'],
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        if ((event['name2'] ?? '').isNotEmpty)
-                          Text(
-                            event['name2'],
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey.shade600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '${event['price']} บาท',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          event['location'],
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    //ทำให้ปุ่มชิดขวา
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // ปุ่ม Detail
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      Admindetail(userId: widget.userId,hotelID: widget.hotelID,),
-                                ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Colors.black,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
-                              minimumSize: const Size(70, 35),
-                            ),
-                            child: const Text(
-                              "Detail",
-                              style: TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.w500),
-                            ),
-                          ),
-
-                          const SizedBox(width: 12),
-
-                          GestureDetector(
-                            onTap: () => _showDeleteConfirmDialog(event),
-                            child: Container(
-                              width: 35,
-                              height: 35,
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Center(
-                                child: FaIcon(
-                                  FontAwesomeIcons.trash,
-                                  color: Colors.white,
-                                  size: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _getLabel(int index) {
-    switch (index) {
-      case 0:
-        return 'Home';
-      case 1:
-        return 'Event';
-      case 2:
-        return 'Hotel';
-      case 3:
-        return 'Food';
-      case 4:
-        return 'Profile';
-      default:
-        return '';
+  String formatDate(String dateStr) {
+    try {
+      final date = DateTime.parse(dateStr).toLocal();
+      return DateFormat.yMMMMd('th').format(date);
+    } catch (e) {
+      return dateStr;
     }
   }
 
-  Widget _buildNavIcon(Icon icon, int index) {
-    bool isSelected = _currentIndex == index;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Transform.translate(
-          offset: isSelected ? const Offset(0, -5) : Offset.zero,
-          child: Icon(icon.icon, size: 30, color: Colors.white),
-        ),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: isSelected
-              ? Text(_getLabel(index),
-                  key: ValueKey(index),
-                  style: const TextStyle(color: Colors.white, fontSize: 12))
-              : const SizedBox.shrink(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNavFaIcon(IconData iconData, int index) {
-    bool isSelected = _currentIndex == index;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Transform.translate(
-          offset: isSelected ? const Offset(0, -5) : Offset.zero,
-          child: FaIcon(iconData, size: 30, color: Colors.white),
-        ),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: isSelected
-              ? Text(_getLabel(index),
-                  key: ValueKey(index),
-                  style: const TextStyle(color: Colors.white, fontSize: 12))
-              : const SizedBox.shrink(),
-        ),
-      ],
-    );
+  Future<void> _fetchAll() async {
+    setState(() => _isLoading = true);
+    try {
+      final uri = Uri.parse('$API_ENDPOINT/EventAdmin');
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        setState(() {
+          events = json.decode(response.body);
+        });
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Exception: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final filteredEvents = events.where((event) {
+      final name = (event['eventName'] ?? '').toLowerCase();
+      final query = searchQuery.toLowerCase();
+      return name.contains(query);
+    }).toList();
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Event', style: TextStyle(color: Colors.white)),
-        leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pop(context)),
+        automaticallyImplyLeading: false,
+        title: Text('Event',
+            style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold, color: Colors.white)),
+        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         actions: [
           IconButton(
-              icon: const Icon(Icons.logout, color: Colors.white),
-              onPressed: _showLogoutDialog)
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: const Text('Confirm Logout'),
+                  content: const Text('คุณต้องการออกจากระบบ?'),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child:
+                            Text('No', style: TextStyle(color: Colors.black))),
+                    TextButton(
+                      onPressed: () => Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (_) => homeLogoPage())),
+                      child: Text('Yes', style: TextStyle(color: Colors.black)),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ],
-        backgroundColor: const Color.fromRGBO(201, 151, 187, 1),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() => _currentIndex = index);
+          Widget page;
+          switch (index) {
+            case 0:
+              page = HomeAdmin(userId: widget.userId);
+              break;
+            case 1:
+              page = AdminEvent(userId: widget.userId);
+              break;
+            case 2:
+              page = AdminArtistPage(userId: widget.userId);
+              break;
+            case 3:
+              page = AdminHotelPage(userId: widget.userId);
+              break;
+            case 4:
+              page = AdminRes(userId: widget.userId);
+              break;
+            case 5:
+              page = ProfileAdmin(userId: widget.userId);
+              break;
+            default:
+              return;
+          }
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => page));
+        },
+        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white70,
+        showUnselectedLabels: false,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.ticket), label: 'Event'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.library_music), label: 'Artist'),
+          BottomNavigationBarItem(icon: Icon(Icons.hotel), label: 'Hotel'),
+          BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.utensils), label: 'Restaurant'),
+          BottomNavigationBarItem(icon: Icon(Icons.face), label: 'Profile'),
+        ],
       ),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 16, right: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Align(
-              alignment: Alignment.centerRight,
+              alignment: Alignment.topRight,
               child: SizedBox(
-                width: 180,
+                width: 200,
                 height: 40,
                 child: TextField(
-                  onChanged: (value) {
-                    _searchEvent = value;
-                    _filterEventList(value);
-                  },
+                  controller: searchController,
+                  onChanged: (value) => setState(() => searchQuery = value),
                   decoration: InputDecoration(
                     contentPadding:
-                        const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                        EdgeInsets.symmetric(vertical: 0, horizontal: 12),
                     hintText: 'Search',
-                    prefixIcon: const Icon(Icons.search, size: 20),
+                    prefixIcon: Icon(Icons.search, size: 20),
                     filled: true,
                     fillColor: Colors.grey[200],
                     border: OutlineInputBorder(
@@ -407,51 +187,215 @@ class _AdminEventPageState extends State<AdminEvent> {
               ),
             ),
           ),
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : Builder(
-                    builder: (context) {
-                      final showList = _searchEvent.isNotEmpty
-                          ? filteredEvent
-                          : filteredEvents;
-                      if (showList.isEmpty) {
-                        return Center(
-                            child: Text(_searchEvent.isNotEmpty
-                                ? 'ไม่พบอีเวนต์ที่ค้นหา'
-                                : 'ไม่มีอีเวนต์ในระบบ'));
-                      }
-                      return ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: showList.length,
-                        itemBuilder: (context, index) =>
-                            buildEventCard(showList[index]),
-                      );
-                    },
-                  ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        backgroundColor: const Color.fromRGBO(201, 151, 187, 1),
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        type: BottomNavigationBarType.fixed,
-        onTap: (index) {
-          if (index == _currentIndex) return;
-          setState(() => _currentIndex = index);
-        },
-        items: [
-       BottomNavigationBarItem(icon: _buildNavIcon(const Icon(Icons.home), 0), label: ''),
-          BottomNavigationBarItem(icon: _buildNavFaIcon(FontAwesomeIcons.ticket, 1), label: ''),
-          BottomNavigationBarItem(icon: _buildNavIcon(const Icon(Icons.hotel), 2), label: ''),
-          BottomNavigationBarItem(icon: _buildNavFaIcon(FontAwesomeIcons.utensils, 3), label: ''),
-          BottomNavigationBarItem(icon: _buildNavIcon(const Icon(Icons.face), 4), label: ''),
+          _isLoading
+              ? Expanded(
+                  child: Center(
+                      child: CircularProgressIndicator(color: Colors.black)))
+              : filteredEvents.isEmpty
+                  ? Expanded(
+                      child: Center(
+                          child:
+                              Text('No User', style: TextStyle(fontSize: 18))))
+                  : Expanded(
+                      child: ListView.builder(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        itemCount: filteredEvents.length,
+                        itemBuilder: (context, index) {
+                          return buildCard(
+                            context,
+                            filteredEvents[index],
+                            _fetchAll,
+                            widget.userId,
+                            formatDate,
+                          );
+                        },
+                      ),
+                    ),
         ],
       ),
     );
   }
+}
+
+Widget buildCard(
+  BuildContext context,
+  dynamic event,
+  Future<void> Function() onUpdated,
+  int userId,
+  String Function(String) formatDate,
+) {
+  String displayDate = '';
+  try {
+    final dt = DateTime.parse(event['date'] ?? '').toLocal();
+    const thaiMonths = [
+      '',
+      'มกราคม',
+      'กุมภาพันธ์',
+      'มีนาคม',
+      'เมษายน',
+      'พฤษภาคม',
+      'มิถุนายน',
+      'กรกฎาคม',
+      'สิงหาคม',
+      'กันยายน',
+      'ตุลาคม',
+      'พฤศจิกายน',
+      'ธันวาคม'
+    ];
+    displayDate = '${dt.day} ${thaiMonths[dt.month]} ${dt.year}';
+  } catch (_) {
+    displayDate = event['date'] ?? '';
+  }
+
+  String displayTime = (event['time'] ?? '').split(':').take(2).join(':');
+  String displayLTime =
+      (event['ltime'] ?? '').split(':').take(2).join(':') + ' น.';
+
+  return Card(
+    color: Colors.grey[200],
+    margin: EdgeInsets.symmetric(vertical: 6),
+    child: Padding(
+      padding: EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(event['eventName'] ?? '',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          SizedBox(height: 8),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if ((event['eventPhoto'] ?? '').isNotEmpty)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    event['eventPhoto'],
+                    height: 180,
+                    width: 140,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) =>
+                        Container(color: Colors.grey, width: 140, height: 180),
+                  ),
+                ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(event['typeEventName'] ?? ''),
+                    SizedBox(height: 4),
+                    Text(displayDate),
+                    SizedBox(height: 4),
+                    Text('$displayTime - $displayLTime'),
+                    SizedBox(height: 4),
+                    Text(event['location'] ?? ''),
+                    SizedBox(height: 4),
+                    Text('${event['linkticket'] ?? ''}'),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.person, size: 16),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            (event['artists'] != null &&
+                                    event['artists'] is List
+                                ? (event['artists'] as List)
+                                    .map((artist) => artist['artistName'] ?? '')
+                                    .where((name) => name.isNotEmpty)
+                                    .join(', ')
+                                : ''),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              ElevatedButton(
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => AdminEventDetail(
+                            userId: userId, eventID: event['eventID'])),
+                  );
+                  if (result == true) await onUpdated();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  padding: EdgeInsets.symmetric(horizontal: 25, vertical: 4),
+                ),
+                child: Text('Detail',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold)),
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.delete,
+                  color: Colors.red,
+                  size: 35,
+                ),
+                onPressed: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: Text('Notification'),
+                      content: Text('ต้องการลบอีเวนต์นี้หรือไม่?'),
+                      actions: [
+                        TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: Text('No',
+                                style: TextStyle(color: Colors.black))),
+                        TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: Text('Yes',
+                                style: TextStyle(color: Colors.black))),
+                      ],
+                    ),
+                  );
+                  if (confirm == true) {
+                    showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (_) => Center(
+                            child: CircularProgressIndicator(
+                                color: Colors.black)));
+                    try {
+                      final res = await http.delete(Uri.parse(
+                          '$API_ENDPOINT/deleteevent?eventID=${event['eventID']}'));
+                      Navigator.pop(context);
+                      if (res.statusCode == 200) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('ลบเรียบร้อยแล้ว')));
+                        await onUpdated();
+                      } else {
+                        throw Exception('ลบไม่สำเร็จ: ${res.body}');
+                      }
+                    } catch (e) {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
+                    }
+                  }
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
 }

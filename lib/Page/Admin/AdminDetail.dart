@@ -1,17 +1,25 @@
+
 import 'dart:convert';
-import 'dart:math' as math;
 import 'dart:developer';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:http/http.dart' as http;
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:project_concert_closeiin/Page/Login.dart';
-import 'package:project_concert_closeiin/Page/RegisterUser.dart';
-import 'package:project_concert_closeiin/Page/User/restaurantHotelUser.dart';
+import 'package:http/http.dart' as http;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:project_concert_closeiin/Page/Home.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'dart:async';
+import 'package:project_concert_closeiin/Page/Admin/AdminProfile.dart';
+import 'package:project_concert_closeiin/Page/Admin/HomeAdmin.dart';
+import 'package:project_concert_closeiin/Page/Admin/AdminArtist.dart';
+import 'package:project_concert_closeiin/Page/Admin/AdminEvent.dart';
+import 'package:project_concert_closeiin/Page/Admin/AdminHotel.dart';
+import 'package:project_concert_closeiin/Page/Admin/AdminRes.dart';
+
 
 class Admindetail extends StatefulWidget {
   final int userId;
@@ -23,7 +31,7 @@ class Admindetail extends StatefulWidget {
 }
 
 class _AdmindetailState extends State<Admindetail> {
-  int _currentIndex = 0;
+  int _currentIndex = 3;
   int _rating = 0;
   Map<String, dynamic>? hotel;
   bool isLoading = true;
@@ -31,14 +39,11 @@ class _AdmindetailState extends State<Admindetail> {
   List<String> firebaseImageUrls = [];
   List<Map<String, dynamic>> nearbyRestaurants = [];
   bool _hasRated = false;
+  final DatabaseReference rating =
+      FirebaseDatabase.instance.ref().child('point');
   int? totalPoint;
-  // late GoogleMapController mapController;
+  StreamSubscription<DatabaseEvent>? _pointSubscription;
 
-  final LatLng _hotelLocation = const LatLng(13.9125, 100.5485); // พิกัดโรงแรม
-
-  // void _onMapCreated(GoogleMapController controller) {
-  //   mapController = controller;
-  // }
   @override
   void initState() {
     super.initState();
@@ -51,33 +56,13 @@ class _AdmindetailState extends State<Admindetail> {
     fetchHotel();
     fetchHotelPhotosFromFirebase();
     checkIfRated();
-    fetchTotalPointFromFirebase();
+    listenToTotalPoint();
   }
-
-  Future<void> fetchHotel() async {
-    try {
-      final response = await http.get(
-        Uri.parse('$API_ENDPOINT/hoteldetail?hotelID=${widget.hotelID}'),
-      );
-      if (response.statusCode == 200) {
-        final decoded = json.decode(response.body);
-        if (!mounted) return; // เช็คก่อน setState
-        setState(() {
-          hotel = decoded;
-          isLoading = false;
-        });
-        fetchNearbyRestaurants();
-      } else {
-        throw Exception('Failed to load hotel');
-      }
-    } catch (e) {
-      log('Error: $e');
-      if (!mounted) return;
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
+  @override
+void dispose() {
+  _pointSubscription?.cancel(); 
+  super.dispose();
+}
 
   Future<void> fetchHotelPhotosFromFirebase() async {
     try {
@@ -100,6 +85,31 @@ class _AdmindetailState extends State<Admindetail> {
     }
   }
 
+  Future<void> fetchHotel() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$API_ENDPOINT/hoteldetail?hotelID=${widget.hotelID}'),
+      );
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+        if (!mounted) return; 
+        setState(() {
+          hotel = decoded;
+          isLoading = false;
+        });
+        fetchNearbyRestaurants();
+      } else {
+        throw Exception('Failed to load hotel');
+      }
+    } catch (e) {
+      log('Error: $e');
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   Future<void> checkIfRated() async {
     try {
       final response = await http.get(Uri.parse(
@@ -119,28 +129,31 @@ class _AdmindetailState extends State<Admindetail> {
     }
   }
 
-  Future<void> fetchTotalPointFromFirebase() async {
-    try {
-      final ref = FirebaseDatabase.instance
-          .ref('/point/ratings/${widget.userId}/${widget.hotelID}/rating');
+void listenToTotalPoint() {
+  final ref = FirebaseDatabase.instance.ref('/point/ratings');
 
-      final snapshot = await ref.get();
-      if (snapshot.exists) {
-        setState(() {
-          totalPoint = int.tryParse(snapshot.value.toString()) ?? 0;
-        });
-      } else {
-        setState(() {
-          totalPoint = 0;
-        });
-      }
-    } catch (e) {
-      print('Error fetching totalPoint: $e');
-      setState(() {
-        totalPoint = 0;
+  _pointSubscription = ref.onValue.listen((event) {
+    final data = event.snapshot.value;
+    int sum = 0;
+
+    if (data is Map) {
+      data.forEach((userId, userRatings) {
+        if (userRatings is Map) {
+          final hotelData = userRatings[widget.hotelID.toString()];
+          if (hotelData is Map && hotelData['rating'] != null) {
+            final rating = int.tryParse(hotelData['rating'].toString()) ?? 0;
+            sum += rating;
+          }
+        }
       });
     }
-  }
+
+    setState(() {
+      totalPoint = sum;
+    });
+  });
+}
+
 
   Future<void> fetchNearbyRestaurants() async {
     try {
@@ -188,161 +201,6 @@ class _AdmindetailState extends State<Admindetail> {
 
   double _deg2rad(double deg) => deg * (math.pi / 180);
 
-  String _getLabel(int index) {
-    switch (index) {
-      case 0:
-        return 'Home';
-      case 1:
-        return 'Ticket';
-      case 2:
-        return 'Hotel';
-      case 3:
-        return 'Food';
-      case 4:
-        return 'Profile';
-      default:
-        return '';
-    }
-  }
-
-  Widget _buildNavIcon(Icon icon, int index) {
-    bool isSelected = _currentIndex == index;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Transform.translate(
-          offset: isSelected ? const Offset(0, -5) : Offset.zero,
-          child: Icon(icon.icon, size: 30, color: Colors.white),
-        ),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: isSelected
-              ? Text(
-                  _getLabel(index),
-                  key: ValueKey(index),
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
-                )
-              : const SizedBox.shrink(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNavFaIcon(IconData iconData, int index) {
-    bool isSelected = _currentIndex == index;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Transform.translate(
-          offset: isSelected ? const Offset(0, -5) : Offset.zero,
-          child: FaIcon(iconData, size: 30, color: Colors.white),
-        ),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: isSelected
-              ? Text(
-                  _getLabel(index),
-                  key: ValueKey(index),
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
-                )
-              : const SizedBox.shrink(),
-        ),
-      ],
-    );
-  }
-
-  void _showLogoutDialog() {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('ออกจากระบบ'),
-        content: const Text('คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ?'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('ยกเลิก')),
-          TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pushReplacementNamed(context, '/login');
-              },
-              child: const Text('ออกจากระบบ')),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildImage(String imagePath) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Image.asset(
-          imagePath,
-          width: 300,
-          height: 200,
-          fit: BoxFit.cover,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRestaurantCard({
-    required String image,
-    required String name,
-    required String category,
-    required String address,
-    required String distance,
-    required String status,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: Card(
-        elevation: 3,
-        child: SizedBox(
-          width: 300,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(8),
-                  bottomLeft: Radius.circular(8),
-                ),
-                child: Image.asset(
-                  image,
-                  width: 100,
-                  height: 120,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(name,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16)),
-                      const SizedBox(height: 4),
-                      Text('ประเภทอาหาร: $category'),
-                      Text('ที่อยู่: $address'),
-                      Text('ระยะทาง: $distance'),
-                      Text('เปิดแล้ว: $status',
-                          style: const TextStyle(color: Colors.red)),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final imageUrls = [
@@ -351,25 +209,56 @@ class _AdmindetailState extends State<Admindetail> {
         hotel!['hotelPhoto'],
       ...firebaseImageUrls
     ];
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(' Detail', style: TextStyle(color: Colors.white)),
+        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          onPressed: () => Navigator.pop(context, true),
+        ),
+        title: Text(
+          'Detail',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: _showLogoutDialog,
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => AlertDialog(
+                  title: const Text('Confirm Logout'),
+                  content: const Text('คุณต้องการออกจากระบบ?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('No',
+                          style: TextStyle(color: Colors.black)),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => homeLogoPage()),
+                        );
+                      },
+                      child: const Text('Yes',
+                          style: TextStyle(color: Colors.black)),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
-        backgroundColor: const Color.fromRGBO(201, 151, 187, 1),
       ),
       body: isLoading || hotel == null
-          ? Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: Colors.black))
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -396,55 +285,56 @@ class _AdmindetailState extends State<Admindetail> {
                       style: TextStyle(fontSize: 16, color: Colors.black),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 16),
                   Container(
                     height: 200,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
+                    child: PageView.builder(
                       itemCount: imageUrls.length,
+                      controller: PageController(viewportFraction: 0.93),
                       itemBuilder: (context, index) {
                         return Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.network(
-                              imageUrls[index],
-                              width: 300,
+                            child: SizedBox(
+                              width: double.infinity,
                               height: 200,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  width: 300,
-                                  height: 200,
-                                  color: Colors.grey[300],
-                                  child: Icon(Icons.broken_image,
-                                      color: Colors.grey),
-                                );
-                              },
+                              child: Image.network(
+                                imageUrls[index],
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Center(
+                                    child: Icon(Icons.broken_image,
+                                        size: 50, color: Colors.grey),
+                                  );
+                                },
+                              ),
                             ),
                           ),
                         );
                       },
                     ),
                   ),
-
-                  const SizedBox(height: 16),
-                  Container(
-                    width: double.infinity,
+                  SizedBox(height: 16),
+                  Padding(
                     padding:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                    ),
-                    child: const Text(
-                      'Detail',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Container(
+                      width: double.infinity,
+                      height: 30,
+                      color: Colors.grey[200],
+                      padding:  const EdgeInsets.only(left: 10, top: 3),
+                      child: Text(
+                        'Detail',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 12),
                   Padding(
-                    padding: const EdgeInsets.only(left: 25, right: 25),
+                    padding: const EdgeInsets.only(left: 25,right: 25),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -464,48 +354,54 @@ class _AdmindetailState extends State<Admindetail> {
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.bold)),
                         SizedBox(height: 8),
-                        Column(
-                          children:
-                              (hotel?['rooms'] as List<dynamic>? ?? []).map(
-                            (room) {
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 12.0),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(10),
-                                    border:
-                                        Border.all(color: Colors.grey.shade100),
-                                  ),
-                                  child: ListTile(
-                                    leading: room['photo'] != null
-                                        ? ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            child: Image.network(
-                                              room['photo'],
-                                              width: 60,
-                                              height: 60,
-                                              fit: BoxFit.cover,
-                                              errorBuilder:
-                                                  (context, error, stackTrace) {
-                                                return Icon(
-                                                  Icons.broken_image,
-                                                  color: Colors.grey,
-                                                );
-                                              },
-                                            ),
-                                          )
-                                        : null,
-                                    title: Text(room['roomName'] ?? ''),
-                                    subtitle:
-                                        Text('ราคา : ${room['price']} บาท'),
-                                  ),
-                                ),
-                              );
-                            },
-                          ).toList(),
-                        ),
+                       Column(
+  children: (hotel?['rooms'] as List<dynamic>? ?? []).map(
+    (room) {
+      final status = room['status'];
+      final statusText = status == 1 ? 'เต็ม' : 'ว่าง';
+      final statusColor = status == 1 ? Colors.red : Colors.green;
+
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.grey.shade100),
+          ),
+          child: ListTile(
+            leading: room['photo'] != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(5),
+                    child: Image.network(
+                      room['photo'],
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(Icons.broken_image, color: Colors.grey);
+                      },
+                    ),
+                  )
+                : null,
+            title: Text(room['roomName'] ?? ''),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('ราคา : ${room['price']} บาท'),
+                Text(
+                  '$statusText',
+                  style: TextStyle(color: statusColor),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  ).toList(),
+),
+
                         SizedBox(height: 16),
                         Text('สิ่งอำนวยความสะดวก : ',
                             style: TextStyle(
@@ -521,7 +417,7 @@ class _AdmindetailState extends State<Admindetail> {
                           TextSpan(
                             children: [
                               TextSpan(
-                                text: 'ที่อยู่ : ',
+                                text: 'ที่ตั้ง : ',
                                 style: TextStyle(
                                     fontSize: 16, fontWeight: FontWeight.bold),
                               ),
@@ -542,7 +438,7 @@ class _AdmindetailState extends State<Admindetail> {
                                   fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              hotel!['totalPiont'].toString(),
+                              (totalPoint?.toString() ?? '0'),
                               style: TextStyle(fontSize: 16),
                             ),
                             Text(
@@ -554,9 +450,7 @@ class _AdmindetailState extends State<Admindetail> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
-
-                  // เพิ่ม Google Map
+                  SizedBox(height: 16),
                   Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -564,7 +458,7 @@ class _AdmindetailState extends State<Admindetail> {
                       width: double.infinity,
                       height: 30,
                       color: Colors.grey[200],
-                      padding: const EdgeInsets.only(left: 10, top: 3),
+                      padding:  const EdgeInsets.only(left: 10, top: 3),
                       child: Text(
                         'Map',
                         style: TextStyle(
@@ -575,7 +469,7 @@ class _AdmindetailState extends State<Admindetail> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.only(left: 29, right: 29),
                     child: Container(
@@ -617,8 +511,7 @@ class _AdmindetailState extends State<Admindetail> {
                       ),
                     ),
                   ),
-
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -626,9 +519,9 @@ class _AdmindetailState extends State<Admindetail> {
                       width: double.infinity,
                       height: 30,
                       color: Colors.grey[200],
-                      padding: const EdgeInsets.only(left: 10, top: 3),
+                      padding:  const EdgeInsets.only(left: 10, top: 3),
                       child: Text(
-                        'ร้านอาหารใกล้เคียง',
+                        'Nearby Restaurants',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -637,7 +530,6 @@ class _AdmindetailState extends State<Admindetail> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Padding(
@@ -646,7 +538,7 @@ class _AdmindetailState extends State<Admindetail> {
                         children: [
                           ...nearbyRestaurants.map((r) => Container(
                                 width: 400, // กำหนดความกว้างการ์ดเท่าเดิม
-                                height: 160,
+                                height: 170,
                                 margin: EdgeInsets.only(right: 3),
                                 child: Card(
                                   color: Colors.grey[200],
@@ -664,12 +556,12 @@ class _AdmindetailState extends State<Admindetail> {
                                               ? Image.network(
                                                   r['resPhoto'],
                                                   width: 100,
-                                                  height: 100,
+                                                  height: 120,
                                                   fit: BoxFit.cover,
                                                 )
                                               : Container(
                                                   width: 100,
-                                                  height: 100,
+                                                  height: 120,
                                                   color: Colors.grey[400],
                                                   child: Icon(Icons.image,
                                                       color: Colors.white),
@@ -706,11 +598,42 @@ class _AdmindetailState extends State<Admindetail> {
                                                   ],
                                                 ),
                                               ),
+                                                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "เวลา : ",
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: r['open'] ?? '',
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.normal),
+                        ),
+                        TextSpan(
+                          text: " - ",
+                          style: TextStyle(
+                              fontSize: 12),
+                        ),
+                        TextSpan(
+                          text: r['close'] ?? '',
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.normal),
+                        ),
+                        TextSpan(
+                          text: " น. ",
+                          style: TextStyle(
+                              fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
                                               Text.rich(
                                                 TextSpan(
                                                   children: [
                                                     TextSpan(
-                                                      text: "ที่อยู่ : ",
+                                                      text: "ที่ตั้ง : ",
                                                       style: TextStyle(
                                                           fontSize: 11,
                                                           fontWeight:
@@ -792,72 +715,82 @@ class _AdmindetailState extends State<Admindetail> {
                                   ),
                                 ),
                               )),
-                          Container(
-                            margin: EdgeInsets.only(right: 12),
-                            alignment: Alignment.center,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.grey[200],
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20)),
-                              ),
-                              onPressed: () async {
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => RestaurantHotelUser(
-                                          hotelID: widget.hotelID,
-                                          hotelLat: hotel!['lat'],
-                                          hotelLng: hotel!['long'])),
-                                );
-                                if (result == true) {
-                                  setState(() {
-                                    isLoading = true;
-                                  });
-                                  fetchHotel();
-                                  fetchHotelPhotosFromFirebase();
-                                }
-                              },
-                              child: Text("More",
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black)),
-                            ),
-                          ),
                         ],
                       ),
                     ),
-                  ),
+                  )
                 ],
-              )),
-      bottomNavigationBar: BottomNavigationBar(
+              ),
+            ),
+          bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        backgroundColor: const Color.fromRGBO(201, 151, 187, 1),
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        type: BottomNavigationBarType.fixed,
         onTap: (index) {
-          if (index == _currentIndex) return;
           setState(() {
             _currentIndex = index;
           });
+          switch (index) {
+            case 0:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => HomeAdmin(userId: widget.userId)),
+              );
+              break;
+            case 1:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => AdminEvent(userId: widget.userId)),
+              );
+              break;
+            case 2:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        AdminArtistPage(userId: widget.userId)),
+              );
+              break;
+            case 3:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        AdminHotelPage(userId: widget.userId)),
+              );
+              break;
+            case 4:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => AdminRes(userId: widget.userId)),
+              );
+              break;
+            case 5:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        ProfileAdmin(userId: widget.userId)),
+              );
+              break;
+          }
         },
-        items: [
+        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white70,
+        showUnselectedLabels: false,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
-              icon: _buildNavIcon(const Icon(Icons.home), 0), label: ''),
+              icon: FaIcon(FontAwesomeIcons.ticket), label: 'Event'),
           BottomNavigationBarItem(
-              icon: _buildNavFaIcon(FontAwesomeIcons.ticket, 1), label: ''),
+              icon: Icon(Icons.library_music), label: 'Artist'),
+          BottomNavigationBarItem(icon: Icon(Icons.hotel), label: 'Hotel'),
           BottomNavigationBarItem(
-              icon: _buildNavIcon(const Icon(Icons.hotel), 2), label: ''),
-          BottomNavigationBarItem(
-              icon: _buildNavFaIcon(FontAwesomeIcons.utensils, 3), label: ''),
-          BottomNavigationBarItem(
-              icon: _buildNavIcon(const Icon(Icons.face), 4), label: ''),
+              icon: FaIcon(FontAwesomeIcons.utensils), label: 'Restaurant'),
+          BottomNavigationBarItem(icon: Icon(Icons.face), label: 'Profile'),
         ],
       ),
     );
