@@ -65,8 +65,8 @@ class MyApp extends StatelessWidget {
   //  home: Admindetail(userId: 6, hotelID: 11),
     // home: Homerestaurant(userId: 8)
     // home: HomeEvent(userId: 6)
-    home: AdminRes(userId: 5),
-      // home: Homemember(userId: 13)
+    // home: AdminRes(userId: 5),
+      home: Homemember(userId: 13)
     // home: HomeHotel(userId: 5)
     );
   }
