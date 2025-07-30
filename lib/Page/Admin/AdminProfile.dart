@@ -6,7 +6,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:project_concert_closeiin/Page/Admin/AdminEditProfile.dart';
-import 'package:project_concert_closeiin/Page/Event/EditProfile.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 import 'package:project_concert_closeiin/Page/Admin/HomeAdmin.dart';
@@ -140,6 +139,7 @@ class _ProfileAdminState extends State<ProfileAdmin> {
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
+            fontSize: 20
           ),
         ),
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),

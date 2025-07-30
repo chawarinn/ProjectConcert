@@ -17,6 +17,7 @@ import 'package:project_concert_closeiin/config/internet_config.dart';
 import 'package:project_concert_closeiin/model/response/userGetHotelResponse.dart';
 import 'package:project_concert_closeiin/model/response/userGetSearchHResponse.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class HotelSearch extends StatefulWidget {
   int userId;
@@ -443,9 +444,16 @@ class _hotelSearch extends State<HotelSearch> {
             Navigator.pop(context, true);
           },
         ),
-        title: Text(
-          'Hotel',
-          style: TextStyle(color: const Color.fromARGB(255, 255, 255, 255)),
+         title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
+            'Hotel',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
+          ),
         ),
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         actions: [

@@ -249,11 +249,15 @@ class _Event extends State<Event> {
     Navigator.pop(context, true); 
   },
         ),
-        title: Text(
-          'Event',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+         title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
+            'Event',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
           ),
         ),
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),

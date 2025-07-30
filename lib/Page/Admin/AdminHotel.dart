@@ -8,7 +8,6 @@ import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:project_concert_closeiin/Page/Admin/AdminArtist.dart';
 import 'package:project_concert_closeiin/Page/Admin/AdminProfile.dart';
 import 'package:project_concert_closeiin/Page/Admin/AdminRes.dart';
@@ -75,7 +74,7 @@ class _AdminHotelPageState extends State<AdminHotelPage> {
         automaticallyImplyLeading: false,
         title: Text('Hotel',
             style: GoogleFonts.poppins(
-                fontWeight: FontWeight.bold, color: Colors.white)),
+                fontWeight: FontWeight.bold, color: Colors.white,fontSize: 20)),
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         actions: [
           IconButton(

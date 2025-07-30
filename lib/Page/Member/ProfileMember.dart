@@ -258,8 +258,9 @@ class _ProfileMemberState extends State<ProfileMember> {
                       showDialog(
                         context: context,
                         barrierDismissible: false,
-                        builder: (_) =>
-                            Center(child: CircularProgressIndicator(color: Colors.black)),
+                        builder: (_) => Center(
+                            child:
+                                CircularProgressIndicator(color: Colors.black)),
                       );
 
                       try {
@@ -312,7 +313,6 @@ class _ProfileMemberState extends State<ProfileMember> {
                     });
                     fetchUserData();
                     futureRoomShares = fetchRoomShares();
-
                   }
                 },
                 child: Text(
@@ -337,10 +337,11 @@ class _ProfileMemberState extends State<ProfileMember> {
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
+            fontSize: 20
           ),
         ),
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
- actions: [
+        actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () {
@@ -352,7 +353,8 @@ class _ProfileMemberState extends State<ProfileMember> {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('No',style: TextStyle(color: Colors.black)),
+                      child: const Text('No',
+                          style: TextStyle(color: Colors.black)),
                     ),
                     TextButton(
                       onPressed: () {
@@ -361,7 +363,8 @@ class _ProfileMemberState extends State<ProfileMember> {
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
                         );
                       },
-                      child: const Text('Yes',style: TextStyle(color: Colors.black)),
+                      child: const Text('Yes',
+                          style: TextStyle(color: Colors.black)),
                     ),
                   ],
                 ),
@@ -442,122 +445,132 @@ class _ProfileMemberState extends State<ProfileMember> {
                     future: futureRoomShares,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(child: CircularProgressIndicator(color: Colors.black));
+                        return Center(
+                            child:
+                                CircularProgressIndicator(color: Colors.black));
                       } else if (snapshot.hasError) {
                         return Center(
                             child: Text("เกิดข้อผิดพลาด: ${snapshot.error}"));
                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return Center(
-                            child: Text(""));
+                        return Center(child: Text(""));
                       } else {
-                     final userRooms = snapshot.data!
-    .where((room) => room['userId'] == widget.userId)
-    .toList();
+                        final userRooms = snapshot.data!
+                            .where((room) => room['userId'] == widget.userId)
+                            .toList();
 
                         return Column(
-  children: [
-    Padding(
-      padding: const EdgeInsets.only(top: 16),
-      child: Column(
-        children: [
-          SizedBox(
-            width: 100,
-            height: 35,
-            child: ElevatedButton(
-              onPressed: () async {
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          EditProfileMember(userId: widget.userId)),
-                );
-                if (result == true) {
-                  setState(() {
-                    isLoading = true;
-                  });
-                  fetchUserData();
-                  futureRoomShares = fetchRoomShares();
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-              ),
-              child: Text(
-                'Edit',
-                style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: 10),
-          SizedBox(
-            width: 200,
-            height: 35,
-            child: ElevatedButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text('Notification'),
-                      content: Text(
-                          'คุณแน่ใจหรือไม่ว่าต้องการลบบัญชีนี้? การลบนี้ไม่สามารถย้อนกลับได้'),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child:
-                              Text('No', style: TextStyle(color: Colors.black)),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            deleteUserAccount();
-                          },
-                          child: Text('Yes',
-                              style: TextStyle(color: Colors.black)),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-              ),
-              child: Text(
-                'Delete User Account',
-                style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    ),
-    if (userRooms.isNotEmpty)
-      Padding(
-        padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
-        child: Column(
-          children: userRooms.map((room) => _buildRoomCard(room)).toList(),
-        ),
-      ),
-  ],
-);
-
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 16),
+                              child: Column(
+                                children: [
+                                  SizedBox(
+                                    width: 100,
+                                    height: 35,
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        final result = await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  EditProfileMember(
+                                                      userId: widget.userId)),
+                                        );
+                                        if (result == true) {
+                                          setState(() {
+                                            isLoading = true;
+                                          });
+                                          fetchUserData();
+                                          futureRoomShares = fetchRoomShares();
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            Color.fromRGBO(201, 151, 187, 1),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Edit',
+                                        style: GoogleFonts.poppins(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  SizedBox(
+                                    width: 200,
+                                    height: 35,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: Text('Notification'),
+                                              content: Text(
+                                                  'คุณแน่ใจหรือไม่ว่าต้องการลบบัญชีนี้? การลบนี้ไม่สามารถย้อนกลับได้'),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Text('No',
+                                                      style: TextStyle(
+                                                          color: Colors.black)),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                    deleteUserAccount();
+                                                  },
+                                                  child: Text('Yes',
+                                                      style: TextStyle(
+                                                          color: Colors.black)),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            Color.fromRGBO(201, 151, 187, 1),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Delete User Account',
+                                        style: GoogleFonts.poppins(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (userRooms.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    top: 16, left: 16, right: 16),
+                                child: Column(
+                                  children: userRooms
+                                      .map((room) => _buildRoomCard(room))
+                                      .toList(),
+                                ),
+                              ),
+                          ],
+                        );
                       }
                     },
                   ),

@@ -7,11 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:project_concert_closeiin/Page/Event/AddArtist.dart';
 import 'package:project_concert_closeiin/Page/Event/HomeEvent.dart';
 import 'package:project_concert_closeiin/Page/Event/Profile.dart';
+import 'package:project_concert_closeiin/Page/Event/SendOTP.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
-import 'package:project_concert_closeiin/Page/Hotel/HomeHotel.dart';
-import 'package:project_concert_closeiin/Page/Hotel/Profile.dart';
-import 'package:project_concert_closeiin/Page/Restaurant/HomeRestaurant.dart';
-import 'package:project_concert_closeiin/Page/Restaurant/ProfileRestaurant.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
 class EditProfileE extends StatefulWidget {
@@ -28,6 +25,9 @@ class _EditProfileEState extends State<EditProfileE> {
   bool isLoading = true;
   Map<String, dynamic>? userData;
   Map<String, dynamic>? originalUserData; 
+bool _obscurePassword = true;
+bool _obscureNewPassword = true;
+bool _obscureConfirmPassword = true;
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -371,6 +371,8 @@ Widget _buildTextField({
   required TextEditingController controller,
   bool isRequired = false,
   bool isPassword = false,
+  bool obscureText = false,
+  VoidCallback? toggleObscure,
 }) {
   return Padding(
     padding: const EdgeInsets.all(8.0),
@@ -385,7 +387,7 @@ Widget _buildTextField({
         ),
         TextField(
           controller: controller,
-          obscureText: isPassword,
+          obscureText: obscureText,
           decoration: InputDecoration(
             hintText: hintText,
             filled: true,
@@ -394,12 +396,22 @@ Widget _buildTextField({
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide.none,
             ),
+            suffixIcon: isPassword
+                ? IconButton(
+                    icon: Icon(
+                      obscureText ? Icons.visibility_off : Icons.visibility,
+                      color: Colors.grey,
+                    ),
+                    onPressed: toggleObscure,
+                  )
+                : null,
           ),
         ),
       ],
     ),
   );
 }
+
 
 Widget _buildDropdownField({
   required String label,
@@ -460,11 +472,15 @@ Widget _buildDropdownField({
           onPressed: () => Navigator.pop(context, true),
         ),
         automaticallyImplyLeading: false,
-        title: Text(
-          'Edit Profile',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+         title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
+            'Edit Profile',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
           ),
         ),
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
@@ -642,6 +658,12 @@ Widget _buildDropdownField({
                       label: 'Password',
                       hintText: '',
                       controller: _passwordController,
+                      obscureText: _obscurePassword,
+  toggleObscure: () {
+    setState(() {
+      _obscurePassword = !_obscurePassword;
+    });
+  },
                       isPassword: true,
                       isRequired: true),
                   Padding(
@@ -649,16 +671,25 @@ Widget _buildDropdownField({
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Text(
-                          'Forgot Password?',
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: const Color.fromARGB(255, 0, 91, 228),
-                            decoration: TextDecoration.underline,
-                            decorationColor:
-                                const Color.fromARGB(255, 0, 91, 228),
-                          ),
+                        GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SendOTPE(userId: widget.userId)),
+                        );
+                      },
+                      child: Text(
+                        'Forgot Password?',
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: const Color.fromARGB(255, 0, 91, 228),
+                          decoration: TextDecoration.underline,
+                          decorationColor:
+                              const Color.fromARGB(255, 0, 91, 228),
                         ),
+                      ),
+                    ),
                       ],
                     ),
                   ),
@@ -666,6 +697,12 @@ Widget _buildDropdownField({
                     label: 'New Password',
                     hintText: '',
                     controller: _newPasswordController,
+                    obscureText: _obscurePassword,
+  toggleObscure: () {
+    setState(() {
+      _obscurePassword = !_obscurePassword;
+    });
+  },
                     isPassword: true,
                     isRequired: true,
                   ),
@@ -673,6 +710,12 @@ Widget _buildDropdownField({
                     label: 'Confirm Password',
                     hintText: '',
                     controller: _confirmPasswordController,
+                    obscureText: _obscurePassword,
+  toggleObscure: () {
+    setState(() {
+      _obscurePassword = !_obscurePassword;
+    });
+  },
                     isPassword: true,
                     isRequired: true,
                   ),

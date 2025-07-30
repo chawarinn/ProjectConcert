@@ -7,8 +7,8 @@ import 'package:project_concert_closeiin/Page/Admin/HomeAdmin.dart';
 import 'package:project_concert_closeiin/Page/Event/AddEvent.dart';
 import 'package:project_concert_closeiin/Page/Hotel/HomeHotel.dart';
 import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
-import 'package:project_concert_closeiin/Page/Member/hotel_search.dart';
 import 'package:project_concert_closeiin/Page/Restaurant/AddRestaurant.dart';
+import 'package:project_concert_closeiin/SendOTPLogin.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 import 'package:project_concert_closeiin/model/request/userPostLoginRequest.dart';
@@ -26,6 +26,7 @@ class _LoginPageState extends State<LoginPage> {
   var passwordCtl = TextEditingController();
   String text = '';
   String url = '';
+  bool _obscurePassword = true;
 
   @override
   void initState() {
@@ -44,11 +45,15 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(201, 151, 187, 1),
-        title: Text(
-          'Login',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+         title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
+            'Login',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
           ),
         ),
         leading: IconButton(
@@ -123,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     TextField(
                       controller: passwordCtl,
-                      obscureText: true,
+                      obscureText: _obscurePassword,
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: const Color.fromRGBO(217, 217, 217, 1),
@@ -133,8 +138,21 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide.none,
                         ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
                       ),
-                    ),
+                    )
                   ],
                 ),
               ),
@@ -143,13 +161,23 @@ class _LoginPageState extends State<LoginPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text(
-                      'Forgot Password?',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        color: const Color.fromARGB(255, 0, 91, 228),
-                        decoration: TextDecoration.underline,
-                        decorationColor: const Color.fromARGB(255, 0, 91, 228),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SendOTPLogin()),
+                        );
+                      },
+                      child: Text(
+                        'Forgot Password?',
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: const Color.fromARGB(255, 0, 91, 228),
+                          decoration: TextDecoration.underline,
+                          decorationColor:
+                              const Color.fromARGB(255, 0, 91, 228),
+                        ),
                       ),
                     ),
                   ],
@@ -178,10 +206,8 @@ class _LoginPageState extends State<LoginPage> {
                                   onPressed: () {
                                     Navigator.of(context).pop();
                                   },
-                                  child: Text(
-                                    'OK',
-                                     style: TextStyle(color: Colors.black)
-                                  ),
+                                  child: Text('OK',
+                                      style: TextStyle(color: Colors.black)),
                                 ),
                               ],
                             );
@@ -207,10 +233,8 @@ class _LoginPageState extends State<LoginPage> {
                                   onPressed: () {
                                     Navigator.of(context).pop();
                                   },
-                                  child: Text(
-                                    'OK',
-                                     style: TextStyle(color: Colors.black)
-                                  ),
+                                  child: Text('OK',
+                                      style: TextStyle(color: Colors.black)),
                                 ),
                               ],
                             );
@@ -242,19 +266,6 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-//   void showLoadingDialog() {
-//   showDialog(
-//     context: context,
-//     barrierDismissible: false,
-//     builder: (context) => Center(
-//       child: CircularProgressIndicator(color: Colors.black),
-//     ),
-//   );
-// }
-
-// void hideLoadingDialog() {
-//   Navigator.of(context, rootNavigator: true).pop();
-// }
 
   void loginU() async {
     // showLoadingDialog();
@@ -318,15 +329,14 @@ class _LoginPageState extends State<LoginPage> {
           break;
       }
     } catch (error) {
-      // hideLoadingDialog();
-      log(error.toString() );
+      log(error.toString());
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text(
-                                'Notification',
-                              ),
+              'Notification',
+            ),
             content: Text(
               'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
               style: GoogleFonts.poppins(),
@@ -336,10 +346,7 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Text(
-                  'OK',
-                   style: TextStyle(color: Colors.black)
-                ),
+                child: Text('OK', style: TextStyle(color: Colors.black)),
               ),
             ],
           );

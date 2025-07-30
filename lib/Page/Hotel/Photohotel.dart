@@ -374,9 +374,17 @@ class _PhotohotelState extends State<Photohotel> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(201, 151, 187, 1),
-        title: Text('Albums',
+         title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
+            'Albums',
             style: GoogleFonts.poppins(
-                color: Colors.white, fontWeight: FontWeight.bold)),
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
+          ),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           onPressed: () => Navigator.pop(context),

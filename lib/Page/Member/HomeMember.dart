@@ -93,6 +93,7 @@ class _HomeMember extends State<Homemember> {
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
+            fontSize: 20
           ),
         ),
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),

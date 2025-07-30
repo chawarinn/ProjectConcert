@@ -72,7 +72,7 @@ class _AdminResState extends State<AdminRes> {
         automaticallyImplyLeading: false,
         title: Text('Restaurant',
             style: GoogleFonts.poppins(
-                fontWeight: FontWeight.bold, color: Colors.white)),
+                fontWeight: FontWeight.bold, color: Colors.white,fontSize: 20)),
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         actions: [
           IconButton(

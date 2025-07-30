@@ -11,6 +11,7 @@ import 'dart:math';
 import 'dart:developer' as dev_log;
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:google_fonts/google_fonts.dart';
 import 'package:project_concert_closeiin/Page/User/detailHotelUser.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
@@ -440,9 +441,16 @@ class _HoteluserState extends State<Hoteluser> {
             Navigator.pop(context, true);
           },
         ),
-        title: Text(
-          'Hotel',
-          style: TextStyle(color: const Color.fromARGB(255, 255, 255, 255)),
+         title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
+            'Hotel',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
+          ),
         ),
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
               actions: [

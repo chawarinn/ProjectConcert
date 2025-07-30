@@ -10,6 +10,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
+import 'package:url_launcher/url_launcher_string.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class RestaurantHotelUser extends StatefulWidget {
   final int hotelID;
@@ -220,24 +222,24 @@ data.sort((a, b) => a['distance'].compareTo(b['distance']));
                     child: ElevatedButton(
                       onPressed: () async {
                         //รอลองเครื่องจริง
-                        // double lat =
-                        //     double.tryParse(res['lat'].toString()) ?? 0;
-                        // double lng =
-                        //     double.tryParse(res['long'].toString()) ?? 0;
-                        // final Uri uri = Uri.parse(
-                        //     'https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+                        double lat =
+                            double.tryParse(res['lat'].toString()) ?? 0;
+                        double lng =
+                            double.tryParse(res['long'].toString()) ?? 0;
+                        final Uri uri = Uri.parse(
+                            'https://www.google.com/maps/search/?api=1&query=$lat,$lng');
 
-                        // try {
-                        //   bool launched = await launchUrl(
-                        //     uri,
-                        //     mode: LaunchMode.externalApplication,
-                        //   );
-                        //   if (!launched) {
-                        //     print('Could not launch map');
-                        //   }
-                        // } catch (e) {
-                        //   print('Exception launching map: $e');
-                        // }
+                        try {
+                          bool launched = await launchUrl(
+                            uri,
+                            mode: LaunchMode.externalApplication,
+                          );
+                          if (!launched) {
+                            print('Could not launch map');
+                          }
+                        } catch (e) {
+                          print('Exception launching map: $e');
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
@@ -279,11 +281,15 @@ data.sort((a, b) => a['distance'].compareTo(b['distance']));
             Navigator.pop(context, true);
           },
         ),
-        title: Text(
-          'Restaurant',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+         title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
+            'Restaurant',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
           ),
         ),
                actions: [

@@ -102,13 +102,17 @@ class _SelectArtistPageState extends State<SelectArtistPage> {
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           backgroundColor: const Color.fromRGBO(201, 151, 187, 1),
-          title: Text(
+           title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
             'Artist',
             style: GoogleFonts.poppins(
-              color: Colors.white,
               fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
             ),
           ),
+        ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
             onPressed: () => Navigator.pop(context, selectedArtistIds.toList()),

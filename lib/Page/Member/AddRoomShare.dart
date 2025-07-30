@@ -655,9 +655,17 @@ if (!isValidText(priceCtl.text) ||
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-        title: Text('Add Room Share',
+         title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
+            'Add Room Share',
             style: GoogleFonts.poppins(
-                color: Colors.white, fontWeight: FontWeight.bold)),
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
+          ),
+        ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           onPressed: () => Navigator.pop(context, true),

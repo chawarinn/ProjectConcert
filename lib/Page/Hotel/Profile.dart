@@ -134,6 +134,7 @@ class _ProfileHotelState extends State<ProfileHotel> {
            style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
+            fontSize: 20
           ),
         ),
        actions: [

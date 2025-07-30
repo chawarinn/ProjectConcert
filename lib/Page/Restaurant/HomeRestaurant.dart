@@ -69,6 +69,7 @@ class _HomerestaurantState extends State<Homerestaurant> {
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
+            fontSize: 20
           ),
         ),
         actions: [

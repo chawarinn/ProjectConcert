@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:developer' as dev_log;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:project_concert_closeiin/Page/Login.dart';
 import 'package:project_concert_closeiin/Page/RegisterUser.dart';
@@ -332,7 +333,17 @@ class _HoteleventuserState extends State<Hoteleventuser> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hotel', style: TextStyle(color: Colors.white)),
+         title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
+            'Hotel',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
+          ),
+        ),
         backgroundColor: const Color.fromRGBO(201, 151, 187, 1),
         leading: IconButton(
           icon:

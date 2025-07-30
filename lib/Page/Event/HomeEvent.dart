@@ -81,6 +81,7 @@ class _HomeEventState extends State<HomeEvent> {
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
+            fontSize: 20
           ),
         ),
         actions: [

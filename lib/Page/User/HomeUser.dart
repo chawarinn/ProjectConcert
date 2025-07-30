@@ -90,6 +90,7 @@ class _HomeUserState extends State<HomeUser> {
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
+            fontSize: 20
           ),
         ),
         actions: [

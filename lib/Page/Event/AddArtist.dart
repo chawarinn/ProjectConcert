@@ -251,11 +251,13 @@ class _AddArtistPageState extends State<AddArtistPage> {
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         automaticallyImplyLeading: false,
+        
         title: Text(
           "Artist",
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
+            fontSize: 20
           ),
         ),
         actions: [
