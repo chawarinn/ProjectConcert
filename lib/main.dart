@@ -6,6 +6,7 @@ import 'package:project_concert_closeiin/Page/Admin/AdminDetail.dart';
 import 'package:project_concert_closeiin/Page/Admin/AdminHotel.dart';
 import 'package:project_concert_closeiin/Page/Admin/AdminRes.dart';
 import 'package:project_concert_closeiin/Page/Admin/HomeAdmin.dart';
+import 'package:project_concert_closeiin/Page/Event/Profile.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Event/HomeEvent.dart';
 import 'package:project_concert_closeiin/Page/Hotel/AddHotel.dart';
@@ -27,6 +28,7 @@ import 'package:project_concert_closeiin/Page/Member/AddRoomShare.dart';
 import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
 import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
 import 'package:project_concert_closeiin/Page/Restaurant/HomeRestaurant.dart';
+import 'package:project_concert_closeiin/Page/Restaurant/ProfileRestaurant.dart';
 import 'firebase_options.dart';
 
 
@@ -51,7 +53,9 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
    
-      home: Homemember(userId: 13)
+      // home: Homemember(userId: 13)
+      // home:ProfileRestaurant(userId: 13)
+      home: ProfileEvent(userId: 13),
     );
   }
 }
