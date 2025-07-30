@@ -129,7 +129,7 @@ class _SendOTPAState extends State<SendOTPA> {
                           if (email.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                  content: Text("Please enter your email.")),
+                                  content: Text("กรุณากรอกอีเมลให้ถูกต้อง")),
                             );
                             return;
                           }
@@ -188,7 +188,7 @@ class _SendOTPAState extends State<SendOTPA> {
                               builder: (context) => AlertDialog(
                                 title: Text("Error"),
                                 content: Text(
-                                    "Something went wrong. Please try again."),
+                                    "กรุณากรอกอีเมลให้ถูกต้อง"),
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(context),

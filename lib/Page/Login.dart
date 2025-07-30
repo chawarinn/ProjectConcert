@@ -5,9 +5,11 @@ import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:project_concert_closeiin/Page/Admin/HomeAdmin.dart';
 import 'package:project_concert_closeiin/Page/Event/AddEvent.dart';
+import 'package:project_concert_closeiin/Page/Event/HomeEvent.dart';
 import 'package:project_concert_closeiin/Page/Hotel/HomeHotel.dart';
 import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
 import 'package:project_concert_closeiin/Page/Restaurant/AddRestaurant.dart';
+import 'package:project_concert_closeiin/Page/Restaurant/HomeRestaurant.dart';
 import 'package:project_concert_closeiin/SendOTPLogin.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
@@ -307,7 +309,7 @@ class _LoginPageState extends State<LoginPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AddRestaurant(userId: users.user.userId),
+              builder: (context) => Homerestaurant(userId: users.user.userId),
             ),
           );
           break;
@@ -315,7 +317,7 @@ class _LoginPageState extends State<LoginPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AddEvent(userId: users.user.userId),
+              builder: (context) => HomeEvent(userId: users.user.userId),
             ),
           );
           break;

@@ -222,6 +222,14 @@ Widget buildRestaurantCard(
               height: 180,
               width: double.infinity,
               fit: BoxFit.cover,
+                 errorBuilder: (context, error, stackTrace) {
+            return Container(
+                      width: double.infinity,
+                      height: 180,
+                      color: Colors.grey[400],
+                      child: Icon(Icons.image, color: Colors.white),
+                    );
+                       }
             ),
           SizedBox(height: 8),
           Text('ประเภทอาหาร : ${res['type'] ?? ''}'),

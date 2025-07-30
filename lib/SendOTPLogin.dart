@@ -143,14 +143,14 @@ class _SendOTPLoginState extends State<SendOTPLogin> {
 
                     if (email.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Please enter your email.")),
+                        SnackBar(content: Text("กรุณากรอกอีเมลให้ถูกต้อง")),
                       );
                       return;
                     }
 
                     if (!isValidEmail(email)) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Please enter a valid email address.")),
+                        SnackBar(content: Text("กรุณากรอกอีเมลให้ถูกต้อง")),
                       );
                       return;
                     }

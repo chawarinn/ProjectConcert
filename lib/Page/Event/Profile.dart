@@ -270,7 +270,7 @@ class _ProfileEventState extends State<ProfileEvent> {
                         'Edit',
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.bold,
-                          fontSize: 20,
+                          fontSize: 18,
                           color: Colors.white,
                         ),
                       ),
@@ -320,7 +320,7 @@ class _ProfileEventState extends State<ProfileEvent> {
                         'Delete User Account',
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: 14,
                           color: Colors.white,
                         ),
                       ),

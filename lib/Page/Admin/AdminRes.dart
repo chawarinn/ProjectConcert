@@ -72,7 +72,9 @@ class _AdminResState extends State<AdminRes> {
         automaticallyImplyLeading: false,
         title: Text('Restaurant',
             style: GoogleFonts.poppins(
-                fontWeight: FontWeight.bold, color: Colors.white,fontSize: 20)),
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontSize: 20)),
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         actions: [
           IconButton(
@@ -211,211 +213,212 @@ Widget buildCard(
   int userId,
 ) {
   return Card(
-      color: Colors.grey[200],
-      margin: EdgeInsets.symmetric(vertical: 6),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 3,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: res['resPhoto'] != null
-                  ? Image.network(
-                      res['resPhoto'],
-                      width: 120,
-                      height: 150,
-                      fit: BoxFit.cover,
-                    )
-                  : Container(
-                      width: 100,
-                      height: 100,
-                      color: Colors.grey[400],
-                      child: Icon(Icons.image, color: Colors.white),
-                    ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    res['resName'],
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "ประเภทอาหาร : ",
-                          style: TextStyle(
-                              fontSize: 12),
-                        ),
-                        TextSpan(
-                          text: res['type'] ?? '',
-                          style: TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.normal),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "เวลา : ",
-                          style: TextStyle(
-                              fontSize: 12),
-                        ),
-                        TextSpan(
-                          text: res['open'] ?? '',
-                          style: TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.normal),
-                        ),
-                        TextSpan(
-                          text: " - ",
-                          style: TextStyle(
-                              fontSize: 12),
-                        ),
-                        TextSpan(
-                          text: res['close'] ?? '',
-                          style: TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.normal),
-                        ),
-                        TextSpan(
-                          text: " น. ",
-                          style: TextStyle(
-                              fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "ที่ตั้ง : ",
-                          style: TextStyle(
-                              fontSize: 12),
-                        ),
-                        TextSpan(
-                          text: res['location'] ?? '',
-                          style: TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.normal),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (res['distance'] != null)
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "ระยะทาง : ",
-                            style: TextStyle(
-                                fontSize: 12),
-                          ),
-                          TextSpan(
-                            text: res['distance'].toStringAsFixed(2),
-                            style: TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.normal),
-                          ),
-                          TextSpan(
-                            text: " กม.",
-                            style: TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.normal),
-                          ),
-                        ],
-                      ),
-                    ),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "ติดต่อ : ",
-                          style: TextStyle(
-                              fontSize: 12),
-                        ),
-                        TextSpan(
-                          text: res['contact'] ?? 'No Contact',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.normal,
-                            color: res['contact'] == null
-                                ? Colors.red
-                                : Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                            Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              IconButton(
-                icon: Icon(Icons.delete, color: Colors.red, size: 35),
-                onPressed: () async {
-                  final confirm = await showDialog<bool>(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text('Notification'),
-                      content: Text('ต้องการลบร้านอาหารนี้หรือไม่?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child:
-                              Text('No', style: TextStyle(color: Colors.black)),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: Text('Yes',
-                              style: TextStyle(color: Colors.black)),
-                        ),
-                      ],
-                    ),
-                  );
-
-                  if (confirm == true) {
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (_) => Center(
-                          child:
-                              CircularProgressIndicator(color: Colors.black)),
-                    );
-
-                    try {
-                      final response = await http.delete(Uri.parse(
-                        '$API_ENDPOINT//deleterestaurant?resID=${res['resID']}',
-                      ));
-                      Navigator.pop(context);
-
-                      if (response.statusCode == 200) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('ลบเรียบร้อยแล้ว')),
-                        );
-                        await onUpdated();
-                      } else {
-                        throw Exception('ลบไม่สำเร็จ: ${response.body}');
-                      }
-                    } catch (e) {
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
+    color: Colors.grey[200],
+    margin: EdgeInsets.symmetric(vertical: 6),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    elevation: 3,
+    child: Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: res['resPhoto'] != null
+                ? Image.network(
+                    res['resPhoto'],
+                    width: 120,
+                    height: 150,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        width: 120,
+                        height: 150,
+                        color: Colors.grey[400],
+                        child: Icon(Icons.image, color: Colors.white),
                       );
-                    }
-                  }
-                },
-              ),
-            ],
+                    },
+                  )
+                : Container(
+                    width: 120,
+                    height: 150,
+                    color: Colors.grey[400],
+                    child: Icon(Icons.image, color: Colors.white),
+                  ),
           ),
-                ],
-              ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  res['resName'],
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "ประเภทอาหาร : ",
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      TextSpan(
+                        text: res['type'] ?? '',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.normal),
+                      ),
+                    ],
+                  ),
+                ),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "เวลา : ",
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      TextSpan(
+                        text: res['open'] ?? '',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.normal),
+                      ),
+                      TextSpan(
+                        text: " - ",
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      TextSpan(
+                        text: res['close'] ?? '',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.normal),
+                      ),
+                      TextSpan(
+                        text: " น. ",
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "ที่ตั้ง : ",
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      TextSpan(
+                        text: res['location'] ?? '',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.normal),
+                      ),
+                    ],
+                  ),
+                ),
+                if (res['distance'] != null)
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "ระยะทาง : ",
+                          style: TextStyle(fontSize: 12),
+                        ),
+                        TextSpan(
+                          text: res['distance'].toStringAsFixed(2),
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.normal),
+                        ),
+                        TextSpan(
+                          text: " กม.",
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.normal),
+                        ),
+                      ],
+                    ),
+                  ),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "ติดต่อ : ",
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      TextSpan(
+                        text: res['contact'] ?? 'No Contact',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.normal,
+                          color: res['contact'] == null
+                              ? Colors.red
+                              : Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.delete, color: Colors.red, size: 35),
+                      onPressed: () async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text('Notification'),
+                            content: Text('ต้องการลบร้านอาหารนี้หรือไม่?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: Text('No',
+                                    style: TextStyle(color: Colors.black)),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: Text('Yes',
+                                    style: TextStyle(color: Colors.black)),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (confirm == true) {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (_) => Center(
+                                child: CircularProgressIndicator(
+                                    color: Colors.black)),
+                          );
+
+                          try {
+                            final response = await http.delete(Uri.parse(
+                              '$API_ENDPOINT//deleterestaurant?resID=${res['resID']}',
+                            ));
+                            Navigator.pop(context);
+
+                            if (response.statusCode == 200) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('ลบเรียบร้อยแล้ว')),
+                              );
+                              await onUpdated();
+                            } else {
+                              throw Exception('ลบไม่สำเร็จ: ${response.body}');
+                            }
+                          } catch (e) {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
+                            );
+                          }
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
+    ),
+  );
 }

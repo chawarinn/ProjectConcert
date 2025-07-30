@@ -346,7 +346,7 @@ class _ProfileAdminState extends State<ProfileAdmin> {
                         'Edit',
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.bold,
-                          fontSize: 20,
+                          fontSize: 18,
                           color: Colors.white,
                         ),
                       ),
@@ -396,7 +396,7 @@ class _ProfileAdminState extends State<ProfileAdmin> {
                         'Delete User Account',
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: 14,
                           color: Colors.white,
                         ),
                       ),

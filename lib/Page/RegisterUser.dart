@@ -33,6 +33,7 @@ class _RegisterPageUserState extends State<RegisterPageUser> {
   String url = '';
   String? selectedUserType;
   final List<String> userTypes = ['User', 'Hotel', 'Restaurant', 'Organizer'];
+  bool _obscurePassword = true;
 
   @override
   void initState() {
@@ -485,7 +486,7 @@ void hideLoadingDialog() {
                   TextField(
                     controller: passwordCtl,
                     focusNode: _passwordFocusNode,
-                    obscureText: true,
+                    obscureText: _obscurePassword,
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: const Color.fromRGBO(217, 217, 217, 1),
@@ -495,7 +496,21 @@ void hideLoadingDialog() {
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide.none,
                       ),
+                       suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
                     ),
+                    
                   ),
                   const SizedBox(height: 5),
           if (_isPasswordFocused)
@@ -530,7 +545,7 @@ void hideLoadingDialog() {
                   TextField(
                     controller: confirmpassCtl,
                     focusNode: _confirmFocusNode,
-                    obscureText: true,
+                    obscureText: _obscurePassword,
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: const Color.fromRGBO(217, 217, 217, 1),
@@ -540,6 +555,19 @@ void hideLoadingDialog() {
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide.none,
                       ),
+                      suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
                     ),
                   ),
                   const SizedBox(height: 5),

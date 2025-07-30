@@ -238,7 +238,7 @@ class _SelectArtistPageState extends State<SelectArtistPage> {
                             crossAxisCount: 3,
                             crossAxisSpacing: 6,
                             mainAxisSpacing: 6,
-                            childAspectRatio: 3 / 3.4,
+                            childAspectRatio: 3 / 3.8,
                           ),
                           itemCount: artistsSorted.length,
                           itemBuilder: (context, index) {

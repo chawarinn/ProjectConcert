@@ -388,7 +388,7 @@ bool _areArtistListsEqual(List<dynamic> list1, List<dynamic> list2) {
         final data = json.decode(response.body);
         _showAlertDialog(
           context,
-          'แก้ไขข้อมูลสำเร็จ',
+          'อัปเดตการแก้ไขข้อมูลอีเว้นต์สำเร็จ',
           onOkPressed: () {
             Navigator.pushAndRemoveUntil(
               context,

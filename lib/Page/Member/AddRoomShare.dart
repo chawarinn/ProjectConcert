@@ -525,7 +525,7 @@ if (!isValidText(priceCtl.text) ||
         children: [
           RichText(
             text: TextSpan(
-              text: 'Price Per Person ',
+              text: 'Price/Person ',
               style: TextStyle(fontSize: 18, color: Colors.black),
               children: [
                 TextSpan(text: '*', style: TextStyle(color: Colors.red)),

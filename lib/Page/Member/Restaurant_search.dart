@@ -123,10 +123,18 @@ class _RestaurantSearch extends State<RestaurantSearch> {
                       width: 120,
                       height: 150,
                       fit: BoxFit.cover,
+                         errorBuilder: (context, error, stackTrace) {
+            return Container(
+                      width: 120,
+                      height: 150,
+                      color: Colors.grey[400],
+                      child: Icon(Icons.image, color: Colors.white),
+                    );
+                       }
                     )
                   : Container(
-                      width: 100,
-                      height: 100,
+                      width: 120,
+                      height: 150,
                       color: Colors.grey[400],
                       child: Icon(Icons.image, color: Colors.white),
                     ),

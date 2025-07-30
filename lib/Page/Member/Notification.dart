@@ -36,103 +36,102 @@ class _NotificationPageState extends State<NotificationPage> {
 
   @override
   @override
-void initState() {
-  super.initState();
+  void initState() {
+    super.initState();
 
-  Configuration.getConfig().then((config) {
-    setState(() {
-      url = config['apiEndpoint'];
+    Configuration.getConfig().then((config) {
+      setState(() {
+        url = config['apiEndpoint'];
+      });
+    }).catchError((err) {
+      log(err.toString());
     });
-  }).catchError((err) {
-    log(err.toString());
-  });
 
-  // ✅ ซ่อน loading หลัง 1 วินาที (แสดงครั้งเดียว)
-  Future.delayed(Duration(seconds: 1), () {
-    if (mounted) {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  });
+    // ✅ ซ่อน loading หลัง 1 วินาที (แสดงครั้งเดียว)
+    Future.delayed(Duration(seconds: 1), () {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    });
 
-  _roomRequestStream = rating.onValue;
-  _subscription = _roomRequestStream.listen((DatabaseEvent event) {
-    final snapshot = event.snapshot;
-    if (!snapshot.exists) {
-      setState(() {
-        roomRequests = [];
-      });
-      return;
-    }
+    _roomRequestStream = rating.onValue;
+    _subscription = _roomRequestStream.listen((DatabaseEvent event) {
+      final snapshot = event.snapshot;
+      if (!snapshot.exists) {
+        setState(() {
+          roomRequests = [];
+        });
+        return;
+      }
 
-    final rawData = snapshot.value;
-    if (rawData is Map<dynamic, dynamic>) {
-      final List<Map<String, dynamic>> requests = [];
+      final rawData = snapshot.value;
+      if (rawData is Map<dynamic, dynamic>) {
+        final List<Map<String, dynamic>> requests = [];
 
-      rawData.forEach((key, value) {
-        if (value is Map<dynamic, dynamic>) {
-          if (value['userReqID'] != null &&
-                  value['userReqID'] == widget.userId ||
-              value['userID'] == widget.userId) {
-            final favoriteArtists = <String>[];
-            final fa = value['favoriteArtists'];
-            if (fa != null) {
-              if (fa is Map) {
-                fa.forEach((_, artist) {
-                  if (artist is Map && artist['artistName'] != null) {
-                    favoriteArtists.add(artist['artistName']);
-                  }
-                });
-              } else if (fa is List) {
-                for (var artist in fa) {
-                  if (artist is Map && artist['artistName'] != null) {
-                    favoriteArtists.add(artist['artistName']);
+        rawData.forEach((key, value) {
+          if (value is Map<dynamic, dynamic>) {
+            if (value['userReqID'] != null &&
+                    value['userReqID'] == widget.userId ||
+                value['userID'] == widget.userId) {
+              final favoriteArtists = <String>[];
+              final fa = value['favoriteArtists'];
+              if (fa != null) {
+                if (fa is Map) {
+                  fa.forEach((_, artist) {
+                    if (artist is Map && artist['artistName'] != null) {
+                      favoriteArtists.add(artist['artistName']);
+                    }
+                  });
+                } else if (fa is List) {
+                  for (var artist in fa) {
+                    if (artist is Map && artist['artistName'] != null) {
+                      favoriteArtists.add(artist['artistName']);
+                    }
                   }
                 }
               }
+
+              requests.add({
+                'key': key.toString(),
+                'roomshareID': value['roomshareID'],
+                'userID': value['userID'],
+                'userReqID': value['userReqID'],
+                'userDetail': value['userDetail'],
+                'favoriteArtists': favoriteArtists,
+                'status': value['status'] ?? 'request',
+                'roomshareContact': value['roomshareContact'] ?? '',
+                'updatedAt': value['updatedAt'],
+              });
             }
-
-            requests.add({
-              'key': key.toString(),
-              'roomshareID': value['roomshareID'],
-              'userID': value['userID'],
-              'userReqID': value['userReqID'],
-              'userDetail': value['userDetail'],
-              'favoriteArtists': favoriteArtists,
-              'status': value['status'] ?? 'request',
-              'roomshareContact': value['roomshareContact'] ?? '',
-              'updatedAt': value['updatedAt'],
-            });
           }
-        }
-      });
+        });
 
-      // 🔽 จัดเรียง
-      requests.sort((a, b) {
-        final statusA = a['status'] ?? '';
-        final statusB = b['status'] ?? '';
-        final updatedA = a['updatedAt'] ?? 0;
-        final updatedB = b['updatedAt'] ?? 0;
+        // 🔽 จัดเรียง
+        requests.sort((a, b) {
+          final statusA = a['status'] ?? '';
+          final statusB = b['status'] ?? '';
+          final updatedA = a['updatedAt'] ?? 0;
+          final updatedB = b['updatedAt'] ?? 0;
 
-        if (updatedA != updatedB) return updatedB.compareTo(updatedA);
-        if (statusA == 'accepted' && statusB == 'cancelled') return -1;
-        if (statusA == 'cancelled' && statusB == 'accepted') return 1;
+          if (updatedA != updatedB) return updatedB.compareTo(updatedA);
+          if (statusA == 'accepted' && statusB == 'cancelled') return -1;
+          if (statusA == 'cancelled' && statusB == 'accepted') return 1;
 
-        return b['key'].compareTo(a['key']);
-      });
+          return b['key'].compareTo(a['key']);
+        });
 
-      setState(() {
-        roomRequests = requests;
-      });
-    } else {
-      setState(() {
-        roomRequests = [];
-      });
-    }
-  });
-}
-
+        setState(() {
+          roomRequests = requests;
+        });
+      } else {
+        setState(() {
+          roomRequests = [];
+        });
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -168,7 +167,9 @@ void initState() {
         automaticallyImplyLeading: false,
         title: Text('Notifications',
             style: GoogleFonts.poppins(
-                fontWeight: FontWeight.bold, color: Colors.white, fontSize: 20)),
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontSize: 20)),
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         actions: [
           IconButton(
@@ -202,7 +203,7 @@ void initState() {
           ),
         ],
       ),
-       bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
@@ -249,7 +250,8 @@ void initState() {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
           BottomNavigationBarItem(
               icon: Icon(FontAwesomeIcons.heartPulse), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Notifications'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.notifications), label: 'Notifications'),
           BottomNavigationBarItem(icon: Icon(Icons.face), label: ''),
         ],
       ),
@@ -381,15 +383,18 @@ class RoomShareRequestCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (status == 'accepted') ...[
-                 if (request['userReqID'] == userId) ...[
+                if (request['userReqID'] == userId) ...[
                   Row(
                     children: [
                       Icon(Icons.check_circle, color: Colors.green, size: 30),
                       const SizedBox(width: 6),
                       Text(
                         'Accepted Room sharing successful',
+                        softWrap: true,
+                        maxLines: null,
+                        overflow: TextOverflow.visible,
                         style: GoogleFonts.poppins(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+                            fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -398,13 +403,15 @@ class RoomShareRequestCard extends StatelessWidget {
                     children: [
                       Text(
                         'Room sharing successful',
+                        softWrap: true,
+                        maxLines: null,
+                        overflow: TextOverflow.visible,
                         style: GoogleFonts.poppins(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+                            fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
                 ]
-               
               ] else if (status == 'cancelled') ...[
                 if (request['userReqID'] == userId) ...[
                   Row(
@@ -413,8 +420,11 @@ class RoomShareRequestCard extends StatelessWidget {
                       const SizedBox(width: 6),
                       Text(
                         'Your request has been rejected',
+                        softWrap: true,
+                        maxLines: null,
+                        overflow: TextOverflow.visible,
                         style: GoogleFonts.poppins(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+                            fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -423,8 +433,11 @@ class RoomShareRequestCard extends StatelessWidget {
                     children: [
                       Text(
                         'Room sharing failed',
+                        softWrap: true,
+                        maxLines: null,
+                        overflow: TextOverflow.visible,
                         style: GoogleFonts.poppins(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+                            fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -432,8 +445,11 @@ class RoomShareRequestCard extends StatelessWidget {
               ] else ...[
                 Text(
                   'Do You Want Match Room Share ?',
+                  softWrap: true,
+                        maxLines: null,
+                        overflow: TextOverflow.visible,
                   style: GoogleFonts.poppins(
-                      fontSize: 16, fontWeight: FontWeight.bold),
+                      fontSize: 14, fontWeight: FontWeight.bold),
                 ),
               ],
               if (request['userReqID'] != userId)
@@ -619,25 +635,27 @@ class RoomShareRequestCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: CircleAvatar(
-                          radius: 30, backgroundImage: NetworkImage(room['photo'] )),
-                    ),
-                         const SizedBox(width: 16),
+                          padding: const EdgeInsets.only(top: 10),
+                          child: CircleAvatar(
+                              radius: 30,
+                              backgroundImage: NetworkImage(room['photo'])),
+                        ),
+                        const SizedBox(width: 16),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                               Row(
-                          children: [
-                            Text(room['name'] ,
-                                style: GoogleFonts.poppins(fontSize: 20)),
-                            SizedBox(width: 6),
-                            Icon(Icons.verified,
-                                color: Colors.blueAccent, size: 20),
-                          ],
-                        ),
-                         Text("โปรดติดต่อ : ${room['shareContact'] ?? '-'}",
+                              Row(
+                                children: [
+                                  Text(room['name'],
+                                      style: GoogleFonts.poppins(fontSize: 20)),
+                                  SizedBox(width: 6),
+                                  Icon(Icons.verified,
+                                      color: Colors.blueAccent, size: 20),
+                                ],
+                              ),
+                              Text(
+                                  "โปรดติดต่อ : ${room['shareContact'] ?? '-'}",
                                   style: GoogleFonts.poppins()),
                               Text("อีเว้นท์ : ${room['eventName'] ?? '-'}",
                                   style: GoogleFonts.poppins()),
@@ -656,36 +674,35 @@ class RoomShareRequestCard extends StatelessWidget {
                                   style: GoogleFonts.poppins()),
                               Text("อื่นๆ : ${room['note'] ?? '-'}",
                                   style: GoogleFonts.poppins()),
-                                  if (status == 'cancelled' &&
-                              request['userReqID'] == userId)
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'Rejected',
-                                  style: TextStyle(
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            )
-                             else if (status == 'accepted' &&
-                              request['userReqID'] == userId)
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'Accepted',
-                                  style: TextStyle(
-                                      color: Colors.green,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            )
+                              if (status == 'cancelled' &&
+                                  request['userReqID'] == userId)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      'Rejected',
+                                      style: TextStyle(
+                                          color: Colors.red,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                )
+                              else if (status == 'accepted' &&
+                                  request['userReqID'] == userId)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      'Accepted',
+                                      style: TextStyle(
+                                          color: Colors.green,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                )
                             ],
                           ),
                         ),
-                         
                       ],
                     );
                   },
