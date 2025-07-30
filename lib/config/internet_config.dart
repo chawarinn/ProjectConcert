@@ -1,3 +1,3 @@
 // String API_ENDPOINT = "http://192.168.3.175:3000";
-String API_ENDPOINT = "http://10.160.7.33:3000";
+String API_ENDPOINT = "https://api-project-i81g.onrender.com";
 // String API_ENDPOINT = "http://172.20.10.3:3000"; 
