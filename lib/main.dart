@@ -52,8 +52,13 @@ class MyApp extends StatelessWidget {
       ),
    
       // home: HomeAdmin(userId: 5)
-     home: Homemember(userId: 15),
+    //  home: Homemember(userId: 15),
     // home: HomeHotel(userId: 5),
+    // home: HomeEvent(userId: 6),
+    home: homeLogoPage(),
+
+     
+    
     );
   }
 }
