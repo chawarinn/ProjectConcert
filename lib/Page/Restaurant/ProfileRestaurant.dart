@@ -3,13 +3,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:project_concert_closeiin/Page/Home.dart';
-import 'package:project_concert_closeiin/Page/Member/EditProfileMember.dart';
-import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
-import 'package:project_concert_closeiin/Page/Member/Notification.dart';
-import 'package:project_concert_closeiin/Page/Member/artist.dart';
 import 'package:project_concert_closeiin/Page/Restaurant/Editprofile.dart';
 import 'package:project_concert_closeiin/Page/Restaurant/HomeRestaurant.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
@@ -138,6 +133,7 @@ class _ProfileRestaurantState extends State<ProfileRestaurant> {
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
+            fontSize: 20
           ),
         ),
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
@@ -273,7 +269,7 @@ class _ProfileRestaurantState extends State<ProfileRestaurant> {
                         'Edit',
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.bold,
-                          fontSize: 20,
+                          fontSize: 18,
                           color: Colors.white,
                         ),
                       ),
@@ -323,7 +319,7 @@ class _ProfileRestaurantState extends State<ProfileRestaurant> {
                         'Delete User Account',
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: 14,
                           color: Colors.white,
                         ),
                       ),

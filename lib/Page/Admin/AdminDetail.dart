@@ -217,11 +217,15 @@ void listenToTotalPoint() {
           icon: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           onPressed: () => Navigator.pop(context, true),
         ),
-        title: Text(
-          'Detail',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+         title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
+            'Detail',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
           ),
         ),
         actions: [

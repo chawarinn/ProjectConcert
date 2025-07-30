@@ -6,7 +6,6 @@ import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class LocationPage extends StatefulWidget {
   const LocationPage({Key? key}) : super(key: key);
@@ -97,11 +96,15 @@ String? selectedAddress;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-        title: Text(
-          'Location',
-           style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+         title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
+            'Location',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
           ),
         ),
         leading: IconButton(

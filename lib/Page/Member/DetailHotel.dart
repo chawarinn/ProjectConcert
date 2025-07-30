@@ -220,11 +220,15 @@ void listenToTotalPoint() {
           icon: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           onPressed: () => Navigator.pop(context, true),
         ),
-        title: Text(
-          'Detail',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+         title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
+            'Detail',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
           ),
         ),
         actions: [
@@ -627,8 +631,8 @@ void listenToTotalPoint() {
                       child: Row(
                         children: [
                           ...nearbyRestaurants.map((r) => Container(
-                                width: 400, // กำหนดความกว้างการ์ดเท่าเดิม
-                                height: 170,
+                                width: 400, 
+                                height: 175,
                                 margin: EdgeInsets.only(right: 3),
                                 child: Card(
                                   color: Colors.grey[200],
@@ -648,6 +652,14 @@ void listenToTotalPoint() {
                                                   width: 100,
                                                   height: 120,
                                                   fit: BoxFit.cover,
+                                                     errorBuilder: (context, error, stackTrace) {
+            return Container(
+                      width: 100,
+                      height: 100,
+                      color: Colors.grey[400],
+                      child: Icon(Icons.image, color: Colors.white),
+                    );
+                       }
                                                 )
                                               : Container(
                                                   width: 100,

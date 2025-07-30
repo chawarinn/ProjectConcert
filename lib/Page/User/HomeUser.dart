@@ -79,6 +79,8 @@ class _HomeUserState extends State<HomeUser> {
     }
   }
 
+  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,9 +90,7 @@ class _HomeUserState extends State<HomeUser> {
         title: Text(
           'Concert Close Inn',
           style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+              fontWeight: FontWeight.bold, color: Colors.white, fontSize: 20),
         ),
         actions: [
           PopupMenuButton<String>(
@@ -161,7 +161,8 @@ class _HomeUserState extends State<HomeUser> {
                           MaterialPageRoute(builder: (context) => LoginPage()),
                         );
                       },
-                      child: Text('Log in',  style: TextStyle(color: Colors.black)),
+                      child:
+                          Text('Log in', style: TextStyle(color: Colors.black)),
                     ),
                     TextButton(
                       onPressed: () {
@@ -172,7 +173,8 @@ class _HomeUserState extends State<HomeUser> {
                               builder: (context) => RegisterPageUser()),
                         );
                       },
-                      child: Text('Sign up',  style: TextStyle(color: Colors.black)),
+                      child: Text('Sign up',
+                          style: TextStyle(color: Colors.black)),
                     ),
                   ],
                 );
@@ -291,55 +293,70 @@ class _HomeUserState extends State<HomeUser> {
                                     FontAwesomeIcons.bed,
                                     "Room Share",
                                     () {
-                                         showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  titlePadding: EdgeInsets.only(
-                      top: 16, left: 16, right: 8), // เพิ่ม padding สวยงาม
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Notification',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.close),
-                        splashRadius: 20,
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  ),
-                  content: Text('กรุณาเข้าสู่ระบบก่อน'),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => LoginPage()),
-                        );
-                      },
-                      child: Text('Log in', style: TextStyle(color: Colors.black)),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => RegisterPageUser()),
-                        );
-                      },
-                      child: Text('Sign up', style: TextStyle(color: Colors.black)),
-                    ),
-                  ],
-                );
-              },
-            );
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            titlePadding: EdgeInsets.only(
+                                                top: 16,
+                                                left: 16,
+                                                right:
+                                                    8), // เพิ่ม padding สวยงาม
+                                            title: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(
+                                                  'Notification',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                IconButton(
+                                                  icon: Icon(Icons.close),
+                                                  splashRadius: 20,
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                            content:
+                                                Text('กรุณาเข้าสู่ระบบก่อน'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            LoginPage()),
+                                                  );
+                                                },
+                                                child: Text('Log in',
+                                                    style: TextStyle(
+                                                        color: Colors.black)),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            RegisterPageUser()),
+                                                  );
+                                                },
+                                                child: Text('Sign up',
+                                                    style: TextStyle(
+                                                        color: Colors.black)),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
                                     },
                                   ),
                                 ),
@@ -462,7 +479,7 @@ class _HomeUserState extends State<HomeUser> {
         children: [
           Icon(icon, size: 30, color: const Color.fromARGB(199, 0, 0, 0)),
           const SizedBox(height: 6),
-          Text(label, style: const TextStyle(fontSize: 14)),
+          Text(label, style: const TextStyle(fontSize: 10)),
         ],
       ),
     );

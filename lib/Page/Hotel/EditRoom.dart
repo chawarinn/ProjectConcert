@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:path/path.dart' as path;
 import 'package:image_picker/image_picker.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Hotel/HomeHotel.dart';
@@ -12,7 +11,6 @@ import 'package:project_concert_closeiin/Page/Hotel/Profile.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class EditRoom extends StatefulWidget {
   final int roomID;
@@ -286,11 +284,15 @@ bool _isDataChanged() {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-        title: Text(
-          'Edit Room',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+         title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
+            'Edit Room',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
           ),
         ),
         leading: IconButton(

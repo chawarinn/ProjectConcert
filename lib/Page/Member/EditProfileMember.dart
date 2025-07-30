@@ -10,7 +10,7 @@ import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
 import 'package:project_concert_closeiin/Page/Member/Notification.dart';
 import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
 import 'package:project_concert_closeiin/Page/Member/artist.dart';
-import 'package:project_concert_closeiin/Page/SendOTP.dart';
+import 'package:project_concert_closeiin/Page/Member/SendOTP.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
 class EditProfileMember extends StatefulWidget {
@@ -27,6 +27,10 @@ class _EditProfileMemberState extends State<EditProfileMember> {
   bool isLoading = true;
   Map<String, dynamic>? userData;
   Map<String, dynamic>? originalUserData;
+  bool _obscurePassword = true;
+bool _obscureNewPassword = true;
+bool _obscureConfirmPassword = true;
+
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -362,42 +366,52 @@ class _EditProfileMemberState extends State<EditProfileMember> {
       },
     );
   }
-
-  Widget _buildTextField({
-    required String label,
-    required String hintText,
-    required TextEditingController controller,
-    bool isRequired = false,
-    bool isPassword = false,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(label, style: TextStyle(fontSize: 18, color: Colors.black)),
-              if (isRequired) Text('*', style: TextStyle(color: Colors.red)),
-            ],
-          ),
-          TextField(
-            controller: controller,
-            obscureText: isPassword,
-            decoration: InputDecoration(
-              hintText: hintText,
-              filled: true,
-              fillColor: Colors.grey[200],
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide.none,
-              ),
+Widget _buildTextField({
+  required String label,
+  required String hintText,
+  required TextEditingController controller,
+  bool isRequired = false,
+  bool isPassword = false,
+  bool obscureText = false,
+  VoidCallback? toggleObscure,
+}) {
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(label, style: TextStyle(fontSize: 18, color: Colors.black)),
+            if (isRequired) Text('*', style: TextStyle(color: Colors.red)),
+          ],
+        ),
+        TextField(
+          controller: controller,
+          obscureText: obscureText,
+          decoration: InputDecoration(
+            hintText: hintText,
+            filled: true,
+            fillColor: Colors.grey[200],
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
             ),
+            suffixIcon: isPassword
+                ? IconButton(
+                    icon: Icon(
+                      obscureText ? Icons.visibility_off : Icons.visibility,
+                      color: Colors.grey,
+                    ),
+                    onPressed: toggleObscure,
+                  )
+                : null,
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildDropdownField({
     required String label,
@@ -457,11 +471,15 @@ class _EditProfileMemberState extends State<EditProfileMember> {
           onPressed: () => Navigator.pop(context, true),
         ),
         automaticallyImplyLeading: false,
-        title: Text(
-          'Edit Profile',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+         title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
+            'Edit Profile',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
           ),
         ),
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
@@ -590,6 +608,12 @@ class _EditProfileMemberState extends State<EditProfileMember> {
                       label: 'Password',
                       hintText: '',
                       controller: _passwordController,
+                      obscureText: _obscurePassword,
+  toggleObscure: () {
+    setState(() {
+      _obscurePassword = !_obscurePassword;
+    });
+  },
                       isPassword: true,
                       isRequired: true),
                   Padding(
@@ -624,6 +648,12 @@ class _EditProfileMemberState extends State<EditProfileMember> {
                     label: 'New Password',
                     hintText: '',
                     controller: _newPasswordController,
+                    obscureText: _obscurePassword,
+  toggleObscure: () {
+    setState(() {
+      _obscurePassword = !_obscurePassword;
+    });
+  },
                     isPassword: true,
                     isRequired: true,
                   ),
@@ -631,6 +661,12 @@ class _EditProfileMemberState extends State<EditProfileMember> {
                     label: 'Confirm Password',
                     hintText: '',
                     controller: _confirmPasswordController,
+                    obscureText: _obscurePassword,
+  toggleObscure: () {
+    setState(() {
+      _obscurePassword = !_obscurePassword;
+    });
+  },
                     isPassword: true,
                     isRequired: true,
                   ),

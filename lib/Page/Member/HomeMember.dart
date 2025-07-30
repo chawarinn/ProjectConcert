@@ -93,6 +93,7 @@ class _HomeMember extends State<Homemember> {
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
+            fontSize: 20
           ),
         ),
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
@@ -398,7 +399,7 @@ class _HomeMember extends State<Homemember> {
         children: [
           Icon(icon, size: 30, color: const Color.fromARGB(199, 0, 0, 0)),
           const SizedBox(height: 6),
-          Text(label, style: const TextStyle(fontSize: 14)),
+          Text(label, style: const TextStyle(fontSize: 10)),
         ],
       ),
     );

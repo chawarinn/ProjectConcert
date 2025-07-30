@@ -33,11 +33,15 @@ class _TicketWebviewPageState extends State<TicketWebviewPage> {
           onPressed: () => Navigator.pop(context, true),
         ),
          backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-        title: Text(
-          'Ticket',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+          title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
+            'Ticket',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
           ),
         ),
       ),

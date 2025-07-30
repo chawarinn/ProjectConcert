@@ -123,6 +123,14 @@ class _RestaurantSearch extends State<RestaurantSearch> {
                       width: 120,
                       height: 150,
                       fit: BoxFit.cover,
+                         errorBuilder: (context, error, stackTrace) {
+            return Container(
+                      width: 100,
+                      height: 100,
+                      color: Colors.grey[400],
+                      child: Icon(Icons.image, color: Colors.white),
+                    );
+                       }
                     )
                   : Container(
                       width: 100,
@@ -310,11 +318,15 @@ class _RestaurantSearch extends State<RestaurantSearch> {
             Navigator.pop(context, true);
           },
         ),
-        title: Text(
-          'Restaurant',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+         title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
+            'Restaurant',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
           ),
         ),
             actions: [

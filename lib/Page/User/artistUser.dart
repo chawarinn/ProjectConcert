@@ -120,6 +120,7 @@ class _ArtistUserPageState extends State<ArtistUserPage> {
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
+            fontSize: 20
           ),
         ),
           actions: [

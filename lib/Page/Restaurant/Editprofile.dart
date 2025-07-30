@@ -5,10 +5,9 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:project_concert_closeiin/Page/Home.dart';
-import 'package:project_concert_closeiin/Page/Hotel/HomeHotel.dart';
-import 'package:project_concert_closeiin/Page/Hotel/Profile.dart';
 import 'package:project_concert_closeiin/Page/Restaurant/HomeRestaurant.dart';
 import 'package:project_concert_closeiin/Page/Restaurant/ProfileRestaurant.dart';
+import 'package:project_concert_closeiin/Page/Restaurant/SendOTP.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
 class EditProfileR extends StatefulWidget {
@@ -33,6 +32,10 @@ class _EditProfileRState extends State<EditProfileR> {
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+bool _obscurePassword = true;
+bool _obscureNewPassword = true;
+bool _obscureConfirmPassword = true;
+
 
   String? _selectedGender;
   final List<String> genderOptions = ['Male', 'Female', 'Prefer not to say'];
@@ -362,13 +365,14 @@ class _EditProfileRState extends State<EditProfileR> {
       },
     );
   }
-
 Widget _buildTextField({
   required String label,
   required String hintText,
   required TextEditingController controller,
   bool isRequired = false,
   bool isPassword = false,
+  bool obscureText = false,
+  VoidCallback? toggleObscure,
 }) {
   return Padding(
     padding: const EdgeInsets.all(8.0),
@@ -383,7 +387,7 @@ Widget _buildTextField({
         ),
         TextField(
           controller: controller,
-          obscureText: isPassword,
+          obscureText: obscureText,
           decoration: InputDecoration(
             hintText: hintText,
             filled: true,
@@ -392,12 +396,57 @@ Widget _buildTextField({
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide.none,
             ),
+            suffixIcon: isPassword
+                ? IconButton(
+                    icon: Icon(
+                      obscureText ? Icons.visibility_off : Icons.visibility,
+                      color: Colors.grey,
+                    ),
+                    onPressed: toggleObscure,
+                  )
+                : null,
           ),
         ),
       ],
     ),
   );
 }
+
+// Widget _buildTextField({
+//   required String label,
+//   required String hintText,
+//   required TextEditingController controller,
+//   bool isRequired = false,
+//   bool isPassword = false,
+// }) {
+//   return Padding(
+//     padding: const EdgeInsets.all(8.0),
+//     child: Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Row(
+//           children: [
+//             Text(label, style: TextStyle(fontSize: 18, color: Colors.black)),
+//             if (isRequired) Text('*', style: TextStyle(color: Colors.red)),
+//           ],
+//         ),
+//         TextField(
+//           controller: controller,
+//           obscureText: isPassword,
+//           decoration: InputDecoration(
+//             hintText: hintText,
+//             filled: true,
+//             fillColor: Colors.grey[200],
+//             border: OutlineInputBorder(
+//               borderRadius: BorderRadius.circular(10),
+//               borderSide: BorderSide.none,
+//             ),
+//           ),
+//         ),
+//       ],
+//     ),
+//   );
+// }
 
 Widget _buildDropdownField({
   required String label,
@@ -458,11 +507,15 @@ Widget _buildDropdownField({
           onPressed: () => Navigator.pop(context, true),
         ),
         automaticallyImplyLeading: false,
-        title: Text(
-          'Edit Profile',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+         title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
+            'Edit Profile',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
           ),
         ),
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
@@ -629,6 +682,12 @@ Widget _buildDropdownField({
                       label: 'Password',
                       hintText: '',
                       controller: _passwordController,
+                      obscureText: _obscurePassword,
+  toggleObscure: () {
+    setState(() {
+      _obscurePassword = !_obscurePassword;
+    });
+  },
                       isPassword: true,
                       isRequired: true),
                   Padding(
@@ -636,16 +695,25 @@ Widget _buildDropdownField({
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Text(
-                          'Forgot Password?',
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: const Color.fromARGB(255, 0, 91, 228),
-                            decoration: TextDecoration.underline,
-                            decorationColor:
-                                const Color.fromARGB(255, 0, 91, 228),
-                          ),
+                        GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SendOTPRes(userId: widget.userId)),
+                        );
+                      },
+                      child: Text(
+                        'Forgot Password?',
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: const Color.fromARGB(255, 0, 91, 228),
+                          decoration: TextDecoration.underline,
+                          decorationColor:
+                              const Color.fromARGB(255, 0, 91, 228),
                         ),
+                      ),
+                    ),
                       ],
                     ),
                   ),
@@ -653,13 +721,24 @@ Widget _buildDropdownField({
                     label: 'New Password',
                     hintText: '',
                     controller: _newPasswordController,
+                    obscureText: _obscurePassword,
+  toggleObscure: () {
+    setState(() {
+      _obscurePassword = !_obscurePassword;
+    });
+  },
                     isPassword: true,
                     isRequired: true,
                   ),
                   _buildTextField(
                     label: 'Confirm Password',
                     hintText: '',
-                    controller: _confirmPasswordController,
+                    controller: _confirmPasswordController,obscureText: _obscurePassword,
+  toggleObscure: () {
+    setState(() {
+      _obscurePassword = !_obscurePassword;
+    });
+  },
                     isPassword: true,
                     isRequired: true,
                   ),

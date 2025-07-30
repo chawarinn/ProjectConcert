@@ -335,9 +335,7 @@ class _ProfileMemberState extends State<ProfileMember> {
         title: Text(
           'Profile',
           style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+              fontWeight: FontWeight.bold, color: Colors.white, fontSize: 20),
         ),
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         actions: [
@@ -563,9 +561,13 @@ class _ProfileMemberState extends State<ProfileMember> {
                                 padding: const EdgeInsets.only(
                                     top: 16, left: 16, right: 16),
                                 child: Column(
-                                  children: userRooms
-                                      .map((room) => _buildRoomCard(room))
-                                      .toList(),
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("Post"), 
+                                    ...userRooms
+                                        .map((room) => _buildRoomCard(room))
+                                        .toList(),
+                                  ],
                                 ),
                               ),
                           ],

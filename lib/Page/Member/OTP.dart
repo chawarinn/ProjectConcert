@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/gestures.dart';
 import 'package:http/http.dart' as http;
+import 'package:project_concert_closeiin/Page/Member/Editpassword.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
 class OTP extends StatefulWidget {
@@ -49,7 +50,7 @@ class _OTPState extends State<OTP> {
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed to resend OTP")),
+          SnackBar(content: Text("OTP ไม่ถุ")),
         );
       }
     } catch (e) {
@@ -89,10 +90,15 @@ class _OTPState extends State<OTP> {
       final jsonResponse = jsonDecode(response.body);
 
       if (jsonResponse['success']) {
-        // ไปหน้า edit password พร้อมส่ง email
-        Navigator.pushReplacementNamed(context, '/editpassword', arguments: widget.email);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EditPassword(
+              userId: widget.userId,
+            ),
+          ),
+        );
       } else {
-        // แจ้งเตือนข้อความ error จาก API
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(jsonResponse['message'] ?? "Invalid OTP")),
         );
@@ -113,7 +119,8 @@ class _OTPState extends State<OTP> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          icon:
+              const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           onPressed: () => Navigator.pop(context, true),
         ),
         title: Transform.translate(
@@ -129,12 +136,10 @@ class _OTPState extends State<OTP> {
         ),
         backgroundColor: const Color.fromRGBO(201, 151, 187, 1),
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.black))
-          : Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 100),
+      body:  Padding(
+              padding:
+                  const EdgeInsets.only(top: 100, right: 16, left: 16),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     'Enter the password OTP',
@@ -155,7 +160,8 @@ class _OTPState extends State<OTP> {
                       hintText: "OTP",
                       filled: true,
                       fillColor: const Color.fromRGBO(217, 217, 217, 1),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 15),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide.none,
@@ -163,15 +169,17 @@ class _OTPState extends State<OTP> {
                     ),
                   ),
                   const SizedBox(height: 15),
-                  ElevatedButton(
-                    onPressed: confirmOTP,
-                    child: const Text('Confirm', style: TextStyle(color: Colors.white, fontSize: 18)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromRGBO(201, 151, 187, 1),
-                      minimumSize: const Size(double.infinity, 48),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: confirmOTP,
+                      child: const Text('Confirm',
+                          style: TextStyle(color: Colors.white, fontSize: 18)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromRGBO(201, 151, 187, 1),
+   
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 20),
                   Text.rich(
                     TextSpan(
                       text: "Didn't receive the OTP? ",
@@ -183,7 +191,8 @@ class _OTPState extends State<OTP> {
                             color: Color.fromARGB(255, 0, 91, 228),
                             decoration: TextDecoration.underline,
                           ),
-                          recognizer: TapGestureRecognizer()..onTap = sendOTPAgain,
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = sendOTPAgain,
                         ),
                       ],
                     ),

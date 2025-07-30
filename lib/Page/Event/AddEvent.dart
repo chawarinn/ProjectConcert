@@ -339,11 +339,15 @@ class _AddEventState extends State<AddEvent> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-        title: Text(
-          'Add Event',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+         title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
+            'Add Event',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
           ),
         ),
         leading: IconButton(

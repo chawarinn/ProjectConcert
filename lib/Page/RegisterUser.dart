@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:io';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:image_picker/image_picker.dart';
@@ -34,6 +33,7 @@ class _RegisterPageUserState extends State<RegisterPageUser> {
   String url = '';
   String? selectedUserType;
   final List<String> userTypes = ['User', 'Hotel', 'Restaurant', 'Organizer'];
+  bool _obscurePassword = true;
 
   @override
   void initState() {
@@ -261,11 +261,15 @@ void hideLoadingDialog() {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-        title: Text(
-          'Sign Up',
-           style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+         title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
+            'Sign Up',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
           ),
         ),
         leading: IconButton(
@@ -482,7 +486,7 @@ void hideLoadingDialog() {
                   TextField(
                     controller: passwordCtl,
                     focusNode: _passwordFocusNode,
-                    obscureText: true,
+                    obscureText: _obscurePassword,
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: const Color.fromRGBO(217, 217, 217, 1),
@@ -492,7 +496,21 @@ void hideLoadingDialog() {
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide.none,
                       ),
+                       suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
                     ),
+                    
                   ),
                   const SizedBox(height: 5),
           if (_isPasswordFocused)
@@ -527,7 +545,7 @@ void hideLoadingDialog() {
                   TextField(
                     controller: confirmpassCtl,
                     focusNode: _confirmFocusNode,
-                    obscureText: true,
+                    obscureText: _obscurePassword,
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: const Color.fromRGBO(217, 217, 217, 1),
@@ -537,6 +555,19 @@ void hideLoadingDialog() {
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide.none,
                       ),
+                      suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
                     ),
                   ),
                   const SizedBox(height: 5),

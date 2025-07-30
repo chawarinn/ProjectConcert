@@ -2,22 +2,14 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
-import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'dart:developer';
-import 'package:http/http.dart' as http;
-import 'package:google_fonts/google_fonts.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Hotel/AddRoom.dart';
 import 'package:project_concert_closeiin/Page/Hotel/HomeHotel.dart';
 import 'package:project_concert_closeiin/Page/Hotel/Location.dart';
-import 'package:project_concert_closeiin/Page/Login.dart';
 import 'package:project_concert_closeiin/Page/Hotel/Profile.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
@@ -281,11 +273,15 @@ if (!isValidText(fullnameCtl.text) ||
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-        title: Text(
-          'Add Hotel',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+         title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
+            'Add Hotel',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
           ),
         ),
         leading: IconButton(

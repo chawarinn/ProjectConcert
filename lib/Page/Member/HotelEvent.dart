@@ -12,6 +12,7 @@ import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
 import 'package:project_concert_closeiin/Page/Member/artist.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:project_concert_closeiin/model/response/userGetHotelResponse.dart';
 import 'package:project_concert_closeiin/model/response/userGetSearchHResponse.dart';
 
@@ -336,7 +337,17 @@ class _HoteleventState extends State<Hotelevent> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hotel', style: TextStyle(color: Colors.white)),
+         title: Transform.translate(
+          offset: const Offset(-20, 0),
+          child: Text(
+            'Hotel',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
+          ),
+        ),
         backgroundColor: const Color.fromRGBO(201, 151, 187, 1),
         leading: IconButton(
           icon:
