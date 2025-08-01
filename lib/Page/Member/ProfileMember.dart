@@ -547,7 +547,7 @@ class _ProfileMemberState extends State<ProfileMember> {
                                         'Delete User Account',
                                         style: GoogleFonts.poppins(
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 14,
+                                          fontSize: 12,
                                           color: Colors.white,
                                         ),
                                       ),

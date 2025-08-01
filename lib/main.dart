@@ -55,8 +55,8 @@ class MyApp extends StatelessWidget {
    
     //  home: Homemember(userId: 13)
     // home: HomeHotel(userId: 5),
-    home: HomeEvent(userId: 6),
-    // home: homeLogoPage(),
+    // home: homeLogoPage()
+    home: homeLogoPage(),
 
      
     
