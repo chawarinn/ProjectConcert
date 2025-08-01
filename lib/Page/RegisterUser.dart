@@ -74,7 +74,7 @@ class _RegisterPageUserState extends State<RegisterPageUser> {
         });
       }
     } catch (e) {
-      _showAlertDialog(context, "Image selection failed: $e");
+      _showAlertDialog(context, "เกิดข้อผิดพลาด โปรดลองอีกครั้ง");
     }
   }
 
@@ -187,7 +187,7 @@ if (!nameRegex.hasMatch(fullnameCtl.text)) {
       }
     } catch (e) {
       hideLoadingDialog();
-      _showAlertDialog(context, "Error during registration: $e");
+      _showAlertDialog(context, "อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ");
     }
   }
 

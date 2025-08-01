@@ -10,6 +10,7 @@ import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
+import 'dart:io';
 
 class AddRoomShare extends StatefulWidget {
   final int userId;
@@ -115,7 +116,7 @@ if (!isValidText(priceCtl.text) ||
     }
   } catch (e) {
     hideLoadingDialog();
-    _showAlertDialog(context, "เกิดข้อผิดพลาด: $e");
+    _showAlertDialog(context, "อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ");
   }
 }
 

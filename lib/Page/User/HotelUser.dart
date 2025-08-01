@@ -10,6 +10,7 @@ import 'dart:core';
 import 'dart:math';
 import 'dart:developer' as dev_log;
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:project_concert_closeiin/Page/User/detailHotelUser.dart';
@@ -109,6 +110,21 @@ class _HoteluserState extends State<Hoteluser> {
       });
     }
   }
+  void _showNoInternetDialog() {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    ),
+  );
+}
 
   void _filterHotelList(String query) async {
     _searchHotel = query;

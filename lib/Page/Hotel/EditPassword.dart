@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:project_concert_closeiin/Page/Hotel/Profile.dart';
 import 'dart:convert';
+import 'dart:io';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
 class EditPasswordH extends StatefulWidget {
@@ -97,12 +98,12 @@ class _EditPasswordHState extends State<EditPasswordH> {
         );
       } else {
         final data = jsonDecode(response.body);
-        _showMessageDialog(
-            data['message'] ?? 'เกิดข้อผิดพลาด (${response.statusCode})');
+         _showMessageDialog(
+            'ไม่สามารถเปลี่ยนรหัสผ่านได้ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (e) {
-      Navigator.pop(context); // ปิด loading dialog หากเกิด error
-      _showMessageDialog('เกิดข้อผิดพลาด: $e');
+      Navigator.pop(context);
+      _showMessageDialog('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ');
     }
   }
 

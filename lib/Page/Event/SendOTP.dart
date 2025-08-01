@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'dart:io';
 import 'package:project_concert_closeiin/Page/Event/OTP.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
@@ -52,18 +53,46 @@ class _SendOTPEState extends State<SendOTPE> {
           _emailController.text = data['email'] ?? '';
           isLoading = false;
         });
-      } else {
+    } else {
         setState(() {
           isLoading = false;
         });
-        print('User not found or error occurred: ${response.statusCode}');
+       showErrorDialog("ไม่พบอีเมลนี้ในระบบ");
       }
     } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      print('Error fetching user: $e');
+      Navigator.pop(context);
+       showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    );
+  },
+);
     }
+  }
+
+    void showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Notification"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("OK", style: TextStyle(color: Colors.black)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

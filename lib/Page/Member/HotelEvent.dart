@@ -13,6 +13,7 @@ import 'package:project_concert_closeiin/Page/Member/artist.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:io';
 import 'package:project_concert_closeiin/model/response/userGetHotelResponse.dart';
 import 'package:project_concert_closeiin/model/response/userGetSearchHResponse.dart';
 
@@ -108,10 +109,24 @@ class _HoteleventState extends State<Hotelevent> {
           filteredHotels = List.from(hotels);
         });
       } else {
-        dev_log.log('Failed to fetch hotels: ${response.statusCode}');
+         throw Exception('ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (e) {
-      dev_log.log(e.toString());
+       showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    );
+  },
+);
     } finally {
       setState(() {
         _isLoading = false;

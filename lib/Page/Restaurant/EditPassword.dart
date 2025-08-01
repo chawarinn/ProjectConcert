@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:project_concert_closeiin/Page/Restaurant/ProfileRestaurant.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
+import 'dart:io';
 
 class EditPasswordRes extends StatefulWidget {
   final int userId;
@@ -68,7 +69,7 @@ class _EditPasswordResState extends State<EditPasswordRes> {
         }),
       );
 
-      Navigator.pop(context); // ปิด loading dialog
+      Navigator.pop(context); 
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -79,7 +80,7 @@ class _EditPasswordResState extends State<EditPasswordRes> {
           context: context,
           builder: (_) => AlertDialog(
             title: Text('Notification'),
-            content: Text(data['message'] ?? 'เปลี่ยนรหัสผ่านสำเร็จ'),
+            content: Text('เปลี่ยนรหัสผ่านสำเร็จ'),
             actions: [
               TextButton(
                 onPressed: () {
@@ -98,11 +99,11 @@ class _EditPasswordResState extends State<EditPasswordRes> {
       } else {
         final data = jsonDecode(response.body);
         _showMessageDialog(
-            data['message'] ?? 'เกิดข้อผิดพลาด (${response.statusCode})');
+            'ไม่สามารถเปลี่ยนรหัสผ่านได้ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (e) {
-      Navigator.pop(context); // ปิด loading dialog หากเกิด error
-      _showMessageDialog('เกิดข้อผิดพลาด: $e');
+      Navigator.pop(context);
+      _showMessageDialog('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ');
     }
   }
 

@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 import 'HomeHotel.dart';
+import 'dart:io';
 import 'Profile.dart';
 import 'dart:convert';
 
@@ -101,7 +102,7 @@ class _PhotohotelState extends State<Photohotel> {
           final urlList = List<String>.from(data['urls']);
           downloadUrls.addAll(urlList);
         } else {
-          throw Exception("Failed to upload image: ${response.reasonPhrase}");
+          throw Exception("ไม่สามารถอัปโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง");
         }
       }
       FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -133,7 +134,21 @@ class _PhotohotelState extends State<Photohotel> {
         _futurePhotos = _fetchHotelPhotos();
       });
     } catch (e) {
-      log('Upload error', error: e);
+       showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    );
+  },
+);
     } finally {
       setState(() {
         isUploading = false;

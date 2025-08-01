@@ -9,6 +9,7 @@ import 'package:project_concert_closeiin/Page/Hotel/HomeHotel.dart';
 import 'package:project_concert_closeiin/Page/Hotel/Profile.dart';
 import 'package:project_concert_closeiin/Page/Hotel/SendOTP.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
+import 'dart:io';
 
 class EditProfileH extends StatefulWidget {
   final int userId;
@@ -216,12 +217,12 @@ bool _obscureConfirmPassword = true;
             ],
           ),
         );
-      } else {
+    } else {
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
             title: Text('Notification'),
-            content: Text('Failed to update profile. (${response.statusCode})'),
+            content: Text('ไม่สามารถอัปเดตโปรไฟล์ได้'),
             actions: [
               TextButton(
                   onPressed: () => Navigator.pop(context),
@@ -233,17 +234,20 @@ bool _obscureConfirmPassword = true;
     } catch (e) {
       Navigator.pop(context); // ปิด loading
       showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: Text('Error'),
-          content: Text('An error occurred: $e'),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('OK', style: TextStyle(color: Colors.black))),
-          ],
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'), // = การแจ้งเตือน
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'), // = อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)), // = ตกลง
         ),
-      );
+      ],
+    );
+  },
+);
     }
   }
 
@@ -316,11 +320,11 @@ bool _obscureConfirmPassword = true;
       } else {
         final data = jsonDecode(response.body);
         _showMessageDialog(
-            data['message'] ?? 'เกิดข้อผิดพลาด (${response.statusCode})');
+            'ไม่สามารถเปลี่ยนรหัสผ่านได้ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (e) {
       Navigator.pop(context);
-      _showMessageDialog('เกิดข้อผิดพลาด: $e');
+      _showMessageDialog('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ');
     }
   }
 

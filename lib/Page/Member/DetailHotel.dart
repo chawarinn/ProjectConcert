@@ -19,6 +19,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'dart:async';
+import 'dart:io';
 
 
 class DetailHotel extends StatefulWidget {
@@ -100,10 +101,24 @@ void dispose() {
         });
         fetchNearbyRestaurants();
       } else {
-        throw Exception('Failed to load hotel');
+       throw Exception('ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (e) {
-      log('Error: $e');
+      showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    );
+  },
+);
       if (!mounted) return;
       setState(() {
         isLoading = false;

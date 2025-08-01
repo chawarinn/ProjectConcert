@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart'; 
+import 'dart:io';
 import 'package:project_concert_closeiin/Page/Event/AddArtist.dart';
 import 'package:project_concert_closeiin/Page/Event/AddEvent.dart';
 import 'package:project_concert_closeiin/Page/Event/EditEvent.dart';
@@ -55,7 +56,21 @@ class _HomeEventState extends State<HomeEvent> {
         print('Error: ${response.statusCode}');
       }
     } catch (e) {
-      print('Exception: $e');
+      showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    );
+  },
+);
     } finally {
       setState(() => _isLoading = false);
     }

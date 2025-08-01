@@ -53,15 +53,15 @@ class _EditPasswordLoginState extends State<EditPasswordLogin> {
       if (response.statusCode == 200) {
         _newPasswordController.clear();
         _confirmPasswordController.clear();
-        _showSuccessDialog(data['message'] ?? 'เปลี่ยนรหัสผ่านสำเร็จ');
+        _showSuccessDialog( 'เปลี่ยนรหัสผ่านสำเร็จ');
       } else {
-        _showErrorDialog(data['message'] ?? 'เกิดข้อผิดพลาด (${response.statusCode})');
+        _showErrorDialog('ไม่สามารถเปลี่ยนรหัสผ่านได้ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (e) {
       setState(() {
         _isLoading = false;
       });
-      _showErrorDialog('เกิดข้อผิดพลาด: $e');
+      _showErrorDialog('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ');
     }
   }
 

@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
@@ -57,10 +58,24 @@ class _HomeMember extends State<Homemember> {
           isLoading = false;
         });
       } else {
-        throw Exception('Failed to load events');
+        throw Exception('ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (e) {
-      print('Error: $e');
+       showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    );
+  },
+);
       setState(() {
         isLoading = false;
       });
@@ -76,10 +91,24 @@ class _HomeMember extends State<Homemember> {
           topHotels = decoded.take(5).toList();
         });
       } else {
-        throw Exception('Failed to load top hotels');
+         throw Exception('ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (e) {
-      print('Error fetching hotels: $e');
+       showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    );
+  },
+);
     }
   }
 

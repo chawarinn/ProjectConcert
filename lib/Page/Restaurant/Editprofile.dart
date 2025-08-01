@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'dart:io';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Restaurant/HomeRestaurant.dart';
 import 'package:project_concert_closeiin/Page/Restaurant/ProfileRestaurant.dart';
@@ -99,7 +100,7 @@ bool _obscureConfirmPassword = true;
         });
       }
     } catch (e) {
-      // handle error if needed
+   
     }
   }
 
@@ -205,7 +206,7 @@ bool _obscureConfirmPassword = true;
           context: context,
           builder: (_) => AlertDialog(
             title: Text('Notification'),
-            content: Text(data['message'] ?? 'อัปเดตแก้ไขข้อมูลส่วนตัวสำเร็จ'),
+            content: Text('อัปเดตแก้ไขข้อมูลส่วนตัวสำเร็จ'),
             actions: [
               TextButton(
                   onPressed: () {
@@ -221,7 +222,7 @@ bool _obscureConfirmPassword = true;
           context: context,
           builder: (_) => AlertDialog(
             title: Text('Notification'),
-            content: Text('Failed to update profile. (${response.statusCode})'),
+            content: Text('ไม่สามารถอัปเดตโปรไฟล์ได้'),
             actions: [
               TextButton(
                   onPressed: () => Navigator.pop(context),
@@ -233,17 +234,21 @@ bool _obscureConfirmPassword = true;
     } catch (e) {
       Navigator.pop(context); // ปิด loading
       showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: Text('Error'),
-          content: Text('An error occurred: $e'),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('OK', style: TextStyle(color: Colors.black))),
-          ],
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'), // = การแจ้งเตือน
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'), // = อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)), // = ตกลง
         ),
-      );
+      ],
+    );
+  },
+);
+
     }
   }
 
@@ -302,7 +307,7 @@ bool _obscureConfirmPassword = true;
           context: context,
           builder: (_) => AlertDialog(
             title: Text('Notification'),
-            content: Text(data['message'] ?? 'เปลี่ยนรหัสผ่านสำเร็จ'),
+            content: Text('เปลี่ยนรหัสผ่านสำเร็จ'),
             actions: [
               TextButton(
                   onPressed: () {
@@ -316,11 +321,11 @@ bool _obscureConfirmPassword = true;
       } else {
         final data = jsonDecode(response.body);
         _showMessageDialog(
-            data['message'] ?? 'เกิดข้อผิดพลาด (${response.statusCode})');
+            'ไม่สามารถเปลี่ยนรหัสผ่านได้ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (e) {
       Navigator.pop(context);
-      _showMessageDialog('เกิดข้อผิดพลาด: $e');
+      _showMessageDialog('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ');
     }
   }
 

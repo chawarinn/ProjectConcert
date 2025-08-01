@@ -41,19 +41,19 @@ class _OTPLoginState extends State<OTPLogin> {
       final jsonResponse = jsonDecode(response.body);
       if (jsonResponse['success']) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("OTP sent again to ${widget.email}")),
+          SnackBar(content: Text("ส่งรหัส OTP ไปยัง ${widget.email} อีกครั้งเรียบร้อยแล้ว")),
         );
         setState(() {
           widget.expiresAt = jsonResponse['expiresAt'];
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("OTP ไม่ถูกต้อง")),
+         SnackBar(content: Text("ไม่สามารถส่ง OTP ได้ กรุณาลองใหม่")),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error sending OTP: $e")),
+        SnackBar(content: Text("อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ")),
       );
     }
 
@@ -66,7 +66,7 @@ class _OTPLoginState extends State<OTPLogin> {
     final otp = _otpController.text.trim();
     if (otp.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please enter the OTP")),
+        SnackBar(content: Text("กรุณากรอกรหัส OTP")),
       );
       return;
     }
@@ -98,12 +98,12 @@ class _OTPLoginState extends State<OTPLogin> {
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(jsonResponse['message'] ?? "Invalid OTP")),
+          SnackBar(content: Text("รหัส OTP ไม่ถูกต้อง")),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error verifying OTP: $e")),
+        SnackBar(content: Text("เกิดข้อผิดพลาดในการยืนยัน OTP")),
       );
     }
 

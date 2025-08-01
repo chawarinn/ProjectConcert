@@ -17,6 +17,7 @@ import 'package:project_concert_closeiin/Page/Member/HotelEvent.dart';
 import 'package:project_concert_closeiin/Page/Member/Notification.dart';
 import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
 import 'package:project_concert_closeiin/config/config.dart';
+import 'dart:io';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
 class Eventdetailmember extends StatefulWidget {
@@ -58,10 +59,24 @@ class _EventDetailMemberState extends State<Eventdetailmember> {
           isLoading = false;
         });
       } else {
-        throw Exception('Failed to load event');
+         throw Exception('ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (e) {
-      log('Error: $e');
+       showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    );
+  },
+);
       setState(() {
         isLoading = false;
       });

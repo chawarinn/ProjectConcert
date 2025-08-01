@@ -11,6 +11,7 @@ import 'package:project_concert_closeiin/Page/Hotel/Profile.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:io';
 
 class EditRoom extends StatefulWidget {
   final int roomID;
@@ -248,12 +249,12 @@ bool _isDataChanged() {
             ],
           ),
         );
-      } else {
+    } else {
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
             title: Text('Notification'),
-            content: Text('Failed to update profile. (${response.statusCode})'),
+            content: Text('ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง'),
             actions: [
               TextButton(
                   onPressed: () => Navigator.pop(context),
@@ -264,20 +265,24 @@ bool _isDataChanged() {
       }
     } catch (e) {
       Navigator.pop(context); // ปิด loading
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: Text('Error'),
-          content: Text('An error occurred: $e'),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('OK', style: TextStyle(color: Colors.black))),
-          ],
+     showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
         ),
-      );
+      ],
+    );
+  },
+);
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

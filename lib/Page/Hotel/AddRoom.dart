@@ -106,7 +106,21 @@ class _AddRoomState extends State<AddRoom> {
         print('Error: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching room: $e');
+      showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    );
+  },
+);
     } finally {
       if (mounted) {
         setState(() {
@@ -186,7 +200,7 @@ class _AddRoomState extends State<AddRoom> {
         });
       } else {
         _showAlertDialog(
-            context, "เพิ่มห้องไม่สำเร็จ (${response.statusCode})");
+            context, "เพิ่มห้องไม่สำเร็จ");
       }
     } catch (e) {
       if (context.mounted)

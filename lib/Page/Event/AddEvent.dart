@@ -261,7 +261,21 @@ class _AddEventState extends State<AddEvent> {
     }
   } catch (e) {
     Navigator.pop(context);
-    _showAlertDialog(context, 'เกิดข้อผิดพลาด: $e');
+     showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    );
+  },
+);
   }
 }
 

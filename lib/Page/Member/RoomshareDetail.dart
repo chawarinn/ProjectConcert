@@ -13,6 +13,7 @@ import 'package:project_concert_closeiin/Page/Member/Notification.dart';
 import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
 import 'package:project_concert_closeiin/Page/Member/artist.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
+import 'dart:io';
 
 class Roomsharedetail extends StatefulWidget {
   final int userId;
@@ -151,9 +152,21 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
       );
       await checkRequestStatus(); // อัปเดตสถานะ
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("เกิดข้อผิดพลาด: $e")),
-      );
+   showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    );
+  },
+);
     } finally {
       setState(() {
         isLoading = false;

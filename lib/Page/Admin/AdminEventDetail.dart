@@ -8,6 +8,7 @@ import 'package:project_concert_closeiin/Page/Admin/HomeAdmin.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:io';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:project_concert_closeiin/config/config.dart';
@@ -58,10 +59,24 @@ class _AdminEventDetailState extends State<AdminEventDetail> {
           isLoading = false;
         });
       } else {
-        throw Exception('Failed to load event');
+       throw Exception('ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (e) {
-      log('Error: $e');
+      showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    );
+  },
+);
       setState(() {
         isLoading = false;
       });

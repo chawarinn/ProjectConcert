@@ -219,7 +219,8 @@ try {
       } else {}
    } catch (e) {
       hideLoadingDialog();
-      _showAlertDialog(context, "Error during registration: $e");
+      
+      _showAlertDialog(context, "อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ");
     }
   }
 
