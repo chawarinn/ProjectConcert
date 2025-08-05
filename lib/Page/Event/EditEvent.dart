@@ -173,7 +173,21 @@ class _EditEventState extends State<EditEvent> {
       }
     } catch (e) {
       setState(() => isLoading = false);
-      print('Error fetching user: $e');
+       showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    );
+  },
+);
     }
   }
 
@@ -401,11 +415,25 @@ bool _areArtistListsEqual(List<dynamic> list1, List<dynamic> list2) {
         );
       } else {
         _showAlertDialog(
-            context, "แก้ไขข้อมูลไม่สำเร็จ (${response.statusCode})");
+            context, "แก้ไขข้อมูลไม่สำเร็จ");
       }
     } catch (e) {
       Navigator.pop(context);
-      _showAlertDialog(context, 'เกิดข้อผิดพลาด: $e');
+      showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    );
+  },
+);
     }
   }
 

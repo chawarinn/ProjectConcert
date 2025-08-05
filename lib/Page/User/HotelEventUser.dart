@@ -14,6 +14,7 @@ import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 import 'package:project_concert_closeiin/model/response/userGetHotelResponse.dart';
 import 'package:project_concert_closeiin/model/response/userGetSearchHResponse.dart';
+import 'dart:io';
 
 class Hoteleventuser extends StatefulWidget {
   final int eventID;
@@ -115,6 +116,21 @@ class _HoteleventuserState extends State<Hoteleventuser> {
       });
     }
   }
+  void _showNoInternetDialog() {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    ),
+  );
+}
 
   double _toRadians(double degree) => degree * pi / 180;
 

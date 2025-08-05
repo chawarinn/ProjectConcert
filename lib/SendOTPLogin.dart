@@ -79,7 +79,7 @@ class _SendOTPLoginState extends State<SendOTPLogin> {
       }
     } catch (e) {
       Navigator.pop(context);
-      showErrorDialog("Something went wrong. Please try again.");
+      showErrorDialog("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
     }
   }
 

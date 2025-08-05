@@ -12,6 +12,7 @@ import 'package:project_concert_closeiin/Page/Member/Notification.dart';
 import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
+import 'dart:io';
 
 class RestaurantHotel extends StatefulWidget {
   final int userId;
@@ -96,10 +97,24 @@ data.sort((a, b) => a['distance'].compareTo(b['distance']));
         restaurants = data;
       });
     } else {
-      print('Error: ${response.statusCode}');
-    }
-  } catch (e) {
-    print('Exception: $e');
+       throw Exception('ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง');
+      }
+    } catch (e) {
+       showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    );
+  },
+);
   } finally {
     setState(() {
       isLoading = false;

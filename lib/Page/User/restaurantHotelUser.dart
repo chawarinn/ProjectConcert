@@ -12,6 +12,7 @@ import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:io';
 
 class RestaurantHotelUser extends StatefulWidget {
   final int hotelID;
@@ -90,12 +91,28 @@ class _RestaurantHotelUser extends State<RestaurantHotelUser> {
 data.sort((a, b) => a['distance'].compareTo(b['distance']));
 
 
-      setState(() {
-        restaurants = data;
-      });
-    } else {
-      print('Error: ${response.statusCode}');
-    }
+       setState(() {
+          restaurants = data;
+        });
+      } else {
+        print('ไม่สามารถโหลดข้อมูลร้านอาหารได้');
+      }
+    } on SocketException {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Notification'),
+          content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('OK', style: TextStyle(color: Colors.black)),
+            ),
+          ],
+        );
+      },
+    );
   } catch (e) {
     print('Exception: $e');
   } finally {

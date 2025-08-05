@@ -199,7 +199,21 @@ if (!isValidText(fullnameCtl.text) ||
       } else {}
     } catch (e) {
       hideLoadingDialog();
-      _showAlertDialog(context, "Error during registration: $e");
+      showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    );
+  },
+);
     }
   }
 

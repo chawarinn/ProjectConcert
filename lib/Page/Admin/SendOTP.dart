@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:project_concert_closeiin/Page/Admin/OTP.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
@@ -52,19 +53,34 @@ class _SendOTPAState extends State<SendOTPA> {
           _emailController.text = data['email'] ?? '';
           isLoading = false;
         });
-      } else {
+    } else {
         setState(() {
           isLoading = false;
         });
-        print('User not found or error occurred: ${response.statusCode}');
+       showErrorDialog("ไม่พบอีเมลนี้ในระบบ");
       }
     } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      print('Error fetching user: $e');
+      Navigator.pop(context);
+      showErrorDialog("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
     }
   }
+
+    void showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Notification"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("OK", style: TextStyle(color: Colors.black)),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {

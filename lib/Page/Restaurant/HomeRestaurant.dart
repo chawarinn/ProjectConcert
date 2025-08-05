@@ -10,6 +10,7 @@ import 'package:project_concert_closeiin/Page/Restaurant/EditRestaurant.dart';
 import 'package:project_concert_closeiin/Page/Restaurant/ProfileRestaurant.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
+import 'dart:io';
 
 class Homerestaurant extends StatefulWidget {
   final int userId;
@@ -304,12 +305,13 @@ Widget buildRestaurantCard(
                     } catch (e) {
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
+                        SnackBar(content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ')),
                       );
                     }
                   }
                 },
               ),
+
             ],
           ),
         ],

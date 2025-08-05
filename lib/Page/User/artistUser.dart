@@ -9,6 +9,7 @@ import 'package:project_concert_closeiin/Page/RegisterUser.dart';
 import 'package:project_concert_closeiin/Page/User/HomeUser.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
+import 'dart:io';
 
 class ArtistUserPage extends StatefulWidget {
   @override
@@ -55,10 +56,22 @@ class _ArtistUserPageState extends State<ArtistUserPage> {
 
         print('Favorite artist IDs: $favoriteArtistIds');
       } else {
-        throw Exception('Failed to load data');
+        throw Exception('ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (e) {
-      print('Error: $e');
+       showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    ),
+  );
       setState(() {
         isLoading = false;
       });
@@ -85,10 +98,22 @@ class _ArtistUserPageState extends State<ArtistUserPage> {
           isLoading = false;
         });
       } else {
-        throw Exception('Failed to search artists');
+        throw Exception('ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (e) {
-      log('Search artists error: $e');
+      showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    ),
+  );
       setState(() {
         isLoading = false;
       });

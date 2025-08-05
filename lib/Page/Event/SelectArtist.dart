@@ -7,6 +7,7 @@ import 'package:project_concert_closeiin/Page/Event/AddArtist.dart';
 import 'package:project_concert_closeiin/Page/Event/HomeEvent.dart';
 import 'package:project_concert_closeiin/Page/Event/Profile.dart';
 import 'package:project_concert_closeiin/Page/Home.dart';
+import 'dart:io';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
 class SelectArtistPage extends StatefulWidget {
@@ -70,7 +71,21 @@ class _SelectArtistPageState extends State<SelectArtistPage> {
         });
       }
     } catch (e) {
-      log('Error fetching artists: $e');
+       showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    );
+  },
+);
       setState(() {
         isLoading = false;
       });

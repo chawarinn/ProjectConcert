@@ -10,6 +10,7 @@ import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 import 'package:project_concert_closeiin/model/response/userGetHotelResponse.dart';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
 
@@ -64,7 +65,21 @@ class _HomeHotelState extends State<HomeHotel> {
         log('Failed to load hotels: ${response.statusCode}');
       }
     } catch (e) {
-      log('Error fetching hotels: $e');
+      showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    );
+  },
+);
     } finally {
       setState(() {
         _isLoading = false;

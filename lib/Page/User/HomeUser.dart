@@ -14,6 +14,7 @@ import 'package:project_concert_closeiin/Page/User/detailHotelUser.dart';
 import 'package:project_concert_closeiin/Page/User/restaurantUser.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
+import 'dart:io';
 
 class HomeUser extends StatefulWidget {
   const HomeUser({super.key});
@@ -53,10 +54,10 @@ class _HomeUserState extends State<HomeUser> {
           isLoading = false;
         });
       } else {
-        throw Exception('Failed to load events');
+          showErrorDialog('ไม่สามารถโหลดข้อมูลอีเว้นท์ได้ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (e) {
-      print('Error: $e');
+      showErrorDialog('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ');
       setState(() {
         isLoading = false;
       });
@@ -72,12 +73,27 @@ class _HomeUserState extends State<HomeUser> {
           topHotels = decoded.take(5).toList();
         });
       } else {
-        throw Exception('Failed to load top hotels');
+        showErrorDialog('ไม่สามารถโหลดโรงแรมยอดนิยมได้ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (e) {
-      print('Error fetching hotels: $e');
+      showErrorDialog('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ');
     }
   }
+void showErrorDialog(String message) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('Notification'),
+      content: Text(message),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    ),
+  );
+}
 
   
 

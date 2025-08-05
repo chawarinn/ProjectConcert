@@ -8,6 +8,7 @@ import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Restaurant/Editprofile.dart';
 import 'package:project_concert_closeiin/Page/Restaurant/HomeRestaurant.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
+import 'dart:io';
 
 class ProfileRestaurant extends StatefulWidget {
   int userId;
@@ -27,6 +28,7 @@ class _ProfileRestaurantState extends State<ProfileRestaurant> {
   void initState() {
     super.initState();
     fetchUserData();
+    // _showNoInternetDialog();
   }
 
   Future<void> fetchUserData() async {
@@ -104,7 +106,7 @@ class _ProfileRestaurantState extends State<ProfileRestaurant> {
           context: context,
           builder: (context) => AlertDialog(
             title: Text("Notification"),
-            content: Text(error['message'] ?? 'ไม่สามารถลบบัญชีได้'),
+            content: Text('ไม่สามารถลบบัญชีได้'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
@@ -122,6 +124,22 @@ class _ProfileRestaurantState extends State<ProfileRestaurant> {
       });
     }
   }
+    void _showNoInternetDialog() {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    ),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {

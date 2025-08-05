@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'dart:developer';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
@@ -330,34 +331,58 @@ class _LoginPageState extends State<LoginPage> {
           );
           break;
       }
-    } catch (error) {
-      log(error.toString());
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(
-              'Notification',
+    } on SocketException {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Notification'),
+          content: Text(
+            'อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ',
+            style: GoogleFonts.poppins(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK', style: TextStyle(color: Colors.black)),
             ),
-            content: Text(
-              'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
-              style: GoogleFonts.poppins(),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK', style: TextStyle(color: Colors.black)),
-              ),
-            ],
-          );
-        },
-      );
+          ],
+        );
+      },
+    );
 
-      setState(() {
-        text = 'email no or password incorrect';
-      });
-    }
+    setState(() {
+      text = 'ไม่มีการเชื่อมต่ออินเทอร์เน็ต';
+    });
+  } catch (error) {
+    log(error.toString());
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Notification'),
+          content: Text(
+            'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
+            style: GoogleFonts.poppins(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK', style: TextStyle(color: Colors.black)),
+            ),
+          ],
+        );
+      },
+    );
+
+    setState(() {
+      text = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+    });
   }
+}
 }

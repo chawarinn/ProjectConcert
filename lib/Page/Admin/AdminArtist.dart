@@ -78,10 +78,24 @@ class _AdminArtistPageState extends State<AdminArtistPage> {
           isLoading = false;
         });
       } else {
-        throw Exception('Failed to load data');
+         throw Exception('ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (e) {
-      log('Error fetching artists: $e');
+    showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    );
+  },
+);
       setState(() {
         isLoading = false;
       });
@@ -109,10 +123,24 @@ class _AdminArtistPageState extends State<AdminArtistPage> {
           isLoading = false;
         });
       } else {
-        throw Exception('Failed to search artists');
+         throw Exception('ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (e) {
-      log('Search artists error: $e');
+     showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    );
+  },
+);
       setState(() {
         isLoading = false;
       });
@@ -198,11 +226,25 @@ class _AdminArtistPageState extends State<AdminArtistPage> {
         );
       } else {
         _showAlertDialog(
-            context, "เพิ่มข้อมูลไม่สำเร็จ (${response.statusCode})");
+            context, "เพิ่มข้อมูลไม่สำเร็จ");
       }
     } catch (e) {
       Navigator.pop(context);
-      _showAlertDialog(context, 'เกิดข้อผิดพลาด: $e');
+       showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
+        ),
+      ],
+    );
+  },
+);
     }
   }
 

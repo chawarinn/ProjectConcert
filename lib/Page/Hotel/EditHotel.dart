@@ -238,7 +238,7 @@ class _AddHotelState extends State<Edithotel> {
           context: context,
           builder: (_) => AlertDialog(
             title: Text('Notification'),
-            content: Text('Failed to update profile. (${response.statusCode})'),
+            content: Text('ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง'),
             actions: [
               TextButton(
                   onPressed: () => Navigator.pop(context),
@@ -249,18 +249,21 @@ class _AddHotelState extends State<Edithotel> {
       }
     } catch (e) {
       Navigator.pop(context); // ปิด loading
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: Text('Error'),
-          content: Text('An error occurred: $e'),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('OK', style: TextStyle(color: Colors.black))),
-          ],
+     showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Notification'),
+      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK', style: TextStyle(color: Colors.black)),
         ),
-      );
+      ],
+    );
+  },
+);
     }
   }
 
