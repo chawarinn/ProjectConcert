@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
@@ -16,6 +17,7 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 
 class EditEvent extends StatefulWidget {
   int userId;
@@ -114,25 +116,59 @@ class _EditEventState extends State<EditEvent> {
     });
   }
 
-  Future<void> _selectTime(
-      BuildContext context, TextEditingController controller) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-      builder: (context, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-          child: child!,
-        );
-      },
-    );
+ 
+ Future<void> _selectTime(
+    BuildContext context, TextEditingController controller) async {
+  TimeOfDay selectedTime = TimeOfDay.now();
 
-    if (picked != null) {
-      final String formattedTime =
-          '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-      controller.text = formattedTime;
-    }
-  }
+  await showCupertinoModalPopup(
+    context: context,
+    builder: (_) => Container(
+      height: 300,
+      color: Colors.white,
+      child: Column(
+        children: [
+          Container(
+            height: 200,
+            child: CupertinoDatePicker(
+              mode: CupertinoDatePickerMode.time,
+              initialDateTime: DateTime(
+                0,
+                0,
+                0,
+                selectedTime.hour,
+                selectedTime.minute,
+              ),
+              use24hFormat: true,
+              onDateTimeChanged: (DateTime newTime) {
+                selectedTime = TimeOfDay.fromDateTime(newTime);
+              },
+            ),
+          ),
+           CupertinoButton(
+            child: Text('Done'),
+            onPressed: () {
+              final now = DateTime.now();
+              final selectedDateTime = DateTime(
+                now.year,
+                now.month,
+                now.day,
+                selectedTime.hour,
+                selectedTime.minute,
+              );
+              final formattedTime =
+                  DateFormat('HH:mm').format(selectedDateTime); 
+              controller.text = '$formattedTime'; 
+              log('Selected Time: $formattedTime');
+              Navigator.of(context).pop();
+            },
+          )
+        ],
+      ),
+    ),
+  );
+}
+
 
   Future<void> fetchEventData() async {
     final url =
@@ -290,6 +326,7 @@ bool _areArtistListsEqual(List<dynamic> list1, List<dynamic> list2) {
 
 
   void _showEditResultDialog() async {
+    final nameRegex = RegExp(r'^(?=.*[ก-๙a-zA-Z])[ก-๙a-zA-Z0-9]+( [ก-๙a-zA-Z0-9]+)*$');
     if (_nameController.text.trim().isEmpty ||
         _displayController.text.trim().isEmpty ||
         _timeController.text.trim().isEmpty ||
@@ -303,6 +340,11 @@ bool _areArtistListsEqual(List<dynamic> list1, List<dynamic> list2) {
       _showAlertDialog(context, "กรุณากรอกข้อมูลให้ครบถ้วน");
       return;
     }
+      if (!nameRegex.hasMatch(_nameController.text)) {
+  _showAlertDialog(context,
+    "กรุณาเพิ่มชื่อให้ตรงตามมาตรฐาน");
+  return;
+}
     if (eventData!['artists'] == null ||
         (eventData!['artists'] as List).isEmpty) {
       _showAlertDialog(context, "กรุณาเลือกศิลปินอย่างน้อย 1 คน");
@@ -543,10 +585,11 @@ bool _areArtistListsEqual(List<dynamic> list1, List<dynamic> list2) {
                           style: TextStyle(color: Colors.black)),
                     ),
                     TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
+                     onPressed: () {
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
                         );
                       },
                       child: const Text('Yes',
@@ -1022,12 +1065,24 @@ bool _areArtistListsEqual(List<dynamic> list1, List<dynamic> list2) {
                             ),
                           ),
                         ] else ...[
-                          GestureDetector(
+                           GestureDetector(
                             onTap: _selectLocation,
-                            child: const Icon(
-                              Icons.add_location_alt_rounded,
-                              color: Colors.red,
-                              size: 30,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10)),
+                              child:  Row(
+                                children: [
+                                  Text("เลือกตำแหน่ง",
+                                      style: TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 12)),
+                                  Icon(
+                                    Icons.add_location_alt_rounded,
+                                    color: Colors.red,
+                                    size: 30,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],

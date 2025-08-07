@@ -187,6 +187,7 @@ class _AdminArtistPageState extends State<AdminArtistPage> {
     final request = http.MultipartRequest('POST', uri);
 
     request.fields['artistName'] = _nameController.text;
+    request.fields['userID'] = widget.userId.toString(); 
 
     if (_image != null) {
       final fileStream = http.ByteStream(_image!.openRead());
@@ -325,11 +326,13 @@ class _AdminArtistPageState extends State<AdminArtistPage> {
                             style: TextStyle(color: Colors.black)),
                       ),
                       TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => const homeLogoPage()));
-                        },
+                       onPressed: () {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
+                        );
+                      },
                         child: const Text('Yes',
                             style: TextStyle(color: Colors.black)),
                       ),

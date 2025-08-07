@@ -123,7 +123,7 @@ bool _obscureConfirmPassword = true;
   void _showEditResultDialog() async {
     final nameRegex = RegExp(r'^(?=.*[a-zA-Zก-๙])[a-zA-Zก-๙0-9]{2,}$');
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    final phoneRegex = RegExp(r'^[0-9]{10}$');
+    final phoneRegex = RegExp(r'^0[0-9]{9}$');
 
     if (!nameRegex.hasMatch(_nameController.text)) {
   _showAlertDialog(context,
@@ -496,7 +496,7 @@ Widget _buildDropdownField({
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: const Text('ยืนยันการออกจากระบบ'),
+                    title: const Text('Confirm Logout'),
                     content: const Text('คุณต้องการที่จะออกจากระบบหรือไม่?'),
                     actions: [
                       TextButton(
@@ -507,10 +507,12 @@ Widget _buildDropdownField({
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => const homeLogoPage()));
-                        },
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
+                        );
+                      },
                         child: const Text('Yes',style: TextStyle(color: Colors.black)),
                       ),
                     ],
@@ -600,7 +602,7 @@ Widget _buildDropdownField({
                             backgroundColor:
                                 const Color.fromRGBO(232, 234, 237, 1),
                             child: IconButton(
-                              icon: const Icon(Icons.camera_alt,
+                              icon: const Icon(Icons.edit,
                                   color: Colors.black),
                               onPressed: _pickImage,
                             ),
@@ -701,12 +703,12 @@ Widget _buildDropdownField({
                     label: 'New Password',
                     hintText: '',
                     controller: _newPasswordController,
-                    obscureText: _obscurePassword,
-  toggleObscure: () {
-    setState(() {
-      _obscurePassword = !_obscurePassword;
-    });
-  },
+                    obscureText: _obscureNewPassword,
+                    toggleObscure: () {
+                      setState(() {
+                        _obscureNewPassword = !_obscureNewPassword;
+                      });
+                    },
                     isPassword: true,
                     isRequired: true,
                   ),
@@ -714,15 +716,15 @@ Widget _buildDropdownField({
                     label: 'Confirm Password',
                     hintText: '',
                     controller: _confirmPasswordController,
-                    obscureText: _obscurePassword,
-  toggleObscure: () {
-    setState(() {
-      _obscurePassword = !_obscurePassword;
-    });
-  },
+                    obscureText: _obscureConfirmPassword,
+                    toggleObscure: () {
+                      setState(() {
+                        _obscureConfirmPassword = !_obscureConfirmPassword;
+                      });
+                    },
                     isPassword: true,
                     isRequired: true,
-                  ),
+                  ),  
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color.fromRGBO(201, 151, 187, 1),

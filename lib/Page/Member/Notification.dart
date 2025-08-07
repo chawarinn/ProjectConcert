@@ -188,9 +188,10 @@ class _NotificationPageState extends State<NotificationPage> {
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushReplacement(
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
                         );
                       },
                       child: const Text('Yes',
@@ -599,7 +600,7 @@ class RoomShareRequestCard extends StatelessWidget {
                                           .showSnackBar(
                                         SnackBar(
                                             content: Text(
-                                                'เกิดข้อผิดพลาด: ${e.toString()}')),
+                                                'อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ')),
                                       );
                                     }
                                   },
@@ -659,8 +660,6 @@ class RoomShareRequestCard extends StatelessWidget {
                                   style: GoogleFonts.poppins()),
                               Text("อีเว้นท์ : ${room['eventName'] ?? '-'}",
                                   style: GoogleFonts.poppins()),
-                              Text("ศิลปิน : ${room['artistName'] ?? '-'}",
-                                  style: GoogleFonts.poppins()),
                               Text(
                                   "เพศ : ${room['gender'] == 'Male' ? 'ชาย' : room['gender'] == 'Female' ? 'หญิง' : room['gender'] == 'Prefer not to say' ? 'ไม่ต้องการระบุ' : '-'}",
                                   style: GoogleFonts.poppins()),
@@ -674,6 +673,10 @@ class RoomShareRequestCard extends StatelessWidget {
                                   style: GoogleFonts.poppins()),
                               Text("อื่นๆ : ${room['note'] ?? '-'}",
                                   style: GoogleFonts.poppins()),
+                              Text(
+                            'ศิลปิน : ${artists.isNotEmpty ? artists.join(', ') : '-'}',
+                            style: GoogleFonts.poppins(fontSize: 15),
+                          ),
                               if (status == 'cancelled' &&
                                   request['userReqID'] == userId)
                                 Row(

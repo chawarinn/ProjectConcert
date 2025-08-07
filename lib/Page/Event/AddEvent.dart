@@ -16,6 +16,8 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 
 class AddEvent extends StatefulWidget {
   int userId;
@@ -113,172 +115,211 @@ class _AddEventState extends State<AddEvent> {
 
   Future<void> _selectTime(
       BuildContext context, TextEditingController controller) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-      builder: (context, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-          child: child!,
-        );
-      },
-    );
+    TimeOfDay selectedTime = TimeOfDay.now();
 
-    if (picked != null) {
-      final String formattedTime =
-          '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-      controller.text = formattedTime;
-    }
+    await showCupertinoModalPopup(
+      context: context,
+      builder: (_) => Container(
+        height: 300,
+        color: Colors.white,
+        child: Column(
+          children: [
+            Container(
+              height: 200,
+              child: CupertinoDatePicker(
+                mode: CupertinoDatePickerMode.time,
+                initialDateTime: DateTime(
+                  0,
+                  0,
+                  0,
+                  selectedTime.hour,
+                  selectedTime.minute,
+                ),
+                use24hFormat: true,
+                onDateTimeChanged: (DateTime newTime) {
+                  selectedTime = TimeOfDay.fromDateTime(newTime);
+                },
+              ),
+            ),
+            CupertinoButton(
+              child: Text('Done'),
+              onPressed: () {
+                final now = DateTime.now();
+                final selectedDateTime = DateTime(
+                  now.year,
+                  now.month,
+                  now.day,
+                  selectedTime.hour,
+                  selectedTime.minute,
+                );
+                final formattedTime =
+                    DateFormat('HH:mm').format(selectedDateTime);
+                controller.text = '$formattedTime';
+                log('Selected Time: $formattedTime');
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   void _showAddResultDialog() async {
-  if (_nameController.text.trim().isEmpty ||
-      _displayController.text.trim().isEmpty ||
-      _timeController.text.trim().isEmpty ||
-      _ltimeController.text.trim().isEmpty ||
-      _typeController.text.trim().isEmpty ||
-      _linkticketController.text.trim().isEmpty ||
-      _locationController.text.trim().isEmpty ||
-      selectedLatitude == null ||
-      selectedLongitude == null) {
-    _showAlertDialog(context, "กรุณากรอกข้อมูลให้ครบถ้วน");
-    return;
-  }
-  if (_image == null) {
-  _showAlertDialog(context, "กรุณาเลือกรูปอีเว้นท์");
-  return;
-}
-  if (eventData == null ||
-      eventData!['artists'] == null ||
-      (eventData!['artists'] as List).isEmpty) {
-    _showAlertDialog(context, "กรุณาเลือกศิลปินอย่างน้อย 1 คน");
-    return;
-  }
-
-  final ticketUrl = _linkticketController.text.trim();
-  final urlPattern = RegExp(r"^https?:\/\/.+");
-  if (!urlPattern.hasMatch(ticketUrl)) {
-    _showAlertDialog(context,
-        "กรุณากรอกลิงก์ให้ถูกต้อง โดยต้องเริ่มต้นด้วย http:// หรือ https://");
-    return;
-  }
-   try {
-    final startTimeParts = _timeController.text.split(":");
-    final endTimeParts = _ltimeController.text.split(":");
-
-    final startTime = TimeOfDay(
-      hour: int.parse(startTimeParts[0]),
-      minute: int.parse(startTimeParts[1]),
-    );
-
-    final endTime = TimeOfDay(
-      hour: int.parse(endTimeParts[0]),
-      minute: int.parse(endTimeParts[1]),
-    );
-
-    bool isStartAfterEnd = startTime.hour > endTime.hour ||
-        (startTime.hour == endTime.hour && startTime.minute >= endTime.minute);
-
-    if (isStartAfterEnd) {
-      _showAlertDialog(context, "เนื่องจากเวลาสิ้นสุดคือ ${_ltimeController.text} น. เวลาเริ่มต้นและเวลาสิ้นสุดไม่สอดคล้องกัน ");
+    final nameRegex =
+        RegExp(r'^(?=.*[ก-๙a-zA-Z])[ก-๙a-zA-Z0-9]+( [ก-๙a-zA-Z0-9]+)*$');
+    if (_nameController.text.trim().isEmpty ||
+        _displayController.text.trim().isEmpty ||
+        _timeController.text.trim().isEmpty ||
+        _ltimeController.text.trim().isEmpty ||
+        _typeController.text.trim().isEmpty ||
+        _linkticketController.text.trim().isEmpty ||
+        _locationController.text.trim().isEmpty ||
+        selectedLatitude == null ||
+        selectedLongitude == null) {
+      _showAlertDialog(context, "กรุณากรอกข้อมูลให้ครบถ้วน");
       return;
     }
-  } catch (e) {
-    _showAlertDialog(context, "รูปแบบเวลาไม่ถูกต้อง");
-    return;
-  }
+    if (_image == null) {
+      _showAlertDialog(context, "กรุณาเลือกรูปอีเว้นท์");
+      return;
+    }
+    if (!nameRegex.hasMatch(_nameController.text)) {
+      _showAlertDialog(context, "กรุณาเพิ่มชื่อให้ตรงตามมาตรฐาน");
+      return;
+    }
+    if (eventData == null ||
+        eventData!['artists'] == null ||
+        (eventData!['artists'] as List).isEmpty) {
+      _showAlertDialog(context, "กรุณาเลือกศิลปินอย่างน้อย 1 คน");
+      return;
+    }
 
-  final uri = Uri.parse('$API_ENDPOINT/addEvent');
-  final request = http.MultipartRequest('POST', uri);
+    final ticketUrl = _linkticketController.text.trim();
+    final urlPattern = RegExp(r"^https?:\/\/.+");
+    if (!urlPattern.hasMatch(ticketUrl)) {
+      _showAlertDialog(context,
+          "กรุณากรอกลิงก์ให้ถูกต้อง โดยต้องเริ่มต้นด้วย http:// หรือ https://");
+      return;
+    }
+    try {
+      final startTimeParts = _timeController.text.split(":");
+      final endTimeParts = _ltimeController.text.split(":");
 
-  request.fields['eventName'] = _nameController.text;
+      final startTime = TimeOfDay(
+        hour: int.parse(startTimeParts[0]),
+        minute: int.parse(startTimeParts[1]),
+      );
 
-  String formattedDateForDB = '';
-  if (_selectedIsoDate.isNotEmpty) {
-    DateTime parsedDate = DateTime.parse(_selectedIsoDate);
-    formattedDateForDB = '${parsedDate.year.toString().padLeft(4, '0')}-'
-        '${parsedDate.month.toString().padLeft(2, '0')}-'
-        '${parsedDate.day.toString().padLeft(2, '0')}';
-  }
-  request.fields['date'] = _selectedIsoDate;
-  request.fields['time'] = _timeController.text;
-  request.fields['ltime'] = _ltimeController.text;
-  request.fields['typeEventID'] = selectedTypeId.toString();
-  request.fields['linkticket'] = _linkticketController.text;
-  request.fields['location'] = _locationController.text;
-  request.fields['lat'] = selectedLatitude?.toString() ?? '';
-  request.fields['long'] = selectedLongitude?.toString() ?? '';
-  request.fields['userID'] = widget.userId.toString();  // ✅ สำคัญ
+      final endTime = TimeOfDay(
+        hour: int.parse(endTimeParts[0]),
+        minute: int.parse(endTimeParts[1]),
+      );
 
-  if (eventData!['artists'] != null) {
-  List<int> artistIDs = (eventData!['artists'] as List)
-      .map((artist) => artist['artistID'] as int)
-      .toList();
-        print('Artist IDs: $artistIDs');  // ✅ ปริ้นค่าศิลปินที่เลือก
-  request.fields['artists'] = jsonEncode(artistIDs);
-}
+      bool isStartAfterEnd = startTime.hour > endTime.hour ||
+          (startTime.hour == endTime.hour &&
+              startTime.minute >= endTime.minute);
 
+      if (isStartAfterEnd) {
+        _showAlertDialog(context,
+            "เนื่องจากเวลาสิ้นสุดคือ ${_ltimeController.text} น. เวลาเริ่มต้นและเวลาสิ้นสุดไม่สอดคล้องกัน ");
+        return;
+      }
+    } catch (e) {
+      _showAlertDialog(context, "รูปแบบเวลาไม่ถูกต้อง");
+      return;
+    }
 
-  if (_image != null) {
-    final fileStream = http.ByteStream(_image!.openRead());
-    final length = await _image!.length();
-    request.files.add(http.MultipartFile(
-      'file',
-      fileStream,
-      length,
-      filename: _image!.path.split('/').last,
-    ));
-  }
+    final uri = Uri.parse('$API_ENDPOINT/addEvent');
+    final request = http.MultipartRequest('POST', uri);
 
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (_) => const Center(child: CircularProgressIndicator(color: Colors.black)),
-  );
+    request.fields['eventName'] = _nameController.text;
 
-  try {
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
-    Navigator.pop(context);
+    String formattedDateForDB = '';
+    if (_selectedIsoDate.isNotEmpty) {
+      DateTime parsedDate = DateTime.parse(_selectedIsoDate);
+      formattedDateForDB = '${parsedDate.year.toString().padLeft(4, '0')}-'
+          '${parsedDate.month.toString().padLeft(2, '0')}-'
+          '${parsedDate.day.toString().padLeft(2, '0')}';
+    }
+    request.fields['date'] = _selectedIsoDate;
+    request.fields['time'] = _timeController.text;
+    request.fields['ltime'] = _ltimeController.text;
+    request.fields['typeEventID'] = selectedTypeId.toString();
+    request.fields['linkticket'] = _linkticketController.text;
+    request.fields['location'] = _locationController.text;
+    request.fields['lat'] = selectedLatitude?.toString() ?? '';
+    request.fields['long'] = selectedLongitude?.toString() ?? '';
+    request.fields['userID'] = widget.userId.toString(); // ✅ สำคัญ
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      _showAlertDialog(
-        context,
-        'เพิ่มอีเวนต์สำเร็จ',
-        onOkPressed: () {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-              builder: (context) => HomeEvent(userId: widget.userId),
-            ),
-            (route) => false,
+    if (eventData!['artists'] != null) {
+      List<int> artistIDs = (eventData!['artists'] as List)
+          .map((artist) => artist['artistID'] as int)
+          .toList();
+      print('Artist IDs: $artistIDs'); // ✅ ปริ้นค่าศิลปินที่เลือก
+      request.fields['artists'] = jsonEncode(artistIDs);
+    }
+
+    if (_image != null) {
+      final fileStream = http.ByteStream(_image!.openRead());
+      final length = await _image!.length();
+      request.files.add(http.MultipartFile(
+        'file',
+        fileStream,
+        length,
+        filename: _image!.path.split('/').last,
+      ));
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) =>
+          const Center(child: CircularProgressIndicator(color: Colors.black)),
+    );
+
+    try {
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      Navigator.pop(context);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        _showAlertDialog(
+          context,
+          'เพิ่มอีเวนต์สำเร็จ',
+          onOkPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomeEvent(userId: widget.userId),
+              ),
+              (route) => false,
+            );
+          },
+        );
+      } else {
+        _showAlertDialog(
+            context, "เพิ่มข้อมูลไม่สำเร็จ (${response.statusCode})");
+      }
+    } catch (e) {
+      Navigator.pop(context);
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Notification'),
+            content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('OK', style: TextStyle(color: Colors.black)),
+              ),
+            ],
           );
         },
       );
-    } else {
-      _showAlertDialog(
-          context, "เพิ่มข้อมูลไม่สำเร็จ (${response.statusCode})");
     }
-  } catch (e) {
-    Navigator.pop(context);
-     showDialog(
-  context: context,
-  builder: (BuildContext context) {
-    return AlertDialog(
-      title: Text('Notification'),
-      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text('OK', style: TextStyle(color: Colors.black)),
-        ),
-      ],
-    );
-  },
-);
   }
-}
-
 
   Future<void> _pickImage() async {
     try {
@@ -353,7 +394,7 @@ class _AddEventState extends State<AddEvent> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-         title: Transform.translate(
+        title: Transform.translate(
           offset: const Offset(-20, 0),
           child: Text(
             'Add Event',
@@ -386,9 +427,10 @@ class _AddEventState extends State<AddEvent> {
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushReplacement(
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
                         );
                       },
                       child: const Text('Yes',
@@ -412,8 +454,7 @@ class _AddEventState extends State<AddEvent> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (context) =>
-                        HomeEvent(userId : widget.userId)),
+                    builder: (context) => HomeEvent(userId: widget.userId)),
               );
               break;
             case 1:
@@ -423,7 +464,7 @@ class _AddEventState extends State<AddEvent> {
                     builder: (context) => AddArtistPage(userId: widget.userId)),
               );
               break;
-               case 2:
+            case 2:
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -788,17 +829,24 @@ class _AddEventState extends State<AddEvent> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        RichText(
-                          text: const TextSpan(
-                            text: 'Address ',
-                            style: TextStyle(fontSize: 18, color: Colors.black),
-                            children: [
-                              TextSpan(
-                                text: '*',
-                                style: TextStyle(color: Colors.red),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            RichText(
+                              text: const TextSpan(
+                                text: 'Address ',
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.black),
+                                children: [
+                                  TextSpan(
+                                    text: '*',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                            
+                          ],
                         ),
                         Autocomplete<String>(
                           optionsBuilder: (TextEditingValue textEditingValue) {
@@ -867,10 +915,22 @@ class _AddEventState extends State<AddEvent> {
                         ] else ...[
                           GestureDetector(
                             onTap: _selectLocation,
-                            child: const Icon(
-                              Icons.add_location_alt_rounded,
-                              color: Colors.red,
-                              size: 30,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10)),
+                              child:  Row(
+                                children: [
+                                  Text("เลือกตำแหน่ง",
+                                      style: TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 12)),
+                                  Icon(
+                                    Icons.add_location_alt_rounded,
+                                    color: Colors.red,
+                                    size: 30,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],

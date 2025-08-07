@@ -114,10 +114,11 @@ class _HomeEventState extends State<HomeEvent> {
                       child: Text('No', style: TextStyle(color: Colors.black)),
                     ),
                     TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
+                     onPressed: () {
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
                         );
                       },
                       child: Text('Yes', style: TextStyle(color: Colors.black)),

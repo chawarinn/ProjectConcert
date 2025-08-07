@@ -24,7 +24,7 @@ class _EditProfileRState extends State<EditProfileR> {
   int _currentIndex = 1;
   bool isLoading = true;
   Map<String, dynamic>? userData;
-  Map<String, dynamic>? originalUserData; 
+  Map<String, dynamic>? originalUserData;
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -33,10 +33,9 @@ class _EditProfileRState extends State<EditProfileR> {
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
-bool _obscurePassword = true;
-bool _obscureNewPassword = true;
-bool _obscureConfirmPassword = true;
-
+  bool _obscurePassword = true;
+  bool _obscureNewPassword = true;
+  bool _obscureConfirmPassword = true;
 
   String? _selectedGender;
   final List<String> genderOptions = ['Male', 'Female', 'Prefer not to say'];
@@ -49,7 +48,6 @@ bool _obscureConfirmPassword = true;
   }
 
   Future<void> fetchUserData() async {
-
     final url = Uri.parse('$API_ENDPOINT/user?userID=${widget.userId}');
     try {
       final response = await http.get(url);
@@ -99,9 +97,7 @@ bool _obscureConfirmPassword = true;
           _image = File(pickedFile.path);
         });
       }
-    } catch (e) {
-   
-    }
+    } catch (e) {}
   }
 
   bool _isDataChanged() {
@@ -126,14 +122,12 @@ bool _obscureConfirmPassword = true;
     final phoneRegex = RegExp(r'^[0-9]{10}$');
 
     if (!nameRegex.hasMatch(_nameController.text)) {
-  _showAlertDialog(context,
-    "กรุณาเพิ่มชื่อให้ตรงตามมาตรฐาน");
-  return;
-}
+      _showAlertDialog(context, "กรุณาเพิ่มชื่อให้ตรงตามมาตรฐาน");
+      return;
+    }
 
     if (!phoneRegex.hasMatch(_phoneController.text)) {
-      _showAlertDialog(context,
-          "กรุณาใส่หมายเลขโทรศัพท์ให้ถูกต้อง");
+      _showAlertDialog(context, "กรุณาใส่หมายเลขโทรศัพท์ให้ถูกต้อง");
       return;
     }
 
@@ -165,7 +159,7 @@ bool _obscureConfirmPassword = true;
       );
       return;
     }
-    
+
     final uri = Uri.parse('$API_ENDPOINT/editprofile');
     final request = http.MultipartRequest('PUT', uri);
 
@@ -191,7 +185,8 @@ bool _obscureConfirmPassword = true;
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => Center(child: CircularProgressIndicator(color: Colors.black)),
+      builder: (_) =>
+          Center(child: CircularProgressIndicator(color: Colors.black)),
     );
 
     try {
@@ -234,28 +229,28 @@ bool _obscureConfirmPassword = true;
     } catch (e) {
       Navigator.pop(context); // ปิด loading
       showDialog(
-  context: context,
-  builder: (BuildContext context) {
-    return AlertDialog(
-      title: Text('Notification'), // = การแจ้งเตือน
-      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'), // = อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text('OK', style: TextStyle(color: Colors.black)), // = ตกลง
-        ),
-      ],
-    );
-  },
-);
-
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Notification'), // = การแจ้งเตือน
+            content: Text(
+                'อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'), // = อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child:
+                    Text('OK', style: TextStyle(color: Colors.black)), // = ตกลง
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
   void _EditPassword() async {
-
     final passwordRegex = RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,14}$');
-  
+
     if (!passwordRegex.hasMatch(_newPasswordController.text)) {
       _showAlertDialog(context,
           "รหัสผ่านต้องมีความยาว 6-14 ตัว และต้องมีทั้งตัวอักษรและตัวเลข");
@@ -283,7 +278,8 @@ bool _obscureConfirmPassword = true;
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (_) => Center(child: CircularProgressIndicator(color: Colors.black)),
+        builder: (_) =>
+            Center(child: CircularProgressIndicator(color: Colors.black)),
       );
 
       final response = await http.put(
@@ -296,14 +292,14 @@ bool _obscureConfirmPassword = true;
         }),
       );
 
-      Navigator.pop(context); 
+      Navigator.pop(context);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         _passwordController.clear();
         _newPasswordController.clear();
         _confirmPasswordController.clear();
-         showDialog(
+        showDialog(
           context: context,
           builder: (_) => AlertDialog(
             title: Text('Notification'),
@@ -320,8 +316,7 @@ bool _obscureConfirmPassword = true;
         );
       } else {
         final data = jsonDecode(response.body);
-        _showMessageDialog(
-            'ไม่สามารถเปลี่ยนรหัสผ่านได้ กรุณาลองใหม่อีกครั้ง');
+        _showMessageDialog('ไม่สามารถเปลี่ยนรหัสผ่านได้ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (e) {
       Navigator.pop(context);
@@ -338,8 +333,8 @@ bool _obscureConfirmPassword = true;
         actions: [
           TextButton(
             onPressed: () {
-                    Navigator.pop(context, true);
-                  },
+              Navigator.pop(context, true);
+            },
             child: Text('OK', style: TextStyle(color: Colors.black)),
           ),
         ],
@@ -370,52 +365,53 @@ bool _obscureConfirmPassword = true;
       },
     );
   }
-Widget _buildTextField({
-  required String label,
-  required String hintText,
-  required TextEditingController controller,
-  bool isRequired = false,
-  bool isPassword = false,
-  bool obscureText = false,
-  VoidCallback? toggleObscure,
-}) {
-  return Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(label, style: TextStyle(fontSize: 18, color: Colors.black)),
-            if (isRequired) Text('*', style: TextStyle(color: Colors.red)),
-          ],
-        ),
-        TextField(
-          controller: controller,
-          obscureText: obscureText,
-          decoration: InputDecoration(
-            hintText: hintText,
-            filled: true,
-            fillColor: Colors.grey[200],
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
-            ),
-            suffixIcon: isPassword
-                ? IconButton(
-                    icon: Icon(
-                      obscureText ? Icons.visibility_off : Icons.visibility,
-                      color: Colors.grey,
-                    ),
-                    onPressed: toggleObscure,
-                  )
-                : null,
+
+  Widget _buildTextField({
+    required String label,
+    required String hintText,
+    required TextEditingController controller,
+    bool isRequired = false,
+    bool isPassword = false,
+    bool obscureText = false,
+    VoidCallback? toggleObscure,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(label, style: TextStyle(fontSize: 18, color: Colors.black)),
+              if (isRequired) Text('*', style: TextStyle(color: Colors.red)),
+            ],
           ),
-        ),
-      ],
-    ),
-  );
-}
+          TextField(
+            controller: controller,
+            obscureText: obscureText,
+            decoration: InputDecoration(
+              hintText: hintText,
+              filled: true,
+              fillColor: Colors.grey[200],
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
+              ),
+              suffixIcon: isPassword
+                  ? IconButton(
+                      icon: Icon(
+                        obscureText ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.grey,
+                      ),
+                      onPressed: toggleObscure,
+                    )
+                  : null,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
 // Widget _buildTextField({
 //   required String label,
@@ -453,55 +449,54 @@ Widget _buildTextField({
 //   );
 // }
 
-Widget _buildDropdownField({
-  required String label,
-  required String? value,
-  required List<String> items,
-  required Function(String?) onChanged,
-  bool isRequired = false,
-}) {
-  return Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(label, style: TextStyle(fontSize: 18, color: Colors.black)),
-            if (isRequired) Text('*', style: TextStyle(color: Colors.red)),
-          ],
-        ),
-        SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          value: value,
-          items: items
-              .map((item) => DropdownMenuItem(
-                    value: item,
-                    child: Text(
-                      item,
-                      style: TextStyle(
-                        fontWeight: FontWeight.normal,
-                        fontSize: 16,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ))
-              .toList(),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.grey[200],
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
-            ),
+  Widget _buildDropdownField({
+    required String label,
+    required String? value,
+    required List<String> items,
+    required Function(String?) onChanged,
+    bool isRequired = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(label, style: TextStyle(fontSize: 18, color: Colors.black)),
+              if (isRequired) Text('*', style: TextStyle(color: Colors.red)),
+            ],
           ),
-          onChanged: onChanged,
-        ),
-      ],
-    ),
-  );
-}
-
+          SizedBox(height: 8),
+          DropdownButtonFormField<String>(
+            value: value,
+            items: items
+                .map((item) => DropdownMenuItem(
+                      value: item,
+                      child: Text(
+                        item,
+                        style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ))
+                .toList(),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.grey[200],
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
+              ),
+            ),
+            onChanged: onChanged,
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -512,7 +507,7 @@ Widget _buildDropdownField({
           onPressed: () => Navigator.pop(context, true),
         ),
         automaticallyImplyLeading: false,
-         title: Transform.translate(
+        title: Transform.translate(
           offset: const Offset(-20, 0),
           child: Text(
             'Edit Profile',
@@ -532,22 +527,26 @@ Widget _buildDropdownField({
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: const Text('ยืนยันการออกจากระบบ'),
+                    title: const Text('Confirm Logout'),
                     content: const Text('คุณต้องการที่จะออกจากระบบหรือไม่?'),
                     actions: [
                       TextButton(
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
-                        child: const Text('No',style: TextStyle(color: Colors.black)),
+                        child: const Text('No',
+                            style: TextStyle(color: Colors.black)),
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => const homeLogoPage()));
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (_) => homeLogoPage()),
+                            (Route<dynamic> route) => false,
+                          );
                         },
-                        child: const Text('Yes',style: TextStyle(color: Colors.black)),
+                        child: const Text('Yes',
+                            style: TextStyle(color: Colors.black)),
                       ),
                     ],
                   );
@@ -557,7 +556,7 @@ Widget _buildDropdownField({
           ),
         ],
       ),
-        bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
@@ -569,14 +568,15 @@ Widget _buildDropdownField({
                 context,
                 MaterialPageRoute(
                     builder: (context) =>
-                        Homerestaurant(userId : widget.userId)),
+                        Homerestaurant(userId: widget.userId)),
               );
               break;
             case 1:
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => ProfileRestaurant(userId: widget.userId)),
+                    builder: (context) =>
+                        ProfileRestaurant(userId: widget.userId)),
               );
               break;
           }
@@ -625,8 +625,7 @@ Widget _buildDropdownField({
                             backgroundColor:
                                 const Color.fromRGBO(232, 234, 237, 1),
                             child: IconButton(
-                              icon: const Icon(Icons.camera_alt,
-                                  color: Colors.black),
+                              icon: const Icon(Icons.edit, color: Colors.black),
                               onPressed: _pickImage,
                             ),
                           ),
@@ -679,20 +678,20 @@ Widget _buildDropdownField({
                   ),
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Text('รหัสผ่านต้องมีความยาว 6-14 ตัวและต้องมีทั้งตัวอักษรและตัวเลข**',
-                        style: TextStyle(
-                            fontSize: 12,color: Colors.red)),
+                    child: Text(
+                        'รหัสผ่านต้องมีความยาว 6-14 ตัวและต้องมีทั้งตัวอักษรและตัวเลข**',
+                        style: TextStyle(fontSize: 12, color: Colors.red)),
                   ),
                   _buildTextField(
                       label: 'Password',
                       hintText: '',
                       controller: _passwordController,
                       obscureText: _obscurePassword,
-  toggleObscure: () {
-    setState(() {
-      _obscurePassword = !_obscurePassword;
-    });
-  },
+                      toggleObscure: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
                       isPassword: true,
                       isRequired: true),
                   Padding(
@@ -701,24 +700,25 @@ Widget _buildDropdownField({
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => SendOTPRes(userId: widget.userId)),
-                        );
-                      },
-                      child: Text(
-                        'Forgot Password?',
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          color: const Color.fromARGB(255, 0, 91, 228),
-                          decoration: TextDecoration.underline,
-                          decorationColor:
-                              const Color.fromARGB(255, 0, 91, 228),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      SendOTPRes(userId: widget.userId)),
+                            );
+                          },
+                          child: Text(
+                            'Forgot Password?',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: const Color.fromARGB(255, 0, 91, 228),
+                              decoration: TextDecoration.underline,
+                              decorationColor:
+                                  const Color.fromARGB(255, 0, 91, 228),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
                       ],
                     ),
                   ),
@@ -726,24 +726,25 @@ Widget _buildDropdownField({
                     label: 'New Password',
                     hintText: '',
                     controller: _newPasswordController,
-                    obscureText: _obscurePassword,
-  toggleObscure: () {
-    setState(() {
-      _obscurePassword = !_obscurePassword;
-    });
-  },
+                    obscureText: _obscureNewPassword,
+                    toggleObscure: () {
+                      setState(() {
+                        _obscureNewPassword = !_obscureNewPassword;
+                      });
+                    },
                     isPassword: true,
                     isRequired: true,
                   ),
                   _buildTextField(
                     label: 'Confirm Password',
                     hintText: '',
-                    controller: _confirmPasswordController,obscureText: _obscurePassword,
-  toggleObscure: () {
-    setState(() {
-      _obscurePassword = !_obscurePassword;
-    });
-  },
+                    controller: _confirmPasswordController,
+                    obscureText: _obscureConfirmPassword,
+                    toggleObscure: () {
+                      setState(() {
+                        _obscureConfirmPassword = !_obscureConfirmPassword;
+                      });
+                    },
                     isPassword: true,
                     isRequired: true,
                   ),

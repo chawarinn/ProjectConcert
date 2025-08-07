@@ -30,6 +30,8 @@ class _LoginPageState extends State<LoginPage> {
   String text = '';
   String url = '';
   bool _obscurePassword = true;
+  bool _isLoading = false;
+
 
   @override
   void initState() {
@@ -42,6 +44,29 @@ class _LoginPageState extends State<LoginPage> {
       log(err.toString());
     });
   }
+  void _showLoading() {
+  setState(() {
+    _isLoading = true;
+  });
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) {
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.black),
+      );
+    },
+  );
+}
+
+void _hideLoading() {
+  if (_isLoading) {
+    Navigator.of(context, rootNavigator: true).pop(); 
+    setState(() {
+      _isLoading = false;
+    });
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -271,7 +296,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void loginU() async {
-    // showLoadingDialog();
+    _showLoading();
     log(emailCtl.text);
     log(passwordCtl.text);
     try {
@@ -288,50 +313,57 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         text = '';
       });
+       _hideLoading();
 
       switch (users.user.typeId) {
         case 1:
-          Navigator.push(
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
               builder: (context) => Homemember(userId: users.user.userId),
             ),
+            (Route<dynamic> route) => false,
           );
           break;
         case 2:
-          Navigator.push(
+         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
               builder: (context) => HomeHotel(userId: users.user.userId),
             ),
+            (Route<dynamic> route) => false,
           );
           break;
         case 3:
-          Navigator.push(
+         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
               builder: (context) => Homerestaurant(userId: users.user.userId),
             ),
+            (Route<dynamic> route) => false,
           );
           break;
         case 4:
-          Navigator.push(
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
               builder: (context) => HomeEvent(userId: users.user.userId),
             ),
+            (Route<dynamic> route) => false,
           );
           break;
         case 5:
-          Navigator.push(
+         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
               builder: (context) => HomeAdmin(userId: users.user.userId),
             ),
+            (Route<dynamic> route) => false,
           );
           break;
       }
     } on SocketException {
+    _hideLoading();
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -358,7 +390,7 @@ class _LoginPageState extends State<LoginPage> {
     });
   } catch (error) {
     log(error.toString());
-
+    _hideLoading();
     showDialog(
       context: context,
       builder: (BuildContext context) {

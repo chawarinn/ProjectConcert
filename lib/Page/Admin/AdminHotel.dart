@@ -106,8 +106,13 @@ class _AdminHotelPageState extends State<AdminHotelPage> {
                         child:
                             Text('No', style: TextStyle(color: Colors.black))),
                     TextButton(
-                      onPressed: () => Navigator.pushReplacement(context,
-                          MaterialPageRoute(builder: (_) => homeLogoPage())),
+                     onPressed: () {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
+                        );
+                      },
                       child: Text('Yes', style: TextStyle(color: Colors.black)),
                     ),
                   ],

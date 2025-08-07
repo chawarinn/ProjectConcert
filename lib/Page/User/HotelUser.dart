@@ -707,12 +707,15 @@ class _HoteluserState extends State<Hoteluser> {
                             ),
                           );
                         } else {
-                          return ListView.builder(
-                            itemCount: filteredhotel.length,
-                            itemBuilder: (context, index) {
-                              var hotel = filteredhotel[index];
-                              return buildHotelCard(hotel);
-                            },
+                          return Padding(
+                             padding: const EdgeInsets.only(left: 16, right: 16),
+                            child: ListView.builder(
+                              itemCount: filteredhotel.length,
+                              itemBuilder: (context, index) {
+                                var hotel = filteredhotel[index];
+                                return buildHotelCard(hotel);
+                              },
+                            ),
                           );
                         }
                       } else {

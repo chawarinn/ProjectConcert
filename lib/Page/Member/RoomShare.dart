@@ -12,7 +12,7 @@ import 'package:project_concert_closeiin/Page/Member/Notification.dart';
 import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
 import 'package:project_concert_closeiin/Page/Member/RoomshareDetail.dart';
 import 'package:project_concert_closeiin/Page/Member/artist.dart';
-import 'package:project_concert_closeiin/config/internet_config.dart'; // ต้องกำหนด API_ENDPOINT ที่นี่
+import 'package:project_concert_closeiin/config/internet_config.dart';
 
 class Roomshare extends StatefulWidget {
   final int userId;
@@ -24,7 +24,6 @@ class Roomshare extends StatefulWidget {
 
 class _RoomshareState extends State<Roomshare> {
   int _currentIndex = 0;
-  bool isLoading = true;
   late Future<List<Map<String, dynamic>>> futureRoomShares;
 
   @override
@@ -33,9 +32,21 @@ class _RoomshareState extends State<Roomshare> {
     futureRoomShares = fetchRoomShares();
   }
 
+  String mapGender(String? gender) {
+    switch (gender) {
+      case 'Male':
+        return 'ชาย';
+      case 'Female':
+        return 'หญิง';
+      case 'Prefer not to say':
+        return 'ไม่ต้องการระบุ';
+      default:
+        return '-';
+    }
+  }
+
   Future<List<Map<String, dynamic>>> fetchRoomShares() async {
     final response = await http.get(Uri.parse('$API_ENDPOINT/roomshare'));
-
     if (response.statusCode == 200) {
       List data = json.decode(response.body);
       return data
@@ -48,6 +59,8 @@ class _RoomshareState extends State<Roomshare> {
   }
 
   Widget _buildRoomCard(Map<String, dynamic> room) {
+    final List<dynamic> favArtists = room['favArtists'] ?? [];
+
     return Container(
       padding: EdgeInsets.all(16),
       margin: EdgeInsets.only(bottom: 12),
@@ -63,7 +76,8 @@ class _RoomshareState extends State<Roomshare> {
               CircleAvatar(
                 radius: 24,
                 backgroundImage: NetworkImage(
-                    room['photo'] ?? 'https://via.placeholder.com/150'),
+                  room['photo'] ?? 'https://via.placeholder.com/150',
+                ),
                 backgroundColor: Colors.transparent,
               ),
               SizedBox(width: 12),
@@ -71,61 +85,52 @@ class _RoomshareState extends State<Roomshare> {
                 children: [
                   Text(room['name'], style: GoogleFonts.poppins(fontSize: 20)),
                   SizedBox(width: 6),
-                  Icon(
-                    Icons.verified,
-                    color: Colors.blueAccent,
-                    size: 20,
-                  ),
+                  Icon(Icons.verified, color: Colors.blueAccent, size: 20),
                 ],
               ),
             ],
           ),
           Padding(
             padding: const EdgeInsets.only(left: 60, right: 8),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
+                Text("อีเว้นท์ : ${room['eventName'] ?? '-'}",
+                    style: GoogleFonts.poppins()),
+                Text("เพศ : ${mapGender(room['gender'])}",
+                    style: GoogleFonts.poppins()),
+                Text(
+                    "ต้องการแชร์เพื่อนเพศ : ${mapGender(room['gender_restrictions'])}",
+                    style: GoogleFonts.poppins()),
+                Text("ประเภทห้อง : ${room['typeRoom'] ?? '-'}",
+                    style: GoogleFonts.poppins()),
+                Text("ราคาห้องต่อคนที่แชร์ : ${room['price'] ?? '-'} บาท",
+                    style: GoogleFonts.poppins()),
+                Text("อื่นๆ : ${room['note'] ?? '-'}",
+                    style: GoogleFonts.poppins()),
+                if (favArtists.isNotEmpty)
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "อีเว้นท์ : ${room['eventName'] ?? '-'}",
-                        style: GoogleFonts.poppins(),
-                        softWrap: true,
-                      ),
-                      Text(
-                        "ศิลปิน : ${room['artistName'] ?? '-'}",
-                        style: GoogleFonts.poppins(),
-                        softWrap: true,
-                      ),
-                      Text(
-                        "เพศ : ${room['gender'] == 'Male' ? 'ชาย' : room['gender'] == 'Female' ? 'หญิง' : room['gender'] == 'Prefer not to say' ? 'ไม่ต้องการระบุ' : '-'}",
-                        style: GoogleFonts.poppins(),
-                        softWrap: true,
-                      ),
-                      Text(
-                        "ต้องการแชร์เพื่อนเพศ : ${room['gender_restrictions'] == 'Male' ? 'ชาย' : room['gender_restrictions'] == 'Female' ? 'หญิง' : room['gender_restrictions'] == 'Prefer not to say' ? 'ไม่ต้องการระบุ' : '-'}",
-                        style: GoogleFonts.poppins(),
-                        softWrap: true,
-                      ),
-                      Text(
-                        "ประเภทห้อง : ${room['typeRoom'] ?? '-'}",
-                        style: GoogleFonts.poppins(),
-                        softWrap: true,
-                      ),
-                      Text(
-                        "ราคาห้องต่อคนที่แชร์ : ${room['price'] ?? '-'} บาท",
-                        style: GoogleFonts.poppins(),
-                        softWrap: true,
-                      ),
-                      Text(
-                        "อื่นๆ : ${room['note'] ?? '-'}",
-                        style: GoogleFonts.poppins(),
-                        softWrap: true,
+                      SizedBox(height: 8),
+                      Text("ศิลปินที่ชอบ:",
+                          style:
+                              GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+                      Wrap(
+                        spacing: 8,
+                        children: favArtists.map<Widget>((artist) {
+                          return Chip(
+                            avatar: CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                  artist['artistPhoto'] ??
+                                      'https://via.placeholder.com/50'),
+                            ),
+                            label: Text(artist['artistName'] ?? '-'),
+                          );
+                        }).toList(),
                       ),
                     ],
                   ),
-                ),
               ],
             ),
           ),
@@ -151,15 +156,11 @@ class _RoomshareState extends State<Roomshare> {
                   );
                   if (result == true) {
                     setState(() {
-                      isLoading = true;
+                      futureRoomShares = fetchRoomShares();
                     });
-                    futureRoomShares = fetchRoomShares();
                   }
                 },
-                child: Text(
-                  "More",
-                  style: TextStyle(color: Colors.black),
-                ),
+                child: Text("More", style: TextStyle(color: Colors.black)),
               ),
             ],
           ),
@@ -177,7 +178,7 @@ class _RoomshareState extends State<Roomshare> {
               const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           onPressed: () => Navigator.pop(context, true),
         ),
-         title: Transform.translate(
+        title: Transform.translate(
           offset: const Offset(-20, 0),
           child: Text(
             'Roomshare',
@@ -206,9 +207,10 @@ class _RoomshareState extends State<Roomshare> {
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushReplacement(
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
                         );
                       },
                       child: const Text('Yes',
@@ -242,15 +244,12 @@ class _RoomshareState extends State<Roomshare> {
                   );
                   if (result == true) {
                     setState(() {
-                      isLoading = true;
+                      futureRoomShares = fetchRoomShares();
                     });
-                    futureRoomShares = fetchRoomShares();
                   }
                 },
-                child: Text(
-                  "Add",
-                  style: TextStyle(color: Colors.white, fontSize: 18),
-                ),
+                child: Text("Add",
+                    style: TextStyle(color: Colors.white, fontSize: 18)),
               ),
             ),
           ),
@@ -267,15 +266,18 @@ class _RoomshareState extends State<Roomshare> {
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return Center(child: Text('No RoomShare'));
                 }
+
+                final filteredRooms = snapshot.data!
+                    .where((room) => room['userId'] != widget.userId)
+                    .toList();
+
                 return Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 16),
-                  child: ListView(
-                    children: snapshot.data!
-                        .where((room) =>
-                            room['userId'] !=
-                            widget.userId) 
-                        .map((room) => _buildRoomCard(room))
-                        .toList(),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: ListView.builder(
+                    itemCount: filteredRooms.length,
+                    itemBuilder: (context, index) {
+                      return _buildRoomCard(filteredRooms[index]);
+                    },
                   ),
                 );
               },

@@ -57,6 +57,9 @@ dependencies:
   connectivity_plus: ^5.0.2
   flutter_image_compress: ^2.1.0
   webview_flutter: ^4.2.2
+  firebase_auth: ^4.2.3
+  flutter_launcher_icons: ^0.14.4
+  
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -117,3 +120,9 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/Simple I Letter Logo - 6.PNG"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/Simple I Letter Logo - 6.PNG"

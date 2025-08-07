@@ -12,6 +12,10 @@ import 'package:project_concert_closeiin/Page/Restaurant/HomeRestaurant.dart';
 import 'package:project_concert_closeiin/Page/Restaurant/ProfileRestaurant.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
+
 
 class AddRestaurant extends StatefulWidget {
  final int userId;
@@ -64,28 +68,61 @@ class _AddRestaurantState extends State<AddRestaurant> {
     });
   }
 
-  Future<void> _selectTime(
-      BuildContext context, TextEditingController controller) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-      builder: (context, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-          child: child!,
-        );
-      },
-    );
 
-    if (picked != null) {
-      final String formattedTime =
-          '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-      controller.text = formattedTime;
-    }
-  }
+ Future<void> _selectTime(
+    BuildContext context, TextEditingController controller) async {
+  TimeOfDay selectedTime = TimeOfDay.now();
+
+  await showCupertinoModalPopup(
+    context: context,
+    builder: (_) => Container(
+      height: 300,
+      color: Colors.white,
+      child: Column(
+        children: [
+          Container(
+            height: 200,
+            child: CupertinoDatePicker(
+              mode: CupertinoDatePickerMode.time,
+              initialDateTime: DateTime(
+                0,
+                0,
+                0,
+                selectedTime.hour,
+                selectedTime.minute,
+              ),
+              use24hFormat: true,
+              onDateTimeChanged: (DateTime newTime) {
+                selectedTime = TimeOfDay.fromDateTime(newTime);
+              },
+            ),
+          ),
+           CupertinoButton(
+            child: Text('Done'),
+            onPressed: () {
+              final now = DateTime.now();
+              final selectedDateTime = DateTime(
+                now.year,
+                now.month,
+                now.day,
+                selectedTime.hour,
+                selectedTime.minute,
+              );
+              final formattedTime =
+                  DateFormat('HH:mm').format(selectedDateTime); 
+              controller.text = '$formattedTime'; 
+              log('Selected Time: $formattedTime');
+              Navigator.of(context).pop();
+            },
+          )
+        ],
+      ),
+    ),
+  );
+}
 
   void _showEditResultDialog() async {
-    final phoneRegex = RegExp(r'^[0-9]{10}$');
+    final phoneRegex = RegExp(r'^0[0-9]{9}$');
     final nameRegex = RegExp(r'^(?=.*[ก-๙a-zA-Z])[ก-๙a-zA-Z0-9]+( [ก-๙a-zA-Z0-9]+)*$');
 
  if (_nameController.text.isEmpty) {
@@ -365,10 +402,11 @@ try {
                           style: TextStyle(color: Colors.black)),
                     ),
                     TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
+                     onPressed: () {
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
                         );
                       },
                       child: const Text('Yes',
@@ -712,10 +750,22 @@ try {
                         ] else ...[
                           GestureDetector(
                             onTap: _selectLocation,
-                            child: const Icon(
-                              Icons.add_location_alt_rounded,
-                              color: Colors.red,
-                              size: 30,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10)),
+                              child:  Row(
+                                children: [
+                                  Text("เลือกตำแหน่ง",
+                                      style: TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 12)),
+                                  Icon(
+                                    Icons.add_location_alt_rounded,
+                                    color: Colors.red,
+                                    size: 30,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],

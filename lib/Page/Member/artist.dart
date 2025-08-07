@@ -272,10 +272,11 @@ Future<void> removeFromFavorites(int artistId) async {
                       child: const Text('No',style: TextStyle(color: Colors.black)),
                     ),
                     TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
+                     onPressed: () {
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
                         );
                       },
                       child: const Text('Yes',style: TextStyle(color: Colors.black)),

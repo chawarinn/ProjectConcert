@@ -131,6 +131,8 @@ class _AddRoomState extends State<AddRoom> {
   }
 
   Future<void> addRoom() async {
+    final nameRegex =  RegExp(r'^(?=.*[ก-๙a-zA-Z])[ก-๙a-zA-Z0-9]+( [ก-๙a-zA-Z0-9]+)*$');
+
     if (priceCtl.text.isEmpty ||
         sizeCtl.text.isEmpty ||
         roomNameCtl.text.isEmpty) {
@@ -141,7 +143,11 @@ class _AddRoomState extends State<AddRoom> {
       // ต้องมีอย่างน้อย 1 ตัวอักษร a-z A-Z ก-ฮ หรือ ตัวเลข 0-9
       return RegExp(r'[a-zA-Zก-ฮ0-9]').hasMatch(text);
     }
-
+      if (!nameRegex.hasMatch(roomNameCtl.text)) {
+  _showAlertDialog(context,
+    "กรุณาเพิ่มประเภทห้อง/เตียงให้ตรงตามมาตรฐาน");
+  return;
+}
     if (!isValidText(priceCtl.text) ||
         !isValidText(roomNameCtl.text) ||
         !isValidText(sizeCtl.text)) {
@@ -233,95 +239,94 @@ class _AddRoomState extends State<AddRoom> {
       },
     );
   }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-         title: Transform.translate(
-          offset: const Offset(-20, 0),
-          child: Text(
-            'Add Room',
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              fontSize: 20,
+    return WillPopScope(
+    onWillPop: () async {
+      if (roomData == null || roomData!['rooms'].isEmpty) {
+        _showAlertDialog(context, 'กรุณาเพิ่มห้องอย่างน้อย 1 ห้อง');
+        return false;
+      }
+
+      if (widget.fromAddHotel) {
+        bool? confirmExit = await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Notification'),
+              content: const Text(
+                  'คุณยังดำเนินการเพิ่มโรงแรมไม่สำเร็จ กรุณากด Confirm หากต้องการออกจากหน้านี้ ระบบจะทำการลบข้อมูลก่อนหน้านี้ของคุณ'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('No', style: TextStyle(color: Colors.black)),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text('Yes', style: TextStyle(color: Colors.black)),
+                ),
+              ],
+            );
+          },
+        );
+
+        if (confirmExit != true) return false;
+
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.black),
+            );
+          },
+        );
+
+        try {
+          final deleteRoomsResponse = await http.delete(Uri.parse(
+            '$API_ENDPOINT/deleteallroom?hotelID=${widget.hotelID}',
+          ));
+
+          if (deleteRoomsResponse.statusCode != 200) {
+            Navigator.of(context).pop();
+            return false;
+          }
+
+          final deleteHotelResponse = await http.delete(Uri.parse(
+            '$API_ENDPOINT/deletehotel?hotelID=${widget.hotelID}',
+          ));
+
+          Navigator.of(context).pop();
+
+          if (deleteHotelResponse.statusCode != 200) {
+            return false;
+          }
+        } catch (e) {
+          Navigator.of(context).pop();
+          return false;
+        }
+      }
+
+      Navigator.pop(context, true); // pop the screen
+      return false; // already manually popped
+    },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+           title: Transform.translate(
+            offset: const Offset(-20, 0),
+            child: Text(
+              'Add Room',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontSize: 20,
+              ),
             ),
           ),
-        ),
-        leading: IconButton(
-          icon:
-              const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-          onPressed: () async {
-            if (roomData == null || roomData!['rooms'].isEmpty) {
-              _showAlertDialog(context, 'กรุณาเพิ่มห้องอย่างน้อย 1 ห้อง');
-              return;
-            }
-            if (widget.fromAddHotel) {
-              bool? confirmExit = await showDialog<bool>(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('Notification'),
-                    content: const Text(
-                        'คุณยังดำเนินการเพิ่มโรงแรมไม่สำเร็จ กรุณากด Confirm หากต้องการออกจากหน้านี้ ระบบจะทำการลบข้อมูลก่อนหน้านี้ของคุณ'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(false),
-                        child: const Text('No',
-                            style: TextStyle(color: Colors.black)),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(true),
-                        child: const Text('Yes',
-                            style: TextStyle(color: Colors.black)),
-                      ),
-                    ],
-                  );
-                },
-              );
-              if (confirmExit != true) return;
-
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (BuildContext context) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: Colors.black),
-                  );
-                },
-              );
-
-              try {
-                final deleteRoomsResponse = await http.delete(Uri.parse(
-                  '$API_ENDPOINT/deleteallroom?hotelID=${widget.hotelID}',
-                ));
-
-                if (deleteRoomsResponse.statusCode != 200) {
-                  Navigator.of(context).pop();
-                  return;
-                }
-                final deleteHotelResponse = await http.delete(Uri.parse(
-                  '$API_ENDPOINT/deletehotel?hotelID=${widget.hotelID}',
-                ));
-
-                Navigator.of(context).pop();
-
-                if (deleteHotelResponse.statusCode != 200) {
-                  return;
-                }
-              } catch (e) {
-                Navigator.of(context).pop();
-                return;
-              }
-            }
-            Navigator.pop(context, true);
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
+          leading: IconButton(
+            icon:
+                const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
             onPressed: () async {
               if (roomData == null || roomData!['rooms'].isEmpty) {
                 _showAlertDialog(context, 'กรุณาเพิ่มห้องอย่างน้อย 1 ห้อง');
@@ -350,9 +355,8 @@ class _AddRoomState extends State<AddRoom> {
                     );
                   },
                 );
-
                 if (confirmExit != true) return;
-
+      
                 showDialog(
                   context: context,
                   barrierDismissible: false,
@@ -362,12 +366,12 @@ class _AddRoomState extends State<AddRoom> {
                     );
                   },
                 );
-
+      
                 try {
                   final deleteRoomsResponse = await http.delete(Uri.parse(
                     '$API_ENDPOINT/deleteallroom?hotelID=${widget.hotelID}',
                   ));
-
+      
                   if (deleteRoomsResponse.statusCode != 200) {
                     Navigator.of(context).pop();
                     return;
@@ -375,9 +379,9 @@ class _AddRoomState extends State<AddRoom> {
                   final deleteHotelResponse = await http.delete(Uri.parse(
                     '$API_ENDPOINT/deletehotel?hotelID=${widget.hotelID}',
                   ));
-
+      
                   Navigator.of(context).pop();
-
+      
                   if (deleteHotelResponse.statusCode != 200) {
                     return;
                   }
@@ -386,563 +390,635 @@ class _AddRoomState extends State<AddRoom> {
                   return;
                 }
               }
-
-              showDialog(
-                context: context,
-                builder: (BuildContext context) => AlertDialog(
-                  title: const Text('Confirm Logout'),
-                  content: const Text('คุณต้องการออกจากระบบ?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('No',
-                          style: TextStyle(color: Colors.black)),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (_) => homeLogoPage()),
-                        );
-                      },
-                      child: const Text('Yes',
-                          style: TextStyle(color: Colors.black)),
-                    ),
-                  ],
-                ),
-              );
+              Navigator.pop(context, true);
             },
           ),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) async {
-          if (roomData == null || roomData!['rooms'].isEmpty) {
-            _showAlertDialog(context, 'กรุณาเพิ่มห้องอย่างน้อย 1 ห้อง');
-            return;
-          }
-          if (widget.fromAddHotel) {
-            bool? confirmExit = await showDialog<bool>(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text('Notification'),
-                  content: const Text(
-                      'คุณยังดำเนินการเพิ่มโรงแรมไม่สำเร็จ กรุณากด Confirm หากต้องการออกจากหน้านี้ ระบบจะทำการลบข้อมูลก่อนหน้านี้ของคุณ'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text('No',
-                          style: TextStyle(color: Colors.black)),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(true),
-                      child: const Text('Yes',
-                          style: TextStyle(color: Colors.black)),
-                    ),
-                  ],
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.logout, color: Colors.white),
+              onPressed: () async {
+                if (roomData == null || roomData!['rooms'].isEmpty) {
+                  _showAlertDialog(context, 'กรุณาเพิ่มห้องอย่างน้อย 1 ห้อง');
+                  return;
+                }
+                if (widget.fromAddHotel) {
+                  bool? confirmExit = await showDialog<bool>(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Notification'),
+                        content: const Text(
+                            'คุณยังดำเนินการเพิ่มโรงแรมไม่สำเร็จ กรุณากด Confirm หากต้องการออกจากหน้านี้ ระบบจะทำการลบข้อมูลก่อนหน้านี้ของคุณ'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: const Text('No',
+                                style: TextStyle(color: Colors.black)),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            child: const Text('Yes',
+                                style: TextStyle(color: Colors.black)),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+      
+                  if (confirmExit != true) return;
+      
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (BuildContext context) {
+                      return const Center(
+                        child: CircularProgressIndicator(color: Colors.black),
+                      );
+                    },
+                  );
+      
+                  try {
+                    final deleteRoomsResponse = await http.delete(Uri.parse(
+                      '$API_ENDPOINT/deleteallroom?hotelID=${widget.hotelID}',
+                    ));
+      
+                    if (deleteRoomsResponse.statusCode != 200) {
+                      Navigator.of(context).pop();
+                      return;
+                    }
+                    final deleteHotelResponse = await http.delete(Uri.parse(
+                      '$API_ENDPOINT/deletehotel?hotelID=${widget.hotelID}',
+                    ));
+      
+                    Navigator.of(context).pop();
+      
+                    if (deleteHotelResponse.statusCode != 200) {
+                      return;
+                    }
+                  } catch (e) {
+                    Navigator.of(context).pop();
+                    return;
+                  }
+                }
+      
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    title: const Text('Confirm Logout'),
+                    content: const Text('คุณต้องการออกจากระบบ?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('No',
+                            style: TextStyle(color: Colors.black)),
+                      ),
+                      TextButton(
+                      onPressed: () {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (_) => homeLogoPage()),
+                            (Route<dynamic> route) => false,
+                          );
+                        },
+                        child: const Text('Yes',
+                            style: TextStyle(color: Colors.black)),
+                      ),
+                    ],
+                  ),
                 );
               },
-            );
-
-            if (confirmExit != true) return;
-
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (BuildContext context) {
-                return const Center(
-                  child: CircularProgressIndicator(color: Colors.black),
-                );
-              },
-            );
-
-            try {
-              final deleteRoomsResponse = await http.delete(Uri.parse(
-                '$API_ENDPOINT/deleteallroom?hotelID=${widget.hotelID}',
-              ));
-
-              if (deleteRoomsResponse.statusCode != 200) {
+            ),
+          ],
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (index) async {
+            if (roomData == null || roomData!['rooms'].isEmpty) {
+              _showAlertDialog(context, 'กรุณาเพิ่มห้องอย่างน้อย 1 ห้อง');
+              return;
+            }
+            if (widget.fromAddHotel) {
+              bool? confirmExit = await showDialog<bool>(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Notification'),
+                    content: const Text(
+                        'คุณยังดำเนินการเพิ่มโรงแรมไม่สำเร็จ กรุณากด Confirm หากต้องการออกจากหน้านี้ ระบบจะทำการลบข้อมูลก่อนหน้านี้ของคุณ'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('No',
+                            style: TextStyle(color: Colors.black)),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: const Text('Yes',
+                            style: TextStyle(color: Colors.black)),
+                      ),
+                    ],
+                  );
+                },
+              );
+      
+              if (confirmExit != true) return;
+      
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (BuildContext context) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: Colors.black),
+                  );
+                },
+              );
+      
+              try {
+                final deleteRoomsResponse = await http.delete(Uri.parse(
+                  '$API_ENDPOINT/deleteallroom?hotelID=${widget.hotelID}',
+                ));
+      
+                if (deleteRoomsResponse.statusCode != 200) {
+                  Navigator.of(context).pop();
+                  return;
+                }
+                final deleteHotelResponse = await http.delete(Uri.parse(
+                  '$API_ENDPOINT/deletehotel?hotelID=${widget.hotelID}',
+                ));
+      
+                Navigator.of(context).pop();
+      
+                if (deleteHotelResponse.statusCode != 200) {
+                  return;
+                }
+              } catch (e) {
                 Navigator.of(context).pop();
                 return;
               }
-              final deleteHotelResponse = await http.delete(Uri.parse(
-                '$API_ENDPOINT/deletehotel?hotelID=${widget.hotelID}',
-              ));
-
-              Navigator.of(context).pop();
-
-              if (deleteHotelResponse.statusCode != 200) {
-                return;
-              }
-            } catch (e) {
-              Navigator.of(context).pop();
-              return;
             }
-          }
-          setState(() {
-            _currentIndex = index;
-          });
-          switch (index) {
-            case 0:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => HomeHotel(userId: widget.userId),
-                ),
-              );
-              break;
-            case 1:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ProfileHotel(userId: widget.userId),
-                ),
-              );
-              break;
-          }
-        },
-        backgroundColor: const Color.fromRGBO(201, 151, 187, 1),
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white70,
-        showUnselectedLabels: false,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.face),
-            label: 'Profile',
-          ),
-        ],
-      ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.black))
-          : SingleChildScrollView(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 10, left: 10),
-                    child: Container(
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Stack(
-                              children: [
-                                Container(
-                                  width: 200,
-                                  height: 200,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    image: DecorationImage(
-                                      image: _image != null
-                                          ? FileImage(_image!)
-                                          : const AssetImage(
-                                              'assets/images/album.jpg',
-                                            ),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: _image != null ? 0 : 30,
-                                  right: _image != null ? 0 : 30,
-                                  child: Container(
-                                    width: 40,
-                                    height: 40,
+            setState(() {
+              _currentIndex = index;
+            });
+            switch (index) {
+              case 0:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomeHotel(userId: widget.userId),
+                  ),
+                );
+                break;
+              case 1:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfileHotel(userId: widget.userId),
+                  ),
+                );
+                break;
+            }
+          },
+          backgroundColor: const Color.fromRGBO(201, 151, 187, 1),
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white70,
+          showUnselectedLabels: false,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.face),
+              label: 'Profile',
+            ),
+          ],
+        ),
+        body: isLoading
+            ? const Center(child: CircularProgressIndicator(color: Colors.black))
+            : SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 10, left: 10),
+                      child: Container(
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    width: 200,
+                                    height: 200,
                                     decoration: BoxDecoration(
-                                      color: const Color.fromRGBO(
-                                          232, 234, 237, 1),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: IconButton(
-                                      icon: Icon(
-                                        _image != null ? Icons.edit : Icons.add,
-                                        color: Colors.black,
+                                      borderRadius: BorderRadius.circular(10),
+                                      image: DecorationImage(
+                                        image: _image != null
+                                            ? FileImage(_image!)
+                                            : const AssetImage(
+                                                'assets/images/album.jpg',
+                                              ),
+                                        fit: BoxFit.cover,
                                       ),
-                                      onPressed: _pickImage,
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10, left: 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Type Room',
-                                  style: TextStyle(
-                                      fontSize: 18, color: Colors.black),
-                                ),
-                                const SizedBox(height: 1),
-                                Autocomplete<String>(
-                                  optionsBuilder:
-                                      (TextEditingValue textEditingValue) {
-                                    if (textEditingValue.text == '') {
-                                      return const Iterable<String>.empty();
-                                    }
-                                    return nameRoomList.where((String option) {
-                                      return option.toLowerCase().contains(
-                                          textEditingValue.text.toLowerCase());
-                                    });
-                                  },
-                                  onSelected: (String selection) {
-                                    roomNameCtl.text = selection;
-                                  },
-                                  fieldViewBuilder: (context,
-                                      textEditingController,
-                                      focusNode,
-                                      onFieldSubmitted) {
-                                    return TextFormField(
-                                      controller: roomNameCtl,
-                                      focusNode: focusNode,
-                                      onFieldSubmitted: (value) =>
-                                          onFieldSubmitted(),
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: const Color.fromRGBO(
-                                            217, 217, 217, 1),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                vertical: 10, horizontal: 15),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          borderSide: BorderSide.none,
+                                  Positioned(
+                                    bottom: _image != null ? 0 : 30,
+                                    right: _image != null ? 0 : 30,
+                                    child: Container(
+                                      width: 40,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        color: const Color.fromRGBO(
+                                            232, 234, 237, 1),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: IconButton(
+                                        icon: Icon(
+                                          _image != null ? Icons.edit : Icons.add,
+                                          color: Colors.black,
                                         ),
+                                        onPressed: _pickImage,
                                       ),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                top: 5, right: 10, left: 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Price',
-                                  style: TextStyle(
-                                      fontSize: 18, color: Colors.black),
-                                ),
-                                const SizedBox(height: 1),
-                                TextField(
-                                  controller: priceCtl,
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor:
-                                        const Color.fromRGBO(217, 217, 217, 1),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        vertical: 10, horizontal: 15),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide.none,
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                top: 5, right: 10, left: 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Bed Size',
-                                  style: TextStyle(
-                                      fontSize: 18, color: Colors.black),
-                                ),
-                                const SizedBox(height: 1),
-                                DropdownButtonFormField<String>(
-                                  value: sizeCtl.text.isNotEmpty
-                                      ? sizeCtl.text
-                                      : null,
-                                  items: bedSizeValues.keys
-                                      .map((size) => DropdownMenuItem(
-                                            value: size,
-                                            child: Text(size),
-                                          ))
-                                      .toList(),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      sizeCtl.text = value!;
-                                      double numericSize =
-                                          bedSizeValues[value]!;
-                                      print(
-                                          'Selected bed size in number: $numericSize');
-                                    });
-                                  },
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor:
-                                        const Color.fromRGBO(217, 217, 217, 1),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        vertical: 10, horizontal: 15),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10),
-                            child: SizedBox(
-                              width: 120,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                    Color.fromRGBO(201, 151, 187, 1),
-                                ),
-                                onPressed: addRoom,
-                                child: const Text(
-                                  "Next",
-                                  style: TextStyle(color: Colors.white,fontSize: 18),
-                                ),
+                                ],
                               ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10),
-                            child: isLoadingRoom
-                                ? const CircularProgressIndicator(color: Colors.black)
-                                : (roomData == null ||
-                                        roomData!['rooms'] == null ||
-                                        roomData!['rooms'].isEmpty)
-                                    ? SizedBox.shrink()
-                                    : ListView.builder(
-                                        shrinkWrap: true,
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        itemCount: roomData!['rooms'].length,
-                                        itemBuilder: (context, index) {
-                                          final room =
-                                              roomData!['rooms'][index];
-                                          return Card(
-                                              margin:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 8,
-                                                      horizontal: 10),
-                                              child: ListTile(
-                                                leading: room['photo'] != null
-                                                    ? Image.network(
-                                                        room['photo'],
-                                                        width: 60,
-                                                        height: 60,
-                                                        fit: BoxFit.cover,
-                                                      )
-                                                    : const Icon(Icons.room),
-                                                title: Text(room['roomName'] ??
-                                                    'ชื่อห้องไม่ระบุ'),
-                                                subtitle: Text(
-                                                    'ราคา: ${room['price'].toString() ?? '-'} บาท\nขนาดเตียง: ${room['size'].toString() ?? '-'} ฟุต'),
-                                                trailing: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    IconButton(
-                                                      icon: Icon(Icons.edit,
-                                                          color: Colors.blue,
-                                                          size: 26),
-                                                      onPressed: () async {
-                                                        final result =
-                                                            await Navigator
-                                                                .push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder:
-                                                                (context) =>
-                                                                    EditRoom(
-                                                              userId:
-                                                                  widget.userId,
-                                                              roomID: room[
-                                                                  'roomID'],
-                                                              hotelID: widget
-                                                                  .hotelID,
-                                                            ),
-                                                          ),
-                                                        );
-                                                        if (result == true) {
-                                                          setState(() {
-                                                            isLoading = false;
-                                                          });
-                                                          fetchRoomData();
-                                                        }
-                                                      },
-                                                    ),
-                                                    IconButton(
-                                                      icon: Icon(Icons.delete,
-                                                          color: Colors.red,
-                                                          size: 28),
-                                                      onPressed: () async {
-                                                        final confirm =
-                                                            await showDialog<
-                                                                bool>(
-                                                          context: context,
-                                                          builder: (context) =>
-                                                              AlertDialog(
-                                                            title: Text(
-                                                                'Notification'),
-                                                            content: Text(
-                                                                'คุณแน่ใจว่าต้องการลบห้องนี้หรือไม่?'),
-                                                            actions: [
-                                                              TextButton(
-                                                                onPressed: () =>
-                                                                    Navigator.pop(
-                                                                        context,
-                                                                        false),
-                                                                child: Text(
-                                                                    'No',
-                                                                    style: TextStyle(
-                                                                        color: Colors
-                                                                            .black)),
-                                                              ),
-                                                              TextButton(
-                                                                onPressed: () =>
-                                                                    Navigator.pop(
-                                                                        context,
-                                                                        true),
-                                                                child: Text(
-                                                                    'Yes',
-                                                                    style: TextStyle(
-                                                                        color: Colors
-                                                                            .black)),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        );
-
-                                                        if (confirm == true) {
-                                                          showDialog(
-                                                            context: context,
-                                                            barrierDismissible:
-                                                                false,
-                                                            builder:
-                                                                (context) =>
-                                                                    Dialog(
-                                                              backgroundColor:
-                                                                  Colors
-                                                                      .transparent,
-                                                              child: Center(
-                                                                  child:
-                                                                      CircularProgressIndicator(color: Colors.black)),
-                                                            ),
-                                                          );
-
-                                                          try {
-                                                            final response =
-                                                                await http
-                                                                    .delete(Uri
-                                                                        .parse(
-                                                              '$API_ENDPOINT/deleteroom?roomID=${room['roomID']}',
-                                                            ));
-
-                                                            if (context.mounted)
-                                                              Navigator.of(
-                                                                      context,
-                                                                      rootNavigator:
-                                                                          true)
-                                                                  .pop();
-
-                                                            if (response
-                                                                    .statusCode ==
-                                                                200) {
-                                                              if (context
-                                                                  .mounted) {
-                                                                ScaffoldMessenger.of(
-                                                                        context)
-                                                                    .showSnackBar(
-                                                                  SnackBar(
-                                                                      content: Text(
-                                                                          "ลบเรียบร้อยแล้ว")),
-                                                                );
-                                                                await fetchRoomData();
-                                                              }
-                                                            } else {
-                                                              throw Exception(
-                                                                  "ลบไม่สำเร็จ: ${response.body}");
-                                                            }
-                                                          } catch (e) {
-                                                            if (context.mounted)
-                                                              Navigator.of(
-                                                                      context,
-                                                                      rootNavigator:
-                                                                          true)
-                                                                  .pop();
-                                                            if (context
-                                                                .mounted) {
-                                                              ScaffoldMessenger
-                                                                      .of(context)
-                                                                  .showSnackBar(
-                                                                SnackBar(
-                                                                    content: Text(
-                                                                        "เกิดข้อผิดพลาด: $e")),
-                                                              );
-                                                            }
-                                                          }
-                                                        }
-                                                      },
-                                                    ),
-                                                  ],
-                                                ),
-                                              ));
-                                        },
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10, left: 10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Type Room',
+                                    style: TextStyle(
+                                        fontSize: 18, color: Colors.black),
+                                  ),
+                                  const SizedBox(height: 1),
+                                  Autocomplete<String>(
+                                    optionsBuilder:
+                                        (TextEditingValue textEditingValue) {
+                                      if (textEditingValue.text == '') {
+                                        return const Iterable<String>.empty();
+                                      }
+                                      return nameRoomList.where((String option) {
+                                        return option.toLowerCase().contains(
+                                            textEditingValue.text.toLowerCase());
+                                      });
+                                    },
+                                    onSelected: (String selection) {
+                                      roomNameCtl.text = selection;
+                                    },
+                                    fieldViewBuilder: (context,
+                                        textEditingController,
+                                        focusNode,
+                                        onFieldSubmitted) {
+                                      return TextFormField(
+                                        controller: roomNameCtl,
+                                        focusNode: focusNode,
+                                        onFieldSubmitted: (value) =>
+                                            onFieldSubmitted(),
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: const Color.fromRGBO(
+                                              217, 217, 217, 1),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 10, horizontal: 15),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 5, right: 10, left: 10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Price',
+                                    style: TextStyle(
+                                        fontSize: 18, color: Colors.black),
+                                  ),
+                                  const SizedBox(height: 1),
+                                  TextField(
+                                    controller: priceCtl,
+                                    keyboardType: TextInputType.number,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor:
+                                          const Color.fromRGBO(217, 217, 217, 1),
+                                      contentPadding: const EdgeInsets.symmetric(
+                                          vertical: 10, horizontal: 15),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: BorderSide.none,
                                       ),
-                          ),
-                          if (widget.fromAddHotel &&
-                              roomData != null &&
-                              roomData!['rooms'] != null &&
-                              roomData!['rooms'].isNotEmpty)
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 5, right: 10, left: 10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Bed Size',
+                                    style: TextStyle(
+                                        fontSize: 18, color: Colors.black),
+                                  ),
+                                  const SizedBox(height: 1),
+                                  DropdownButtonFormField<String>(
+                                    value: sizeCtl.text.isNotEmpty
+                                        ? sizeCtl.text
+                                        : null,
+                                    items: bedSizeValues.keys
+                                        .map((size) => DropdownMenuItem(
+                                              value: size,
+                                              child: Text(size),
+                                            ))
+                                        .toList(),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        sizeCtl.text = value!;
+                                        double numericSize =
+                                            bedSizeValues[value]!;
+                                        print(
+                                            'Selected bed size in number: $numericSize');
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor:
+                                          const Color.fromRGBO(217, 217, 217, 1),
+                                      contentPadding: const EdgeInsets.symmetric(
+                                          vertical: 10, horizontal: 15),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             Padding(
                               padding: const EdgeInsets.only(top: 10),
                               child: SizedBox(
                                 width: 120,
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+                                    backgroundColor:
+                                      Color.fromRGBO(201, 151, 187, 1),
                                   ),
-                                  onPressed: () {
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            HomeHotel(userId: widget.userId),
-                                      ),
-                                    );
-                                  },
+                                  onPressed: addRoom,
                                   child: const Text(
-                                    "Confirm",
-                                    style: TextStyle(color: Colors.white, fontSize: 18),
+                                    "Next",
+                                    style: TextStyle(color: Colors.white,fontSize: 18),
                                   ),
                                 ),
                               ),
                             ),
-                          const SizedBox(height: 20),
-                        ],
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10),
+                              child: isLoadingRoom
+                                  ? const CircularProgressIndicator(color: Colors.black)
+                                  : (roomData == null ||
+                                          roomData!['rooms'] == null ||
+                                          roomData!['rooms'].isEmpty)
+                                      ? SizedBox.shrink()
+                                      : ListView.builder(
+                                          shrinkWrap: true,
+                                          physics:
+                                              const NeverScrollableScrollPhysics(),
+                                          itemCount: roomData!['rooms'].length,
+                                          itemBuilder: (context, index) {
+                                            final room =
+                                                roomData!['rooms'][index];
+                                            return Card(
+                                                margin:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 8,
+                                                        horizontal: 10),
+                                                child: ListTile(
+                                                  leading: room['photo'] != null
+                                                      ? Image.network(
+                                                          room['photo'],
+                                                          width: 60,
+                                                          height: 60,
+                                                          fit: BoxFit.cover,
+                                                        )
+                                                      : const Icon(Icons.room),
+                                                  title: Text(room['roomName'] ??
+                                                      'ชื่อห้องไม่ระบุ'),
+                                                  subtitle: Text(
+                                                      'ราคา: ${room['price'].toString() ?? '-'} บาท\nขนาดเตียง: ${room['size'].toString() ?? '-'} ฟุต'),
+                                                  trailing: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      IconButton(
+                                                        icon: Icon(Icons.edit,
+                                                            color: Colors.blue,
+                                                            size: 26),
+                                                        onPressed: () async {
+                                                          final result =
+                                                              await Navigator
+                                                                  .push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder:
+                                                                  (context) =>
+                                                                      EditRoom(
+                                                                userId:
+                                                                    widget.userId,
+                                                                roomID: room[
+                                                                    'roomID'],
+                                                                hotelID: widget
+                                                                    .hotelID,
+                                                              ),
+                                                            ),
+                                                          );
+                                                          if (result == true) {
+                                                            setState(() {
+                                                              isLoading = false;
+                                                            });
+                                                            fetchRoomData();
+                                                          }
+                                                        },
+                                                      ),
+                                                      IconButton(
+                                                        icon: Icon(Icons.delete,
+                                                            color: Colors.red,
+                                                            size: 28),
+                                                        onPressed: () async {
+                                                          final confirm =
+                                                              await showDialog<
+                                                                  bool>(
+                                                            context: context,
+                                                            builder: (context) =>
+                                                                AlertDialog(
+                                                              title: Text(
+                                                                  'Notification'),
+                                                              content: Text(
+                                                                  'คุณแน่ใจว่าต้องการลบห้องนี้หรือไม่?'),
+                                                              actions: [
+                                                                TextButton(
+                                                                  onPressed: () =>
+                                                                      Navigator.pop(
+                                                                          context,
+                                                                          false),
+                                                                  child: Text(
+                                                                      'No',
+                                                                      style: TextStyle(
+                                                                          color: Colors
+                                                                              .black)),
+                                                                ),
+                                                                TextButton(
+                                                                  onPressed: () =>
+                                                                      Navigator.pop(
+                                                                          context,
+                                                                          true),
+                                                                  child: Text(
+                                                                      'Yes',
+                                                                      style: TextStyle(
+                                                                          color: Colors
+                                                                              .black)),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          );
+      
+                                                          if (confirm == true) {
+                                                            showDialog(
+                                                              context: context,
+                                                              barrierDismissible:
+                                                                  false,
+                                                              builder:
+                                                                  (context) =>
+                                                                      Dialog(
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .transparent,
+                                                                child: Center(
+                                                                    child:
+                                                                        CircularProgressIndicator(color: Colors.black)),
+                                                              ),
+                                                            );
+      
+                                                            try {
+                                                              final response =
+                                                                  await http
+                                                                      .delete(Uri
+                                                                          .parse(
+                                                                '$API_ENDPOINT/deleteroom?roomID=${room['roomID']}',
+                                                              ));
+      
+                                                              if (context.mounted)
+                                                                Navigator.of(
+                                                                        context,
+                                                                        rootNavigator:
+                                                                            true)
+                                                                    .pop();
+      
+                                                              if (response
+                                                                      .statusCode ==
+                                                                  200) {
+                                                                if (context
+                                                                    .mounted) {
+                                                                  ScaffoldMessenger.of(
+                                                                          context)
+                                                                      .showSnackBar(
+                                                                    SnackBar(
+                                                                        content: Text(
+                                                                            "ลบเรียบร้อยแล้ว")),
+                                                                  );
+                                                                  await fetchRoomData();
+                                                                }
+                                                              } else {
+                                                                throw Exception(
+                                                                    "ลบไม่สำเร็จ: ${response.body}");
+                                                              }
+                                                            } catch (e) {
+                                                              if (context.mounted)
+                                                                Navigator.of(
+                                                                        context,
+                                                                        rootNavigator:
+                                                                            true)
+                                                                    .pop();
+                                                              if (context
+                                                                  .mounted) {
+                                                                ScaffoldMessenger
+                                                                        .of(context)
+                                                                    .showSnackBar(
+                                                                  SnackBar(
+                                                                      content: Text(
+                                                                          "เกิดข้อผิดพลาด: $e")),
+                                                                );
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ));
+                                          },
+                                        ),
+                            ),
+                            if (widget.fromAddHotel &&
+                                roomData != null &&
+                                roomData!['rooms'] != null &&
+                                roomData!['rooms'].isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: SizedBox(
+                                  width: 120,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+                                    ),
+                                    onPressed: () {
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              HomeHotel(userId: widget.userId),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text(
+                                      "Confirm",
+                                      style: TextStyle(color: Colors.white, fontSize: 18),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            const SizedBox(height: 20),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+      ),
     );
   }
 }

@@ -143,6 +143,7 @@ class _ProfileMemberState extends State<ProfileMember> {
   }
 
   Widget _buildRoomCard(Map<String, dynamic> room) {
+    final List<dynamic> favArtists = room['favArtists'] ?? [];
     if (widget.userId != room['userId']) {
       return SizedBox.shrink();
     }
@@ -192,11 +193,6 @@ class _ProfileMemberState extends State<ProfileMember> {
                         softWrap: true,
                       ),
                       Text(
-                        "ศิลปิน : ${room['artistName'] ?? '-'}",
-                        style: GoogleFonts.poppins(),
-                        softWrap: true,
-                      ),
-                      Text(
                         "เพศ : ${room['gender'] == 'Male' ? 'ชาย' : room['gender'] == 'Female' ? 'หญิง' : room['gender'] == 'Prefer not to say' ? 'ไม่ต้องการระบุ' : '-'}",
                         style: GoogleFonts.poppins(),
                         softWrap: true,
@@ -221,6 +217,28 @@ class _ProfileMemberState extends State<ProfileMember> {
                         style: GoogleFonts.poppins(),
                         softWrap: true,
                       ),
+                      if (favArtists.isNotEmpty)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 8),
+                      Text("ศิลปินที่ชอบ:",
+                          style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+                      Wrap(
+                        spacing: 8,
+                        children: favArtists.map<Widget>((artist) {
+                          return Chip(
+                            avatar: CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                  artist['artistPhoto'] ??
+                                      'https://via.placeholder.com/50'),
+                            ),
+                            label: Text(artist['artistName'] ?? '-'),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
                     ],
                   ),
                 ),
@@ -354,10 +372,11 @@ class _ProfileMemberState extends State<ProfileMember> {
                           style: TextStyle(color: Colors.black)),
                     ),
                     TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
+                     onPressed: () {
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
                         );
                       },
                       child: const Text('Yes',
@@ -401,42 +420,49 @@ class _ProfileMemberState extends State<ProfileMember> {
                     style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                   SizedBox(height: 24),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                  Center(
+                    child: IntrinsicWidth(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 125),
-                            child:
-                                Text('Name ', style: TextStyle(fontSize: 16)),
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 70,
+                                child: Text(
+                                  'Name',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              Text(
+                                userData?['name'] ?? '-',
+                                style:
+                                    TextStyle(fontSize: 16, color: Colors.grey),
+                              ),
+                            ],
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 50),
-                            child: Text(userData?['name'] ?? '-',
-                                style: TextStyle(
-                                    color: Colors.grey, fontSize: 16)),
+                          SizedBox(height: 8),
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 70,
+                                child: Text(
+                                  'Phone',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              Text(
+                                userData?['phone'] ?? '-',
+                                style:
+                                    TextStyle(fontSize: 16, color: Colors.grey),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 125),
-                            child:
-                                Text('Phone', style: TextStyle(fontSize: 16)),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 50),
-                            child: Text(userData?['phone'] ?? '-',
-                                style: TextStyle(
-                                    color: Colors.grey, fontSize: 16)),
-                          ),
-                        ],
-                      ),
-                    ],
+                    ),
                   ),
                   FutureBuilder<List<Map<String, dynamic>>>(
                     future: futureRoomShares,
@@ -565,8 +591,13 @@ class _ProfileMemberState extends State<ProfileMember> {
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.only(left: 8),
-                                      child: Text("Post",style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-                                    ), 
+                                      child: Text(
+                                        "Post",
+                                        style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
                                     ...userRooms
                                         .map((room) => _buildRoomCard(room))
                                         .toList(),

@@ -152,10 +152,12 @@ class _SelectArtistPageState extends State<SelectArtistPage> {
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => const homeLogoPage()));
-                        },
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
+                        );
+                      },
                         child: const Text('Yes',
                             style: TextStyle(color: Colors.black)),
                       ),

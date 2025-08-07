@@ -34,6 +34,7 @@ class _RegisterPageUserState extends State<RegisterPageUser> {
   String? selectedUserType;
   final List<String> userTypes = ['User', 'Hotel', 'Restaurant', 'Organizer'];
   bool _obscurePassword = true;
+  bool _obscureConfirm = true;
 
   @override
   void initState() {
@@ -82,7 +83,7 @@ class _RegisterPageUserState extends State<RegisterPageUser> {
     final nameRegex = RegExp(r'^(?=.*[a-zA-Zก-๙])[a-zA-Zก-๙0-9]{2,}$');
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     final passwordRegex = RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,14}$');
-    final phoneRegex = RegExp(r'^[0-9]{10}$');
+    final phoneRegex = RegExp(r'^0[0-9]{9}$');
 
     if (fullnameCtl.text.isEmpty ||
         phoneCtl.text.isEmpty ||
@@ -545,7 +546,7 @@ void hideLoadingDialog() {
                   TextField(
                     controller: confirmpassCtl,
                     focusNode: _confirmFocusNode,
-                    obscureText: _obscurePassword,
+                    obscureText: _obscureConfirm,
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: const Color.fromRGBO(217, 217, 217, 1),
@@ -557,14 +558,14 @@ void hideLoadingDialog() {
                       ),
                       suffixIcon: IconButton(
                           icon: Icon(
-                            _obscurePassword
+                            _obscureConfirm
                                 ? Icons.visibility_off
                                 : Icons.visibility,
                             color: Colors.grey,
                           ),
                           onPressed: () {
                             setState(() {
-                              _obscurePassword = !_obscurePassword;
+                              _obscureConfirm = !_obscureConfirm;
                             });
                           },
                         ),

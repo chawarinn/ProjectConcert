@@ -166,6 +166,8 @@ bool _isDataChanged() {
 
 
   void _showEditResultDialog() async {
+    final nameRegex =  RegExp(r'^(?=.*[ก-๙a-zA-Z])[ก-๙a-zA-Z0-9]+( [ก-๙a-zA-Z0-9]+)*$');
+
      if (!_isDataChanged()) {
       showDialog(
         context: context,
@@ -191,7 +193,11 @@ bool _isDataChanged() {
     bool isValidText(String text) {
       return RegExp(r'[a-zA-Zก-ฮ0-9]').hasMatch(text);
     }
-
+        if (!nameRegex.hasMatch(roomNameCtl.text)) {
+  _showAlertDialog(context,
+    "กรุณาเพิ่มประเภทห้อง/เตียงให้ตรงตามมาตรฐาน");
+  return;
+}
     if (!isValidText(_nameController.text) ||
         !isValidText(_priceController.text) ||
         !isValidText(_sizeController.text)) {
@@ -321,10 +327,11 @@ bool _isDataChanged() {
                           style: TextStyle(color: Colors.black)),
                     ),
                     TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
+                     onPressed: () {
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
                         );
                       },
                       child: const Text('Yes',

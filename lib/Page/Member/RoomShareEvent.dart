@@ -51,6 +51,7 @@ class _RoomshareEventState extends State<RoomshareEvent> {
   }
 
   Widget _buildRoomCard(Map<String, dynamic> room) {
+    final List<dynamic> favArtists = room['favArtists'] ?? [];
        if (widget.userId == room['userId']) {
     return SizedBox.shrink(); 
   }
@@ -97,11 +98,6 @@ class _RoomshareEventState extends State<RoomshareEvent> {
                   softWrap: true,
                 ),
                 Text(
-                  "ศิลปิน : ${room['artistName'] ?? '-'}",
-                  style: GoogleFonts.poppins(),
-                  softWrap: true,
-                ),
-                Text(
                   "เพศ : ${room['gender'] == 'Male' ? 'ชาย' : room['gender'] == 'Female' ? 'หญิง' : room['gender'] == 'Prefer not to say' ? 'ไม่ต้องการระบุ' : '-'}",
                   style: GoogleFonts.poppins(),
                   softWrap: true,
@@ -126,6 +122,28 @@ class _RoomshareEventState extends State<RoomshareEvent> {
                   style: GoogleFonts.poppins(),
                   softWrap: true,
                 ),
+                if (favArtists.isNotEmpty)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 8),
+                      Text("ศิลปินที่ชอบ:",
+                          style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+                      Wrap(
+                        spacing: 8,
+                        children: favArtists.map<Widget>((artist) {
+                          return Chip(
+                            avatar: CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                  artist['artistPhoto'] ??
+                                      'https://via.placeholder.com/50'),
+                            ),
+                            label: Text(artist['artistName'] ?? '-'),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -205,10 +223,11 @@ class _RoomshareEventState extends State<RoomshareEvent> {
                       child: const Text('No',style: TextStyle(color: Colors.black)),
                     ),
                     TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
+                     onPressed: () {
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
                         );
                       },
                       child: const Text('Yes',style: TextStyle(color: Colors.black)),

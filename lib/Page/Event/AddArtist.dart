@@ -182,6 +182,7 @@ class _AddArtistPageState extends State<AddArtistPage> {
     final request = http.MultipartRequest('POST', uri);
 
     request.fields['artistName'] = _nameController.text;
+    request.fields['userID'] = widget.userId.toString(); 
 
     if (_image != null) {
       final fileStream = http.ByteStream(_image!.openRead());
@@ -322,10 +323,12 @@ class _AddArtistPageState extends State<AddArtistPage> {
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => const homeLogoPage()));
-                        },
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
+                        );
+                      },
                         child: const Text('Yes',
                             style: TextStyle(color: Colors.black)),
                       ),
@@ -597,6 +600,7 @@ class _AddArtistPageState extends State<AddArtistPage> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
+            if (artist['userID'] == widget.userId) ...[
             IconButton(
               iconSize: 32,
               icon: Icon(Icons.delete, color: Colors.red),
@@ -683,6 +687,7 @@ class _AddArtistPageState extends State<AddArtistPage> {
                 }
               },
             )
+             ]
           ],
         ),
       ),

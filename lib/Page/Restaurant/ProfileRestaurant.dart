@@ -175,10 +175,12 @@ class _ProfileRestaurantState extends State<ProfileRestaurant> {
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => const homeLogoPage()));
-                        },
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
+                        );
+                      },
                         child: const Text('Yes',
                             style: TextStyle(color: Colors.black)),
                       ),
@@ -221,44 +223,51 @@ class _ProfileRestaurantState extends State<ProfileRestaurant> {
                     style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                   SizedBox(height: 24),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                   Center(
+                    child: IntrinsicWidth(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 125),
-                            child:
-                                Text('Name ', style: TextStyle(fontSize: 16)),
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 70,
+                                child: Text(
+                                  'Name',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              Text(
+                                userData?['name'] ?? '-',
+                                style:
+                                    TextStyle(fontSize: 16, color: Colors.grey),
+                              ),
+                            ],
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 50),
-                            child: Text(userData?['name'] ?? '-',
-                                style: TextStyle(
-                                    color: Colors.grey, fontSize: 16)),
+                          SizedBox(height: 8),
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 70,
+                                child: Text(
+                                  'Phone',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              Text(
+                                userData?['phone'] ?? '-',
+                                style:
+                                    TextStyle(fontSize: 16, color: Colors.grey),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 125),
-                            child:
-                                Text('Phone', style: TextStyle(fontSize: 16)),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 50),
-                            child: Text(userData?['phone'] ?? '-',
-                                style: TextStyle(
-                                    color: Colors.grey, fontSize: 16)),
-                          ),
-                        ],
-                      ),
-                    ],
+                    ),
                   ),
-                  SizedBox(height: 150),
+                  SizedBox(height: 50),
                   SizedBox(
                     width: 200,
                     height: 50,

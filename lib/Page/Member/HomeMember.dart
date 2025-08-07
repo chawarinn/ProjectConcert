@@ -19,6 +19,7 @@ import 'package:project_concert_closeiin/Page/Member/artist.dart';
 import 'package:project_concert_closeiin/Page/Member/hotel_search.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Homemember extends StatefulWidget {
   int userId;
@@ -142,9 +143,10 @@ class _HomeMember extends State<Homemember> {
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushReplacement(
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
                         );
                       },
                       child: const Text('Yes',style: TextStyle(color: Colors.black)),

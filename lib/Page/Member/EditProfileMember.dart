@@ -124,7 +124,7 @@ class _EditProfileMemberState extends State<EditProfileMember> {
   void _showEditResultDialog() async {
     final nameRegex = RegExp(r'^(?=.*[a-zA-Zก-๙])[a-zA-Zก-๙0-9]{2,}$');
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    final phoneRegex = RegExp(r'^[0-9]{10}$');
+    final phoneRegex = RegExp(r'^0[0-9]{9}$');
 
     if (!_isDataChanged()) {
       showDialog(
@@ -495,7 +495,7 @@ class _EditProfileMemberState extends State<EditProfileMember> {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: const Text('ยืนยันการออกจากระบบ'),
+                    title: const Text('Confirm Logout'),
                     content: const Text('คุณต้องการที่จะออกจากระบบหรือไม่?'),
                     actions: [
                       TextButton(
@@ -507,10 +507,12 @@ class _EditProfileMemberState extends State<EditProfileMember> {
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => const homeLogoPage()));
-                        },
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
+                        );
+                      },
                         child: const Text('Yes',
                             style: TextStyle(color: Colors.black)),
                       ),
@@ -550,7 +552,7 @@ class _EditProfileMemberState extends State<EditProfileMember> {
                             backgroundColor:
                                 const Color.fromRGBO(232, 234, 237, 1),
                             child: IconButton(
-                              icon: const Icon(Icons.camera_alt,
+                              icon: const Icon(Icons.edit,
                                   color: Colors.black),
                               onPressed: _pickImage,
                             ),
@@ -652,10 +654,10 @@ class _EditProfileMemberState extends State<EditProfileMember> {
                     label: 'New Password',
                     hintText: '',
                     controller: _newPasswordController,
-                    obscureText: _obscurePassword,
+                    obscureText: _obscureNewPassword,
                     toggleObscure: () {
                       setState(() {
-                        _obscurePassword = !_obscurePassword;
+                        _obscureNewPassword = !_obscureNewPassword;
                       });
                     },
                     isPassword: true,
@@ -665,10 +667,10 @@ class _EditProfileMemberState extends State<EditProfileMember> {
                     label: 'Confirm Password',
                     hintText: '',
                     controller: _confirmPasswordController,
-                    obscureText: _obscurePassword,
+                    obscureText: _obscureConfirmPassword,
                     toggleObscure: () {
                       setState(() {
-                        _obscurePassword = !_obscurePassword;
+                        _obscureConfirmPassword = !_obscureConfirmPassword;
                       });
                     },
                     isPassword: true,

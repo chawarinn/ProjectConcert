@@ -137,7 +137,7 @@ class _AddHotelState extends State<Edithotel> {
       );
       return;
     }
-    final phoneRegex = RegExp(r'^[0-9]{10}$');
+    final phoneRegex = RegExp(r'^0[0-9]{9}$');
     final nameRegex = RegExp(r'^(?=.*[ก-๙])[ก-๙]+( [ก-๙]+)*$');
     final name2Regex = RegExp(r'^(?=.*[a-zA-Z])[a-zA-Z0-9]+( [a-zA-Z0-9]+)*$');
     if (_nameController.text.isEmpty ||
@@ -408,10 +408,11 @@ class _AddHotelState extends State<Edithotel> {
                           style: TextStyle(color: Colors.black)),
                     ),
                     TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
+                     onPressed: () {
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
                         );
                       },
                       child: const Text('Yes',
@@ -829,12 +830,24 @@ class _AddHotelState extends State<Edithotel> {
                             ),
                           ),
                         ] else ...[
-                          GestureDetector(
+                           GestureDetector(
                             onTap: _selectLocation,
-                            child: const Icon(
-                              Icons.add_location_alt_rounded,
-                              color: Colors.red,
-                              size: 30,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10)),
+                              child:  Row(
+                                children: [
+                                  Text("เลือกตำแหน่ง",
+                                      style: TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 12)),
+                                  Icon(
+                                    Icons.add_location_alt_rounded,
+                                    color: Colors.red,
+                                    size: 30,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],

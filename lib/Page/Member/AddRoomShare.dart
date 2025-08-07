@@ -21,16 +21,13 @@ class AddRoomShare extends StatefulWidget {
 }
 
 class _AddRoomShareState extends State<AddRoomShare> {
-  final artistCtl = TextEditingController();
   final eventCtl = TextEditingController();
   final hotelCtl = TextEditingController();
   final roomTypeCtl = TextEditingController();
   final priceCtl = TextEditingController();
   final contactCtl = TextEditingController();
   final noteCtl = TextEditingController();
-  String searchText = 'Artist';
   String? selectedRoomType;
-  int? selectedArtistId;
   int? selectedEventId;
   int? selectedHotelId;
   int? selectedRoomTypeId;
@@ -57,7 +54,6 @@ Future<void> _submitRoomShare() async {
   // final noteRegex = RegExp(r'^[a-zA-Z0-9\s]{2,}$');
 
   if (selectedFriendGender == null ||
-      selectedArtistId == null ||
       selectedEventId == null ||
       selectedHotelId == null ||
       selectedRoomType == null ||
@@ -93,7 +89,6 @@ if (!isValidText(priceCtl.text) ||
 
     request.fields['userID'] = widget.userId.toString();
     request.fields['gender_restrictions'] = selectedFriendGender!;
-    request.fields['artistID'] = selectedArtistId.toString();
     request.fields['eventID'] = selectedEventId.toString();
     request.fields['hotelID'] = selectedHotelId.toString();
     request.fields['typeRoom'] = selectedRoomType!;
@@ -226,75 +221,6 @@ if (!isValidText(priceCtl.text) ||
               ),
             ),
             dropdownColor: Color.fromRGBO(217, 217, 217, 1),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildArtistDropdown() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          RichText(
-            text: TextSpan(
-              text: 'Artist ',
-              style: TextStyle(fontSize: 18, color: Colors.black),
-              children: [
-                TextSpan(text: '*', style: TextStyle(color: Colors.red))
-              ],
-            ),
-          ),
-          DropdownSearch<Map<String, dynamic>>(
-            asyncItems: (String filter) async {
-              final response =
-                  await http.get(Uri.parse("$API_ENDPOINT/artist"));
-              if (response.statusCode == 200) {
-                final List<dynamic> data = json.decode(response.body);
-                return data
-                    .where((item) => item['artistName']
-                        .toString()
-                        .toLowerCase()
-                        .contains(filter.toLowerCase()))
-                    .cast<Map<String, dynamic>>()
-                    .toList();
-              } else {
-                throw Exception("โหลดศิลปินไม่สำเร็จ");
-              }
-            },
-            itemAsString: (item) => item['artistName'],
-            selectedItem: selectedArtistId != null
-                ? {"artistID": selectedArtistId, "artistName": artistCtl.text}
-                : null,
-            onChanged: (value) {
-              setState(() {
-                artistCtl.text = value?['artistName'] ?? '';
-                selectedArtistId = value?['artistID'];
-              });
-            },
-            dropdownDecoratorProps: DropDownDecoratorProps(
-              dropdownSearchDecoration: InputDecoration(
-                filled: true,
-                fillColor: Color.fromRGBO(217, 217, 217, 1),
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            popupProps: PopupProps.menu(
-              showSearchBox: true,
-              searchFieldProps: TextFieldProps(
-                decoration: InputDecoration(
-                  hintText: "Search artist...",
-                  contentPadding: EdgeInsets.symmetric(horizontal: 15),
-                ),
-              ),
-            ),
           ),
         ],
       ),
@@ -687,9 +613,10 @@ if (!isValidText(priceCtl.text) ||
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushReplacement(
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
                         );
                       },
                       child: Text('Yes', style: TextStyle(color: Colors.black)),
@@ -718,7 +645,6 @@ if (!isValidText(priceCtl.text) ||
             ),
             _buildGenderDropdown('Gender Friend', selectedFriendGender,
                 (val) => setState(() => selectedFriendGender = val)),
-            _buildArtistDropdown(),
             _buildEventDropdown(),
             _buildHotelDropdown(),
             _buildTypeRoomDropdown(),

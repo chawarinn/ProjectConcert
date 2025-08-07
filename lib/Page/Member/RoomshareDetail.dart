@@ -20,7 +20,12 @@ class Roomsharedetail extends StatefulWidget {
   final int roomshareID;
   final bool fromProfile;
 
-  Roomsharedetail({super.key, required this.userId, required this.roomshareID,this.fromProfile = false,});
+  Roomsharedetail({
+    super.key,
+    required this.userId,
+    required this.roomshareID,
+    this.fromProfile = false,
+  });
 
   @override
   _RoomsharedetailState createState() => _RoomsharedetailState();
@@ -134,14 +139,13 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
       }
 
       final Map<String, dynamic> requestData = {
-  'userReqID': widget.userId,
-  'roomshareID': room!['roomshareID'],
-  'roomshareContact': room!['shareContact'],
-  'userID': room!['userId'],
-  'userDetail': userData,
-  if (favArtists.isNotEmpty) 'favoriteArtists': favArtists,
-};
-
+        'userReqID': widget.userId,
+        'roomshareID': room!['roomshareID'],
+        'roomshareContact': room!['shareContact'],
+        'userID': room!['userId'],
+        'userDetail': userData,
+        if (favArtists.isNotEmpty) 'favoriteArtists': favArtists,
+      };
 
       // 4. บันทึกลง Firebase
       await dbRef.child('roomshare_requests/$newID').set(requestData);
@@ -152,21 +156,21 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
       );
       await checkRequestStatus(); // อัปเดตสถานะ
     } catch (e) {
-   showDialog(
-  context: context,
-  builder: (BuildContext context) {
-    return AlertDialog(
-      title: Text('Notification'),
-      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text('OK', style: TextStyle(color: Colors.black)),
-        ),
-      ],
-    );
-  },
-);
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Notification'),
+            content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('OK', style: TextStyle(color: Colors.black)),
+              ),
+            ],
+          );
+        },
+      );
     } finally {
       setState(() {
         isLoading = false;
@@ -198,7 +202,7 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
               const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           onPressed: () => Navigator.pop(context, true),
         ),
-         title: Transform.translate(
+        title: Transform.translate(
           offset: const Offset(-20, 0),
           child: Text(
             'Detail',
@@ -227,9 +231,10 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushReplacement(
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
                         );
                       },
                       child: const Text('Yes',
@@ -380,13 +385,15 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
                                           onPressed: () =>
                                               Navigator.of(context).pop(false),
                                           child: Text('No',
-                          style: TextStyle(color: Colors.black)),
+                                              style: TextStyle(
+                                                  color: Colors.black)),
                                         ),
                                         TextButton(
                                           onPressed: () =>
                                               Navigator.of(context).pop(true),
                                           child: Text('Yes',
-                          style: TextStyle(color: Colors.black)),
+                                              style: TextStyle(
+                                                  color: Colors.black)),
                                         ),
                                       ],
                                     ),
@@ -480,8 +487,6 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
                           children: [
                             Text("อีเว้นท์ : ${room!['eventName'] ?? '-'}",
                                 style: GoogleFonts.poppins(fontSize: 15)),
-                            Text("ศิลปิน : ${room!['artistName'] ?? '-'}",
-                                style: GoogleFonts.poppins(fontSize: 15)),
                             Text(
                               "ต้องการแชร์เพื่อนเพศ : ${room!['gender_restrictions'] == 'Male' ? 'ชาย' : room!['gender_restrictions'] == 'Female' ? 'หญิง' : room!['gender_restrictions'] == 'Prefer not to say' ? 'ไม่ต้องการระบุ' : '-'}",
                               style: GoogleFonts.poppins(fontSize: 15),
@@ -493,6 +498,42 @@ class _RoomsharedetailState extends State<Roomsharedetail> {
                                 style: GoogleFonts.poppins(fontSize: 15)),
                             Text("อื่นๆ : ${room!['note'] ?? '-'}",
                                 style: GoogleFonts.poppins(fontSize: 15)),
+                            Builder(
+                              builder: (context) {
+                                List<dynamic> favArtistsList =
+                                    room!['favArtists'] ?? [];
+
+                                if (favArtistsList.isEmpty) {
+                                  return SizedBox.shrink();
+                                }
+
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(height: 8),
+                                    Text("ศิลปินที่ชอบ:",
+                                        style: GoogleFonts.poppins(
+                                            fontWeight: FontWeight.bold)),
+                                    Wrap(
+                                      spacing: 8,
+                                      children:
+                                          favArtistsList.map<Widget>((artist) {
+                                        return Chip(
+                                          avatar: CircleAvatar(
+                                            backgroundImage: NetworkImage(
+                                              artist['artistPhoto'] ??
+                                                  'https://via.placeholder.com/50',
+                                            ),
+                                          ),
+                                          label:
+                                              Text(artist['artistName'] ?? '-'),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
                           ],
                         ),
                       ),

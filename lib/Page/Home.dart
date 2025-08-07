@@ -21,8 +21,8 @@ class _homeLogoPageState extends State<homeLogoPage> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color.fromARGB(255, 255, 230, 245),  // ไล่สีจากบน (ชมพูอ่อน)
-              Color.fromARGB(255, 242, 238, 243),  // ไล่สีถึงล่าง (สีเดิม)
+              Color.fromARGB(255, 255, 230, 245),  
+              Color.fromARGB(255, 242, 238, 243),  
             ],
           ),
         ),

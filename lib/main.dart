@@ -29,6 +29,7 @@ import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
 import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
 import 'package:project_concert_closeiin/Page/Restaurant/HomeRestaurant.dart';
 import 'package:project_concert_closeiin/Page/Restaurant/ProfileRestaurant.dart';
+import 'package:project_concert_closeiin/Page/User/HomeUser.dart';
 import 'firebase_options.dart';
 
 
@@ -46,20 +47,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Flutter Demo',
+      title: 'Concert Closeiin',
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-   
-     home: Homemember(userId: 13)
-    // home: HomeHotel(userId: 5),
-    // home: homeLogoPage()
-    // home: homeLogoPage(),
-
-     
-    
+    home: homeLogoPage()
     );
   }
 }

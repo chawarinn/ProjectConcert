@@ -472,9 +472,10 @@ class _hotelSearch extends State<HotelSearch> {
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushReplacement(
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
+                          (Route<dynamic> route) => false,
                         );
                       },
                       child: const Text('Yes',style: TextStyle(color: Colors.black)),
@@ -688,12 +689,15 @@ class _hotelSearch extends State<HotelSearch> {
                             ),
                           );
                         } else {
-                          return ListView.builder(
-                            itemCount: filteredhotel.length,
-                            itemBuilder: (context, index) {
-                              var hotel = filteredhotel[index];
-                              return buildHotelCard(hotel);
-                            },
+                          return Padding(
+                             padding: const EdgeInsets.only(left: 16, right: 16),
+                            child: ListView.builder(
+                              itemCount: filteredhotel.length,
+                              itemBuilder: (context, index) {
+                                var hotel = filteredhotel[index];
+                                return buildHotelCard(hotel);
+                              },
+                            ),
                           );
                         }
                       } else {
