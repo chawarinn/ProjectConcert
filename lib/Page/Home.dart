@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:project_concert_closeiin/Page/Login.dart';
 import 'package:project_concert_closeiin/Page/RegisterUser.dart';
 import 'package:project_concert_closeiin/Page/User/HomeUser.dart';
@@ -21,8 +22,8 @@ class _homeLogoPageState extends State<homeLogoPage> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color.fromARGB(255, 255, 230, 245),  
-              Color.fromARGB(255, 242, 238, 243),  
+              Color.fromARGB(255, 255, 230, 245),
+              Color.fromARGB(255, 242, 238, 243),
             ],
           ),
         ),
@@ -118,7 +119,8 @@ class _homeLogoPageState extends State<homeLogoPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const RegisterPageUser(),
+                                  builder: (context) =>
+                                      const RegisterPageUser(),
                                 ),
                               );
                             },
@@ -143,12 +145,15 @@ class _homeLogoPageState extends State<homeLogoPage> {
                         ),
                         const SizedBox(height: 20),
                         GestureDetector(
-                          onTap: () {
-                            Navigator.push(
+                          onTap: () async {
+                             final box = GetStorage();
+    await box.write('isSkippedLogin', true);
+                            Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => const HomeUser(),
                               ),
+                              (Route<dynamic> route) => false,
                             );
                           },
                           child: Text(

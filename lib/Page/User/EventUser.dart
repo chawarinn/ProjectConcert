@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'dart:convert';
+import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer';
 import 'package:flutter/material.dart';
@@ -384,7 +385,7 @@ class _EventuserState extends State<Eventuser> {
       ),
            bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
+        onTap: (index) async {
           if (index == 2 || index == 3) {
             showDialog(
               context: context,
@@ -439,15 +440,17 @@ class _EventuserState extends State<Eventuser> {
             setState(() {
               _currentIndex = index;
             });
-
+ final box = GetStorage();
             switch (index) {
               case 0:
+                await box.write('lastVisitedPage', 'home');
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => HomeUser()),
                 );
                 break;
               case 1:
+                await box.write('lastVisitedPage', 'artistuser');
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => ArtistUserPage()),

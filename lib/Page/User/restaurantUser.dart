@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:project_concert_closeiin/Page/Login.dart';
@@ -423,7 +424,7 @@ class _RestaurantuserState extends State<Restaurantuser> {
       ),
      bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
+        onTap: (index) async {
           if (index == 2 || index == 3) {
             showDialog(
               context: context,
@@ -478,15 +479,17 @@ class _RestaurantuserState extends State<Restaurantuser> {
             setState(() {
               _currentIndex = index;
             });
-
+ final box = GetStorage();
             switch (index) {
               case 0:
+                await box.write('lastVisitedPage', 'home');
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => HomeUser()),
                 );
                 break;
               case 1:
+                await box.write('lastVisitedPage', 'artistuser');
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => ArtistUserPage()),

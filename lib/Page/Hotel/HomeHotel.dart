@@ -13,6 +13,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
+import 'package:get_storage/get_storage.dart';
 
 class HomeHotel extends StatefulWidget {
   final int userId;
@@ -118,6 +119,8 @@ class _HomeHotelState extends State<HomeHotel> {
                     ),
                     TextButton(
                      onPressed: () {
+                        final box = GetStorage();
+                        box.erase();
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
@@ -134,28 +137,41 @@ class _HomeHotelState extends State<HomeHotel> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
+        bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+        onTap: (index) async {
+  final box = GetStorage();
+  switch (index) {
+    case 0:
+      await box.write('lastVisitedPage', 'home');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) =>  HomeHotel(userId: widget.userId)),
+      );
+      break;
+    case 1:
+      await box.write('lastVisitedPage', 'profileHotel');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) =>ProfileHotel(userId: widget.userId)),
+      );
+      break;
+  }
+},
+         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.white70,
         showUnselectedLabels: false,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          if (index == 1) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => ProfileHotel(userId: widget.userId)),
-            );
-          }
-        },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.face), label: 'Profile'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.face),
+            label: 'Profile',
+          ),
         ],
       ),
       body: _isLoading

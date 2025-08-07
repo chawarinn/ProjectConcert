@@ -18,6 +18,7 @@ import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
+import 'package:get_storage/get_storage.dart';
 
 class EditEvent extends StatefulWidget {
   int userId;
@@ -586,6 +587,8 @@ bool _areArtistListsEqual(List<dynamic> list1, List<dynamic> list2) {
                     ),
                     TextButton(
                      onPressed: () {
+                        final box = GetStorage();
+                        box.erase();
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
@@ -604,35 +607,32 @@ bool _areArtistListsEqual(List<dynamic> list1, List<dynamic> list2) {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          switch (index) {
-            case 0:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        HomeEvent(userId : widget.userId)),
-              );
-              break;
-            case 1:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => AddArtistPage(userId: widget.userId)),
-              );
-              break;
-               case 2:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ProfileEvent(userId: widget.userId)),
-              );
-              break;
-          }
-        },
+        onTap: (index) async {
+  final box = GetStorage();
+  switch (index) {
+    case 0:
+      await box.write('lastVisitedPage', 'home');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) =>  HomeEvent(userId: widget.userId)),
+      );
+      break;
+      case 1:
+      await box.write('lastVisitedPage', 'eventartist');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) =>  AddArtistPage(userId: widget.userId)),
+      );
+      break;
+    case 2:
+      await box.write('lastVisitedPage', 'profileEvent');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) =>ProfileEvent(userId: widget.userId)),
+      );
+      break;
+  }
+},
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.white,

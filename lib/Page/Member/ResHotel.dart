@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:math';
+import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Member/artist.dart';
@@ -363,6 +364,8 @@ data.sort((a, b) => a['distance'].compareTo(b['distance']));
                     ),
                     TextButton(
                      onPressed: () {
+                            final box = GetStorage();
+                        box.erase();
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
@@ -434,46 +437,42 @@ data.sort((a, b) => a['distance'].compareTo(b['distance']));
             ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
+       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          switch (index) {
-            case 0:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => Homemember(userId: widget.userId)),
-              );
-              break;
-            case 1:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ArtistPage(userId: widget.userId)),
-              );
-              break;
-            case 2:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        NotificationPage(userId: widget.userId)),
-              );
-              break;
-            case 3:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ProfileMember(
-                          userId: widget.userId,
-                        )),
-              );
-              break;
-          }
-        },
+        onTap: (index) async {
+  final box = GetStorage();
+  switch (index) {
+    case 0:
+      await box.write('lastVisitedPage', 'home');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Homemember(userId: widget.userId)),
+      );
+      break;
+    case 1:
+      await box.write('lastVisitedPage', 'artist');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ArtistPage(userId: widget.userId)),
+      );
+      break;
+    case 2:
+      await box.write('lastVisitedPage', 'notification');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => NotificationPage(userId: widget.userId)),
+      );
+      break;
+    case 3:
+      await box.write('lastVisitedPage', 'profile');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ProfileMember(userId: widget.userId)),
+      );
+      break;
+  }
+},
+
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.white,

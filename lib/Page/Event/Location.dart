@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:get_storage/get_storage.dart';
 
 class LocationPage extends StatefulWidget {
   const LocationPage({Key? key}) : super(key: key);
@@ -130,6 +131,8 @@ String? selectedAddress;
                     ),
                     TextButton(
                       onPressed: () {
+                          final box = GetStorage();
+                        box.erase();
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),

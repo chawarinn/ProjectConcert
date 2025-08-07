@@ -13,6 +13,7 @@ import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 import 'dart:async';
 import 'dart:io';
+import 'package:get_storage/get_storage.dart';
 
 class AdminRes extends StatefulWidget {
   final int userId;
@@ -107,6 +108,8 @@ class _AdminResState extends State<AdminRes> {
                             Text('No', style: TextStyle(color: Colors.black))),
                     TextButton(
                      onPressed: () {
+                        final box = GetStorage();
+                        box.erase();
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
@@ -122,36 +125,55 @@ class _AdminResState extends State<AdminRes> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
+       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() => _currentIndex = index);
-          Widget page;
-          switch (index) {
-            case 0:
-              page = HomeAdmin(userId: widget.userId);
-              break;
-            case 1:
-              page = AdminEvent(userId: widget.userId);
-              break;
-            case 2:
-              page = AdminArtistPage(userId: widget.userId);
-              break;
-            case 3:
-              page = AdminHotelPage(userId: widget.userId);
-              break;
-            case 4:
-              page = AdminRes(userId: widget.userId);
-              break;
-            case 5:
-              page = ProfileAdmin(userId: widget.userId);
-              break;
-            default:
-              return;
-          }
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => page));
-        },
+        onTap: (index) async {
+  final box = GetStorage();
+  switch (index) {
+    case 0:
+      await box.write('lastVisitedPage', 'home');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeAdmin(userId: widget.userId)),
+      );
+      break;
+      case 1:
+      await box.write('lastVisitedPage', 'event');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) =>  AdminEvent(userId: widget.userId)),
+      );
+      break;
+    case 2:
+      await box.write('lastVisitedPage', 'addartist');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) =>AdminArtistPage(userId: widget.userId)),
+      );
+      break;
+     case 3:
+      await box.write('lastVisitedPage', 'hotel');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) =>AdminHotelPage(userId: widget.userId)),
+      );
+      break;
+     case 4:
+      await box.write('lastVisitedPage', 'res');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) =>AdminRes(userId: widget.userId)),
+      );
+      break;
+       case 5:
+      await box.write('lastVisitedPage', 'profileAdmin');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) =>ProfileAdmin(userId: widget.userId)),
+      );
+      break;
+  }
+},
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.white,

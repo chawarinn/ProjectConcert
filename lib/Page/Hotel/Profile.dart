@@ -8,6 +8,7 @@ import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Hotel/HomeHotel.dart';
 import 'package:project_concert_closeiin/Page/Hotel/EditProfile.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
+import 'package:get_storage/get_storage.dart';
 
 class ProfileHotel extends StatefulWidget {
   int userId;
@@ -88,6 +89,8 @@ class _ProfileHotelState extends State<ProfileHotel> {
             actions: [
               TextButton(
                 onPressed: () {
+                    final box = GetStorage();
+                        box.erase();
                   Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(builder: (context) => homeLogoPage()),
                     (route) => false,
@@ -153,6 +156,8 @@ class _ProfileHotelState extends State<ProfileHotel> {
                     ),
                     TextButton(
                       onPressed: () {
+                          final box = GetStorage();
+                        box.erase();
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
@@ -332,30 +337,27 @@ class _ProfileHotelState extends State<ProfileHotel> {
                 ],
               ),
             ),
-       bottomNavigationBar: BottomNavigationBar(
+        bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          switch (index) {
-            case 0:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        HomeHotel(userId : widget.userId)),
-              );
-              break;
-            case 1:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ProfileHotel(userId: widget.userId)),
-              );
-              break;
-          }
-        },
+        onTap: (index) async {
+  final box = GetStorage();
+  switch (index) {
+    case 0:
+      await box.write('lastVisitedPage', 'home');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) =>  HomeHotel(userId: widget.userId)),
+      );
+      break;
+    case 1:
+      await box.write('lastVisitedPage', 'profileHotel');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) =>ProfileHotel(userId: widget.userId)),
+      );
+      break;
+  }
+},
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.white,

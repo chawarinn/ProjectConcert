@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
@@ -46,7 +47,7 @@ class _ArtistUserPageState extends State<ArtistUserPage> {
 
     try {
       final response = await http.get(Uri.parse('$API_ENDPOINT/artist'));
-      if (response.statusCode == 200 ) {
+      if (response.statusCode == 200) {
         final decoded = json.decode(response.body);
 
         setState(() {
@@ -59,19 +60,19 @@ class _ArtistUserPageState extends State<ArtistUserPage> {
         throw Exception('ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (e) {
-       showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text('Notification'),
-      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text('OK', style: TextStyle(color: Colors.black)),
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Notification'),
+          content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('OK', style: TextStyle(color: Colors.black)),
+            ),
+          ],
         ),
-      ],
-    ),
-  );
+      );
       setState(() {
         isLoading = false;
       });
@@ -89,7 +90,8 @@ class _ArtistUserPageState extends State<ArtistUserPage> {
     });
 
     try {
-      final response = await http.get(Uri.parse('$API_ENDPOINT/search/artist?query=$query'));
+      final response =
+          await http.get(Uri.parse('$API_ENDPOINT/search/artist?query=$query'));
 
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);
@@ -102,24 +104,23 @@ class _ArtistUserPageState extends State<ArtistUserPage> {
       }
     } catch (e) {
       showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text('Notification'),
-      content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text('OK', style: TextStyle(color: Colors.black)),
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Notification'),
+          content: Text('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('OK', style: TextStyle(color: Colors.black)),
+            ),
+          ],
         ),
-      ],
-    ),
-  );
+      );
       setState(() {
         isLoading = false;
       });
     }
   }
-
 
   @override
   void dispose() {
@@ -138,125 +139,119 @@ class _ArtistUserPageState extends State<ArtistUserPage> {
 
     return Scaffold(
       appBar: AppBar(
-         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
-          automaticallyImplyLeading: false,
+        backgroundColor: Color.fromRGBO(201, 151, 187, 1),
+        automaticallyImplyLeading: false,
         title: Text(
           "Artist",
           style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            fontSize: 20
-          ),
+              fontWeight: FontWeight.bold, color: Colors.white, fontSize: 20),
         ),
-          actions: [
-            PopupMenuButton<String>(
-              icon: const Icon(
-                Icons.more_vert,
-                color: Colors.white,
-              ),
-              onSelected: (value) {
-                if (value == 'Login') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            const LoginPage()), 
-                  );
-                } else if (value == 'Sign Up') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            const RegisterPageUser()), 
-                  );
-                }
-              },
-              itemBuilder: (context) => [
-                const PopupMenuItem<String>(
-                  value: 'Login',
-                  child: Text('Log in', style: TextStyle(color: Colors.black)),
-                ),
-                const PopupMenuItem<String>(
-                  value: 'Sign Up',
-                  child: Text('Sign Up', style: TextStyle(color: Colors.black)),
-                ),
-              ],
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(
+              Icons.more_vert,
+              color: Colors.white,
             ),
-          ],
-        ),
-body: Column(
-  children: [
-    Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Align(
-        alignment: Alignment.topRight,
-        child: Container(
-          width: 200,
-          height: 40,
-          child: TextField(
-            controller: searchController,
-            onChanged: (value) {
-              searchQuery = value;
-              searchArtists(searchQuery);
+            onSelected: (value) {
+              if (value == 'Login') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                );
+              } else if (value == 'Sign Up') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const RegisterPageUser()),
+                );
+              }
             },
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-              hintText: 'Search',
-              prefixIcon: Icon(Icons.search, size: 20),
-              filled: true,
-              fillColor: Colors.grey[200],
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide.none,
+            itemBuilder: (context) => [
+              const PopupMenuItem<String>(
+                value: 'Login',
+                child: Text('Log in', style: TextStyle(color: Colors.black)),
+              ),
+              const PopupMenuItem<String>(
+                value: 'Sign Up',
+                child: Text('Sign Up', style: TextStyle(color: Colors.black)),
+              ),
+            ],
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Container(
+                width: 200,
+                height: 40,
+                child: TextField(
+                  controller: searchController,
+                  onChanged: (value) {
+                    searchQuery = value;
+                    searchArtists(searchQuery);
+                  },
+                  decoration: InputDecoration(
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                    hintText: 'Search',
+                    prefixIcon: Icon(Icons.search, size: 20),
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
-    ),
-
-    if (isLoading)
-      const Expanded(
-        child: Center(child: CircularProgressIndicator(color: Colors.black)),
-      )
-    else if (artistList.isEmpty)
-      Expanded(
-        child: Center(
-          child: Text('No artist found'),
-        ),
-      )
-    else
-      Expanded(
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          children: [
-            if (otherArtists.isNotEmpty) ...[
-              Text(
-                "Artist",
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
+          if (isLoading)
+            const Expanded(
+              child:
+                  Center(child: CircularProgressIndicator(color: Colors.black)),
+            )
+          else if (artistList.isEmpty)
+            Expanded(
+              child: Center(
+                child: Text('No artist found'),
               ),
-              const SizedBox(height: 8),
-              ...otherArtists.map((artist) => artistCard(artist, false)),
-            ]
-          ],
-        ),
+            )
+          else
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                children: [
+                  if (otherArtists.isNotEmpty) ...[
+                    Text(
+                      "Artist",
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ...otherArtists.map((artist) => artistCard(artist, false)),
+                  ]
+                ],
+              ),
+            ),
+        ],
       ),
-  ],
-),
-     bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
+        onTap: (index) async {
           if (index == 2 || index == 3) {
             showDialog(
               context: context,
               builder: (context) {
                 return AlertDialog(
-                  titlePadding: EdgeInsets.only(
-                      top: 16, left: 16, right: 8), // เพิ่ม padding สวยงาม
+                  titlePadding: EdgeInsets.only(top: 16, left: 16, right: 8),
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -283,7 +278,8 @@ body: Column(
                           MaterialPageRoute(builder: (context) => LoginPage()),
                         );
                       },
-                      child: Text('Log in', style: TextStyle(color: Colors.black)),
+                      child:
+                          Text('Log in', style: TextStyle(color: Colors.black)),
                     ),
                     TextButton(
                       onPressed: () {
@@ -294,7 +290,8 @@ body: Column(
                               builder: (context) => RegisterPageUser()),
                         );
                       },
-                      child: Text('Sign up', style: TextStyle(color: Colors.black)),
+                      child: Text('Sign up',
+                          style: TextStyle(color: Colors.black)),
                     ),
                   ],
                 );
@@ -304,15 +301,17 @@ body: Column(
             setState(() {
               _currentIndex = index;
             });
-
+            final box = GetStorage();
             switch (index) {
               case 0:
+                await box.write('lastVisitedPage', 'home');
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => HomeUser()),
                 );
                 break;
               case 1:
+                await box.write('lastVisitedPage', 'artistuser');
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => ArtistUserPage()),
@@ -381,59 +380,63 @@ body: Column(
               iconSize: 32,
               icon: Icon(
                 isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: isFavorite ? const Color.fromARGB(255, 182, 75, 68) : null,
+                color:
+                    isFavorite ? const Color.fromARGB(255, 182, 75, 68) : null,
               ),
               onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  titlePadding: EdgeInsets.only(
-                      top: 16, left: 16, right: 8), // เพิ่ม padding สวยงาม
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Notification',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      titlePadding: EdgeInsets.only(
+                          top: 16, left: 16, right: 8), // เพิ่ม padding สวยงาม
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Notification',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.close),
+                            splashRadius: 20,
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
                       ),
-                      IconButton(
-                        icon: Icon(Icons.close),
-                        splashRadius: 20,
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  ),
-                  content: Text('กรุณาเข้าสู่ระบบก่อน'),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => LoginPage()),
-                        );
-                      },
-                      child: Text('Log in', style: TextStyle(color: Colors.black)),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => RegisterPageUser()),
-                        );
-                      },
-                      child: Text('Sign up', style: TextStyle(color: Colors.black)),
-                    ),
-                  ],
+                      content: Text('กรุณาเข้าสู่ระบบก่อน'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => LoginPage()),
+                            );
+                          },
+                          child: Text('Log in',
+                              style: TextStyle(color: Colors.black)),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => RegisterPageUser()),
+                            );
+                          },
+                          child: Text('Sign up',
+                              style: TextStyle(color: Colors.black)),
+                        ),
+                      ],
+                    );
+                  },
                 );
               },
-            );
-          },
             ),
           ],
         ),

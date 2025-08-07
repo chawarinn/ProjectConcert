@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:project_concert_closeiin/config/config.dart';
@@ -613,6 +614,8 @@ if (!isValidText(priceCtl.text) ||
                     ),
                     TextButton(
                       onPressed: () {
+                         final box = GetStorage();
+                        box.erase();
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),

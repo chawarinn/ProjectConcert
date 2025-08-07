@@ -59,6 +59,8 @@ dependencies:
   webview_flutter: ^4.2.2
   firebase_auth: ^4.2.3
   flutter_launcher_icons: ^0.14.4
+  shared_preferences: ^2.2.2
+  get_storage: ^2.1.1
   
 
 

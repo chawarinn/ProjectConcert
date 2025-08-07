@@ -11,6 +11,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:project_concert_closeiin/config/config.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
 
 class HomeAdmin extends StatefulWidget {
@@ -118,6 +119,8 @@ class _HomeAdminState extends State<HomeAdmin> {
                     ),
                     TextButton(
                      onPressed: () {
+                        final box = GetStorage();
+                        box.erase();
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
@@ -134,60 +137,55 @@ class _HomeAdminState extends State<HomeAdmin> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
+       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          switch (index) {
-            case 0:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => HomeAdmin(userId: widget.userId)),
-              );
-              break;
-            case 1:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => AdminEvent(userId: widget.userId)),
-              );
-              break;
-            case 2:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        AdminArtistPage(userId: widget.userId)),
-              );
-              break;
-            case 3:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        AdminHotelPage(userId: widget.userId)),
-              );
-              break;
-            case 4:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => AdminRes(userId: widget.userId)),
-              );
-              break;
-            case 5:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        ProfileAdmin(userId: widget.userId)),
-              );
-              break;
-          }
-        },
+        onTap: (index) async {
+  final box = GetStorage();
+  switch (index) {
+    case 0:
+      await box.write('lastVisitedPage', 'home');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeAdmin(userId: widget.userId)),
+      );
+      break;
+      case 1:
+      await box.write('lastVisitedPage', 'event');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) =>  AdminEvent(userId: widget.userId)),
+      );
+      break;
+    case 2:
+      await box.write('lastVisitedPage', 'addartist');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) =>AdminArtistPage(userId: widget.userId)),
+      );
+      break;
+     case 3:
+      await box.write('lastVisitedPage', 'hotel');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) =>AdminHotelPage(userId: widget.userId)),
+      );
+      break;
+     case 4:
+      await box.write('lastVisitedPage', 'res');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) =>AdminRes(userId: widget.userId)),
+      );
+      break;
+       case 5:
+      await box.write('lastVisitedPage', 'profileAdmin');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) =>ProfileAdmin(userId: widget.userId)),
+      );
+      break;
+  }
+},
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.white,

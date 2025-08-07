@@ -2,6 +2,7 @@ import 'dart:core';
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:project_concert_closeiin/Page/Admin/HomeAdmin.dart';
@@ -32,7 +33,6 @@ class _LoginPageState extends State<LoginPage> {
   bool _obscurePassword = true;
   bool _isLoading = false;
 
-
   @override
   void initState() {
     super.initState();
@@ -44,36 +44,37 @@ class _LoginPageState extends State<LoginPage> {
       log(err.toString());
     });
   }
-  void _showLoading() {
-  setState(() {
-    _isLoading = true;
-  });
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (context) {
-      return const Center(
-        child: CircularProgressIndicator(color: Colors.black),
-      );
-    },
-  );
-}
 
-void _hideLoading() {
-  if (_isLoading) {
-    Navigator.of(context, rootNavigator: true).pop(); 
+  void _showLoading() {
     setState(() {
-      _isLoading = false;
+      _isLoading = true;
     });
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return const Center(
+          child: CircularProgressIndicator(color: Colors.black),
+        );
+      },
+    );
   }
-}
+
+  void _hideLoading() {
+    if (_isLoading) {
+      Navigator.of(context, rootNavigator: true).pop();
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(201, 151, 187, 1),
-         title: Transform.translate(
+        title: Transform.translate(
           offset: const Offset(-20, 0),
           child: Text(
             'Login',
@@ -313,7 +314,11 @@ void _hideLoading() {
       setState(() {
         text = '';
       });
-       _hideLoading();
+      _hideLoading();
+
+      final box = GetStorage();
+      box.write('userId', users.user.userId);
+      box.write('typeId', users.user.typeId);
 
       switch (users.user.typeId) {
         case 1:
@@ -326,7 +331,7 @@ void _hideLoading() {
           );
           break;
         case 2:
-         Navigator.pushAndRemoveUntil(
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
               builder: (context) => HomeHotel(userId: users.user.userId),
@@ -335,7 +340,7 @@ void _hideLoading() {
           );
           break;
         case 3:
-         Navigator.pushAndRemoveUntil(
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
               builder: (context) => Homerestaurant(userId: users.user.userId),
@@ -353,7 +358,7 @@ void _hideLoading() {
           );
           break;
         case 5:
-         Navigator.pushAndRemoveUntil(
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
               builder: (context) => HomeAdmin(userId: users.user.userId),
@@ -363,58 +368,58 @@ void _hideLoading() {
           break;
       }
     } on SocketException {
-    _hideLoading();
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Notification'),
-          content: Text(
-            'อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ',
-            style: GoogleFonts.poppins(),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK', style: TextStyle(color: Colors.black)),
+      _hideLoading();
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Notification'),
+            content: Text(
+              'อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ',
+              style: GoogleFonts.poppins(),
             ),
-          ],
-        );
-      },
-    );
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK', style: TextStyle(color: Colors.black)),
+              ),
+            ],
+          );
+        },
+      );
 
-    setState(() {
-      text = 'ไม่มีการเชื่อมต่ออินเทอร์เน็ต';
-    });
-  } catch (error) {
-    log(error.toString());
-    _hideLoading();
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Notification'),
-          content: Text(
-            'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
-            style: GoogleFonts.poppins(),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK', style: TextStyle(color: Colors.black)),
+      setState(() {
+        text = 'ไม่มีการเชื่อมต่ออินเทอร์เน็ต';
+      });
+    } catch (error) {
+      log(error.toString());
+      _hideLoading();
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Notification'),
+            content: Text(
+              'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
+              style: GoogleFonts.poppins(),
             ),
-          ],
-        );
-      },
-    );
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK', style: TextStyle(color: Colors.black)),
+              ),
+            ],
+          );
+        },
+      );
 
-    setState(() {
-      text = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
-    });
+      setState(() {
+        text = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+      });
+    }
   }
-}
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'dart:convert';
 import 'dart:math';
 import 'package:http/http.dart' as http;
@@ -411,7 +412,7 @@ data.sort((a, b) => a['distance'].compareTo(b['distance']));
       ),
  bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
+        onTap: (index) async {
           if (index == 2 || index == 3) {
             showDialog(
               context: context,
@@ -467,14 +468,17 @@ data.sort((a, b) => a['distance'].compareTo(b['distance']));
               _currentIndex = index;
             });
 
+             final box = GetStorage();
             switch (index) {
               case 0:
+                await box.write('lastVisitedPage', 'home');
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => HomeUser()),
                 );
                 break;
               case 1:
+                await box.write('lastVisitedPage', 'artistuser');
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => ArtistUserPage()),

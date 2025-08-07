@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:project_concert_closeiin/Page/Login.dart';
 import 'package:project_concert_closeiin/Page/RegisterUser.dart';
 import 'package:project_concert_closeiin/Page/User/HomeUser.dart';
@@ -745,7 +746,7 @@ class _HoteluserState extends State<Hoteluser> {
       ),
                 bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
+        onTap: (index) async {
           if (index == 2 || index == 3) {
             showDialog(
               context: context,
@@ -801,14 +802,17 @@ class _HoteluserState extends State<Hoteluser> {
               _currentIndex = index;
             });
 
+            final box = GetStorage();
             switch (index) {
               case 0:
+                await box.write('lastVisitedPage', 'home');
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => HomeUser()),
                 );
                 break;
               case 1:
+                await box.write('lastVisitedPage', 'artistuser');
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => ArtistUserPage()),

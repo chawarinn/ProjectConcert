@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get_storage/get_storage.dart';
 import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
@@ -54,7 +55,7 @@ class _HomeUserState extends State<HomeUser> {
           isLoading = false;
         });
       } else {
-          showErrorDialog('ไม่สามารถโหลดข้อมูลอีเว้นท์ได้ กรุณาลองใหม่อีกครั้ง');
+        showErrorDialog('ไม่สามารถโหลดข้อมูลอีเว้นท์ได้ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (e) {
       showErrorDialog('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ');
@@ -79,23 +80,22 @@ class _HomeUserState extends State<HomeUser> {
       showErrorDialog('อินเทอร์เน็ตขัดข้อง กรุณาตรวจสอบการเชื่อมต่อ');
     }
   }
-void showErrorDialog(String message) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text('Notification'),
-      content: Text(message),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text('OK', style: TextStyle(color: Colors.black)),
-        ),
-      ],
-    ),
-  );
-}
 
-  
+  void showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Notification'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('OK', style: TextStyle(color: Colors.black)),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +143,7 @@ void showErrorDialog(String message) {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
+        onTap: (index) async {
           if (index == 2 || index == 3) {
             showDialog(
               context: context,
@@ -200,15 +200,17 @@ void showErrorDialog(String message) {
             setState(() {
               _currentIndex = index;
             });
-
+            final box = GetStorage();
             switch (index) {
               case 0:
+                await box.write('lastVisitedPage', 'home');
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => HomeUser()),
                 );
                 break;
               case 1:
+                await box.write('lastVisitedPage', 'artistuser');
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => ArtistUserPage()),
