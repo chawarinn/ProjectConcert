@@ -5,13 +5,13 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:project_concert_closeiin/Page/Home.dart';
 import 'package:project_concert_closeiin/Page/Member/HomeMember.dart';
 import 'package:project_concert_closeiin/Page/Member/ProfileMember.dart';
+import 'package:project_concert_closeiin/Page/Member/RoomshareDetail.dart';
 import 'package:project_concert_closeiin/Page/Member/artist.dart';
 import 'package:project_concert_closeiin/config/config.dart';
 import 'package:project_concert_closeiin/config/internet_config.dart';
@@ -36,7 +36,6 @@ class _NotificationPageState extends State<NotificationPage> {
   StreamSubscription<DatabaseEvent>? _subscription;
 
   @override
-  @override
   void initState() {
     super.initState();
 
@@ -48,7 +47,6 @@ class _NotificationPageState extends State<NotificationPage> {
       log(err.toString());
     });
 
-    // ✅ ซ่อน loading หลัง 1 วินาที (แสดงครั้งเดียว)
     Future.delayed(Duration(seconds: 1), () {
       if (mounted) {
         setState(() {
@@ -108,19 +106,18 @@ class _NotificationPageState extends State<NotificationPage> {
             }
           }
         });
-
-        // 🔽 จัดเรียง
         requests.sort((a, b) {
-          final statusA = a['status'] ?? '';
-          final statusB = b['status'] ?? '';
+          if (a['userReqID'] == widget.userId &&
+              b['userReqID'] != widget.userId) {
+            return -1;
+          }
+          if (a['userReqID'] != widget.userId &&
+              b['userReqID'] == widget.userId) {
+            return 1;
+          }
           final updatedA = a['updatedAt'] ?? 0;
           final updatedB = b['updatedAt'] ?? 0;
-
-          if (updatedA != updatedB) return updatedB.compareTo(updatedA);
-          if (statusA == 'accepted' && statusB == 'cancelled') return -1;
-          if (statusA == 'cancelled' && statusB == 'accepted') return 1;
-
-          return b['key'].compareTo(a['key']);
+          return updatedB.compareTo(updatedA);
         });
 
         setState(() {
@@ -141,24 +138,15 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 
   List<Map<String, dynamic>> get filteredRequests {
-    final filtered = roomRequests.where((r) {
-      final isSelfRequest = r['userReqID'] == widget.userId;
-      final status = r['status'];
-      if (isSelfRequest && (status == null || status == 'request')) {
-        return false;
-      }
-      return true;
-    }).toList();
-
     if (selectedTab == 'Requests') {
-      return filtered
+      return roomRequests
           .where((r) => r['status'] == null || r['status'] == 'request')
           .toList();
     } else if (selectedTab == 'Accepted') {
-      return filtered.where((r) => r['status'] == 'accepted').toList();
+      return roomRequests.where((r) => r['status'] == 'accepted').toList();
     }
 
-    return filtered;
+    return roomRequests;
   }
 
   @override
@@ -189,8 +177,6 @@ class _NotificationPageState extends State<NotificationPage> {
                     ),
                     TextButton(
                       onPressed: () {
-                              final box = GetStorage();
-                        box.erase();
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => homeLogoPage()),
@@ -209,39 +195,42 @@ class _NotificationPageState extends State<NotificationPage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) async {
-  final box = GetStorage();
-  switch (index) {
-    case 0:
-      await box.write('lastVisitedPage', 'home');
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Homemember(userId: widget.userId)),
-      );
-      break;
-    case 1:
-      await box.write('lastVisitedPage', 'artist');
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => ArtistPage(userId: widget.userId)),
-      );
-      break;
-    case 2:
-      await box.write('lastVisitedPage', 'notification');
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => NotificationPage(userId: widget.userId)),
-      );
-      break;
-    case 3:
-      await box.write('lastVisitedPage', 'profile');
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => ProfileMember(userId: widget.userId)),
-      );
-      break;
-  }
-},
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+          switch (index) {
+            case 0:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Homemember(userId: widget.userId)),
+              );
+              break;
+            case 1:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ArtistPage(userId: widget.userId)),
+              );
+              break;
+            case 2:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        NotificationPage(userId: widget.userId)),
+              );
+              break;
+            case 3:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ProfileMember(userId: widget.userId)),
+              );
+              break;
+          }
+        },
         backgroundColor: Color.fromRGBO(201, 151, 187, 1),
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.white,
@@ -444,14 +433,51 @@ class RoomShareRequestCard extends StatelessWidget {
                   ),
                 ]
               ] else ...[
-                Text(
-                  'Do You Want Match Room Share ?',
-                  softWrap: true,
-                        maxLines: null,
-                        overflow: TextOverflow.visible,
-                  style: GoogleFonts.poppins(
-                      fontSize: 14, fontWeight: FontWeight.bold),
-                ),
+                if (request['userReqID'] == userId) ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Your request has been sent',
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Roomsharedetail(
+                                userId: userId,
+                                roomshareID: request['roomshareID'],
+                                fromProfile: false,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          'ดูรายละเอียด',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ] else ...[
+                  Text(
+                    'Do You Want Match Room Share ?',
+                    softWrap: true,
+                    maxLines: null,
+                    overflow: TextOverflow.visible,
+                    style: GoogleFonts.poppins(
+                        fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                ]
               ],
               if (request['userReqID'] != userId)
                 Row(
@@ -622,6 +648,172 @@ class RoomShareRequestCard extends StatelessWidget {
                     ),
                   ],
                 )
+              else if (request['userReqID'] == userId)
+                FutureBuilder<List<Map<String, dynamic>>>(
+                  future: () async {
+                    final roomshareID = request['roomshareID'];
+
+                    final response = await http.get(
+                      Uri.parse(
+                          '$API_ENDPOINT/roomshareNoti?roomshareID=$roomshareID'),
+                    );
+
+                    if (response.statusCode == 200) {
+                      List<Map<String, dynamic>> data =
+                          (json.decode(response.body) as List)
+                              .cast<Map<String, dynamic>>()
+                              .where((room) => room['status'] == "0")
+                              .toList();
+
+                      data.sort((a, b) {
+                        final updatedA = a['updatedAt'] ?? 0;
+                        final updatedB = b['updatedAt'] ?? 0;
+                        return updatedB.compareTo(updatedA);
+                      });
+
+                      return data;
+                    } else {
+                      throw Exception('โหลดข้อมูลล้มเหลว');
+                    }
+                  }(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text('เกิดข้อผิดพลาดในการโหลดข้อมูลห้อง');
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return Text('ไม่พบข้อมูลห้องที่คุณไปขอแชร์');
+                    }
+
+                    final room = snapshot.data!.first;
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: CircleAvatar(
+                            radius: 30,
+                            backgroundImage: NetworkImage(
+                              room['photo'] ??
+                                  'https://via.placeholder.com/150',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(room['name'] ?? '-',
+                                      style: GoogleFonts.poppins(fontSize: 20)),
+                                  SizedBox(width: 6),
+                                  Icon(Icons.verified,
+                                      color: Colors.blueAccent, size: 20),
+                                ],
+                              ),
+                              Text(
+                                  "โปรดติดต่อ : ${room['shareContact'] ?? '-'}",
+                                  style: GoogleFonts.poppins()),
+                              Text("อีเว้นท์ : ${room['eventName'] ?? '-'}",
+                                  style: GoogleFonts.poppins()),
+                              Text(
+                                  "เพศ : ${room['gender'] == 'Male' ? 'ชาย' : room['gender'] == 'Female' ? 'หญิง' : room['gender'] == 'Prefer not to say' ? 'ไม่ต้องการระบุ' : '-'}",
+                                  style: GoogleFonts.poppins()),
+                              Text(
+                                  "ต้องการแชร์เพื่อนเพศ : ${room['gender_restrictions'] == 'Male' ? 'ชาย' : room['gender_restrictions'] == 'Female' ? 'หญิง' : room['gender_restrictions'] == 'Prefer not to say' ? 'ไม่ต้องการระบุ' : '-'}",
+                                  style: GoogleFonts.poppins()),
+                              Text("ประเภทห้อง : ${room['typeRoom'] ?? '-'}",
+                                  style: GoogleFonts.poppins()),
+                              Text(
+                                  "ราคาห้องต่อคนที่แชร์ : ${room['price'] ?? '-'} บาท",
+                                  style: GoogleFonts.poppins()),
+                              Text("อื่นๆ : ${room['note'] ?? '-'}",
+                                  style: GoogleFonts.poppins()),
+                              Text(
+                                'ศิลปิน : ${request['favoriteArtists'].isNotEmpty ? request['favoriteArtists'].join(', ') : '-'}',
+                                style: GoogleFonts.poppins(fontSize: 15),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      final confirmCancel =
+                                          await showDialog<bool>(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: Text('Notification'),
+                                          content: Text(
+                                              'คุณต้องการยกเลิกคำขอนี้หรือไม่?'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context)
+                                                      .pop(false),
+                                              child: Text('No',
+                                                  style: TextStyle(
+                                                      color: Colors.black)),
+                                            ),
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context)
+                                                      .pop(true),
+                                              child: Text('Yes',
+                                                  style: TextStyle(
+                                                      color: Colors.black)),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+
+                                      if (confirmCancel == true) {
+                                        try {
+                                          await FirebaseDatabase.instance
+                                              .ref(
+                                                  'roomshare_requests/${request['key']}')
+                                              .remove();
+
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content: Text(
+                                                    "ยกเลิกคำขอเรียบร้อยแล้ว")),
+                                          );
+                                        } catch (e) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content: Text(
+                                                    "เกิดข้อผิดพลาดในการยกเลิกคำขอ")),
+                                          );
+                                        }
+                                      }
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Color(0xFFC997BB),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 24),
+                                    ),
+                                    child: Text('Cancel Request',
+                                        style: TextStyle(color: Colors.black)),
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                )
               else
                 FutureBuilder<List<Map<String, dynamic>>>(
                   future: fetchRoomShares(),
@@ -674,9 +866,9 @@ class RoomShareRequestCard extends StatelessWidget {
                               Text("อื่นๆ : ${room['note'] ?? '-'}",
                                   style: GoogleFonts.poppins()),
                               Text(
-                            'ศิลปิน : ${artists.isNotEmpty ? artists.join(', ') : '-'}',
-                            style: GoogleFonts.poppins(fontSize: 15),
-                          ),
+                                'ศิลปิน : ${artists.isNotEmpty ? artists.join(', ') : '-'}',
+                                style: GoogleFonts.poppins(fontSize: 15),
+                              ),
                               if (status == 'cancelled' &&
                                   request['userReqID'] == userId)
                                 Row(
